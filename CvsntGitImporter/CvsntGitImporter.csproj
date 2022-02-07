@@ -1,147 +1,28 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A32E83AB-4D2B-4EB1-B49D-7CDF9286435B}</ProjectGuid>
+    <TargetFramework>net48</TargetFramework>
     <OutputType>Exe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CTC.CvsntGitImporter</RootNamespace>
-    <AssemblyName>CvsntGitImporter</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
     <LangVersion>default</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AutoBranchResolver.cs" />
-    <Compile Include="BranchStreamCollection.cs" />
-    <Compile Include="Commit.cs" />
-    <Compile Include="CommitBuilder.cs" />
-    <Compile Include="CommitComparer.cs" />
-    <Compile Include="CommitListExtensions.cs" />
-    <Compile Include="CommitMoveRecord.cs" />
-    <Compile Include="CommitPlayer.cs" />
-    <Compile Include="Config.cs" />
-    <Compile Include="Cvs.cs" />
-    <Compile Include="CvsException.cs" />
-    <Compile Include="CvsIgnoreFile.cs" />
-    <Compile Include="CvsRepository.cs" />
-    <Compile Include="CvsRepositoryCache.cs" />
-    <Compile Include="ExclusionFilter.cs" />
-    <Compile Include="FileCollection.cs" />
-    <Compile Include="FileContent.cs" />
-    <Compile Include="FileContentData.cs" />
-    <Compile Include="FuncExtensions.cs" />
-    <Compile Include="FileInfo.cs" />
-    <Compile Include="FileRevision.cs" />
-    <Compile Include="CvsLogParser.cs" />
-    <Compile Include="CvsLogReader.cs" />
-    <Compile Include="GitConfigOption.cs" />
-    <Compile Include="GitRepo.cs" />
-    <Compile Include="HashSetExtensions.cs" />
-    <Compile Include="IConfig.cs" />
-    <Compile Include="ICvsRepository.cs" />
-    <Compile Include="ILogger.cs" />
-    <Compile Include="Importer.cs" />
-    <Compile Include="ImportFailedException.cs" />
-    <Compile Include="ImportProgress.cs" />
-    <Compile Include="InclusionMatcher.cs" />
-    <Compile Include="ITagResolver.cs" />
-    <Compile Include="ITagResolverExtensions.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="LogLevel.cs" />
-    <Compile Include="ManualBranchResolver.cs" />
-    <Compile Include="MergeResolver.cs" />
-    <Compile Include="OneToManyDictionary.cs" />
-    <Compile Include="ParseException.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Renamer.cs" />
-    <Compile Include="RepositoryConsistencyException.cs" />
-    <Compile Include="RepositoryBranchState.cs" />
-    <Compile Include="RepositoryState.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
+    <Compile Update="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="RenameRule.cs" />
-    <Compile Include="AutoTagResolverBase.cs" />
-    <Compile Include="Revision.cs" />
-    <Compile Include="SplitMultiBranchCommits.cs" />
-    <Compile Include="Switches.cs" />
-    <Compile Include="TagResolutionException.cs" />
-    <Compile Include="TagResolver.cs" />
-    <Compile Include="TimeSpanExtensions.cs" />
-    <Compile Include="UnixTime.cs" />
-    <Compile Include="User.cs" />
-    <Compile Include="UserMap.cs" />
-    <Compile Include="Utils\AttributeExtensions.cs" />
-    <Compile Include="Utils\CommandLineArgsException.cs" />
-    <Compile Include="Utils\IEnumerableExtensions.cs" />
-    <Compile Include="Utils\SwitchCollection.cs" />
-    <Compile Include="Utils\SwitchDefAttribute.cs" />
-    <Compile Include="Utils\SwitchesDefBase.cs" />
-    <Compile Include="Utils\SwitchesParser.cs" />
-    <Compile Include="Utils\SwitchHiddenAttribute.cs" />
-    <Compile Include="Utils\SwitchInfo.cs" />
-    <Compile Include="Utils\TempDir.cs" />
-    <Compile Include="Utils\TypeExtensions.cs" />
-    <Compile Include="Win32\WinError.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\ExtraHelp.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
+    <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+  </ItemGroup>
 </Project>
