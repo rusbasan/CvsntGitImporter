@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CvsntGitImporter", "CvsntGitImporter.csproj", "{A32E83AB-4D2B-4EB1-B49D-7CDF9286435B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CvsntGitImporter", "CvsntGitImporter\CvsntGitImporter.csproj", "{A32E83AB-4D2B-4EB1-B49D-7CDF9286435B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CvsntGitImporterTest", "CvsGitTest\CvsntGitImporterTest.csproj", "{2BD43735-3B24-4D23-8CE7-886D6B446B03}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CvsntGitImporterTest", "CvsntGitImporterTest\CvsntGitImporterTest.csproj", "{2BD43735-3B24-4D23-8CE7-886D6B446B03}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{20DBA5F0-A8D9-4F55-ABFA-3BB68A4647D5}"
 	ProjectSection(SolutionItems) = preProject

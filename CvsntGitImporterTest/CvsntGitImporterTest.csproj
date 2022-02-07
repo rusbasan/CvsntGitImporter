@@ -115,7 +115,7 @@
     <Compile Include="Utils\RhinoMocksExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CvsntGitImporter.csproj">
+    <ProjectReference Include="..\CvsntGitImporter\CvsntGitImporter.csproj">
       <Project>{a32e83ab-4d2b-4eb1-b49d-7cdf9286435b}</Project>
       <Name>CvsntGitImporter</Name>
     </ProjectReference>
