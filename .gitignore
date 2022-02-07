@@ -118,3 +118,7 @@ GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
 *.playlist
+
+# Visual Studio and JetBrains Rider folders
+/.vs
+/.idea
