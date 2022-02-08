@@ -1,6 +1,6 @@
 ﻿/*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -17,28 +17,50 @@ namespace CTC.CvsntGitImporter.TestCode
 		[TestMethod]
 		public void FromDateTime_PureDate()
 		{
-			var date = new DateTime(2012, 12, 1, 0, 0, 0, DateTimeKind.Unspecified);
+			var expectedUnixTime = "1354320000 +0000";
+
+			var date = new DateTime(2012, 12, 1, 0, 0, 0, DateTimeKind.Utc);
 			var unix = UnixTime.FromDateTime(date);
 
-			Assert.AreEqual(unix, "1354320000 +0000");
+			Assert.AreEqual(unix, expectedUnixTime);
+
+			var dateLocal = date.ToLocalTime();
+			var unixFromLocal = UnixTime.FromDateTime(dateLocal);
+
+			Assert.AreEqual(unixFromLocal, expectedUnixTime);
+
 		}
 
 		[TestMethod]
 		public void FromDateTime_DateAndTime()
 		{
-			var date = new DateTime(2012, 12, 1, 13, 45, 12, DateTimeKind.Unspecified);
+			var expectedUnixTime = "1354369512 +0000";
+
+			var date = new DateTime(2012, 12, 1, 13, 45, 12, DateTimeKind.Utc);
 			var unix = UnixTime.FromDateTime(date);
 
-			Assert.AreEqual(unix, "1354369512 +0000");
+			Assert.AreEqual(unix, expectedUnixTime);
+
+			var dateLocal = date.ToLocalTime();
+			var unixFromLocal = UnixTime.FromDateTime(dateLocal);
+
+			Assert.AreEqual(unixFromLocal, expectedUnixTime);
 		}
 
 		[TestMethod]
 		public void FromDateTime_DateAndTimeWithMilliseconds()
 		{
-			var date = new DateTime(2012, 12, 1, 13, 45, 12, 500, DateTimeKind.Unspecified);
+			var expectedUnixTime = "1354369512 +0000";
+
+			var date = new DateTime(2012, 12, 1, 13, 45, 12, 500, DateTimeKind.Utc);
 			var unix = UnixTime.FromDateTime(date);
 
-			Assert.AreEqual(unix, "1354369512 +0000");
+			Assert.AreEqual(unix, expectedUnixTime);
+
+			var dateLocal = date.ToLocalTime();
+			var unixFromLocal = UnixTime.FromDateTime(dateLocal);
+
+			Assert.AreEqual(unixFromLocal, expectedUnixTime);
 		}
 	}
 }

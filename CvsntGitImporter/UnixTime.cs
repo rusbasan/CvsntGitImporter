@@ -1,9 +1,10 @@
 ﻿/*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
 using System;
+using System.Diagnostics;
 
 namespace CTC.CvsntGitImporter
 {
@@ -14,7 +15,11 @@ namespace CTC.CvsntGitImporter
 		/// </summary>
 		public static string FromDateTime(DateTime dateTime)
 		{
-			return String.Format("{0} +0000", (long)(dateTime - new DateTime(1970, 1, 1).ToLocalTime()).TotalSeconds);
+			Debug.Assert(
+				dateTime.Kind != DateTimeKind.Unspecified,
+				"Unspecified times lead to inconsistent results.");
+
+			return String.Format("{0} +0000", (long)(dateTime.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds);
 		}
 	}
 }
