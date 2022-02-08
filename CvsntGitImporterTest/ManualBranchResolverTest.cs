@@ -1,13 +1,12 @@
 ﻿/*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
+using Moq;
 
 namespace CTC.CvsntGitImporter.TestCode
 {
@@ -17,35 +16,35 @@ namespace CTC.CvsntGitImporter.TestCode
 	[TestClass]
 	public class ManualBranchResolverTest
 	{
-		private ILogger m_log;
-		private ITagResolver m_tagResolver;
+		private Mock<ILogger> m_log;
+		private Mock<ITagResolver> m_tagResolver;
 		private RenameRule m_rule;
 
 		public ManualBranchResolverTest()
 		{
-			m_log = MockRepository.GenerateStub<ILogger>();
-			m_tagResolver = MockRepository.GenerateStub<ITagResolver>();
+			m_log = new Mock<ILogger>();
+			m_tagResolver = new Mock<ITagResolver>();
 			m_rule = new RenameRule(@"^(.*)", "$1-branchpoint");
 		}
 
 		[TestMethod]
 		public void Resolve_BranchpointTagExists()
 		{
-			var fallback = MockRepository.GenerateMock<ITagResolver>();
+			var fallback = new Mock<ITagResolver>();
 
 			var commit1 = new Commit("c1");
 			var resolvedTags = new Dictionary<string, Commit>()
 			{
 				{ "branch-branchpoint", commit1 },
 			};
-			m_tagResolver.Stub(tr => tr.ResolvedTags).Return(resolvedTags);
+			m_tagResolver.Setup(tr => tr.ResolvedTags).Returns(resolvedTags);
  
-			var resolver = new ManualBranchResolver(m_log, fallback, m_tagResolver, m_rule);
+			var resolver = new ManualBranchResolver(m_log.Object, fallback.Object, m_tagResolver.Object, m_rule);
 			bool result = resolver.Resolve(new[] { "branch" }, new[] { commit1 });
 
 			Assert.IsTrue(result, "Resolved");
 			Assert.AreSame(resolver.ResolvedTags["branch"], commit1);
-			fallback.AssertWasNotCalled(f => f.Resolve(Arg<IEnumerable<string>>.Is.Anything, Arg<IEnumerable<Commit>>.Is.Anything));
+			fallback.Verify(f => f.Resolve(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<Commit>>()), Times.Never);
 		}
 
 		[TestMethod]
@@ -57,15 +56,15 @@ namespace CTC.CvsntGitImporter.TestCode
 				{ "branch", commit1 }
 			};
 
-			var fallback = MockRepository.GenerateMock<ITagResolver>();
-			fallback.Stub(f => f.Resolve(Arg<IEnumerable<string>>.Is.Anything, Arg<IEnumerable<Commit>>.Is.Anything)).Return(true);
-			fallback.Stub(f => f.ResolvedTags).Return(resolvedCommits);
-			fallback.Stub(f => f.Commits).Return(new[] { commit1 });
+			var fallback = new Mock<ITagResolver>();
+			fallback.Setup(f => f.Resolve(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<Commit>>())).Returns(true);
+			fallback.Setup(f => f.ResolvedTags).Returns(resolvedCommits);
+			fallback.Setup(f => f.Commits).Returns(new[] { commit1 });
 
 			var resolvedTags = new Dictionary<string, Commit>();
-			m_tagResolver.Stub(tr => tr.ResolvedTags).Return(resolvedTags);
+			m_tagResolver.Setup(tr => tr.ResolvedTags).Returns(resolvedTags);
  
-			var resolver = new ManualBranchResolver(m_log, fallback, m_tagResolver, m_rule);
+			var resolver = new ManualBranchResolver(m_log.Object, fallback.Object, m_tagResolver.Object, m_rule);
 			bool result = resolver.Resolve(new[] { "branch" }, new[] { commit1 });
 
 			Assert.IsTrue(result, "Resolved");
@@ -77,16 +76,16 @@ namespace CTC.CvsntGitImporter.TestCode
 		{
 			var resolvedCommits = new Dictionary<string, Commit>();
 
-			var fallback = MockRepository.GenerateMock<ITagResolver>();
-			fallback.Stub(f => f.Resolve(Arg<IEnumerable<string>>.Is.Anything, Arg<IEnumerable<Commit>>.Is.Anything)).Return(false);
-			fallback.Stub(f => f.ResolvedTags).Return(resolvedCommits);
-			fallback.Stub(f => f.UnresolvedTags).Return(new[] { "branch" });
-			fallback.Stub(f => f.Commits).Return(Enumerable.Empty<Commit>());
+			var fallback = new Mock<ITagResolver>();
+			fallback.Setup(f => f.Resolve(It.IsAny<IEnumerable<string>>(), It.IsAny<IEnumerable<Commit>>())).Returns(false);
+			fallback.Setup(f => f.ResolvedTags).Returns(resolvedCommits);
+			fallback.Setup(f => f.UnresolvedTags).Returns(new[] { "branch" });
+			fallback.Setup(f => f.Commits).Returns(Enumerable.Empty<Commit>());
 
 			var resolvedTags = new Dictionary<string, Commit>();
-			m_tagResolver.Stub(tr => tr.ResolvedTags).Return(resolvedTags);
+			m_tagResolver.Setup(tr => tr.ResolvedTags).Returns(resolvedTags);
  
-			var resolver = new ManualBranchResolver(m_log, fallback, m_tagResolver, m_rule);
+			var resolver = new ManualBranchResolver(m_log.Object, fallback.Object, m_tagResolver.Object, m_rule);
 			bool result = resolver.Resolve(new[] { "branch" }, Enumerable.Empty<Commit>());
 
 			Assert.IsFalse(result, "Resolved");
@@ -106,15 +105,15 @@ namespace CTC.CvsntGitImporter.TestCode
 				new Commit("c2").WithRevision(f1, "1.2"),
 			};
 
-			var fallback = MockRepository.GenerateMock<ITagResolver>();
+			var fallback = new Mock<ITagResolver>();
 
 			var resolvedTags = new Dictionary<string, Commit>()
 			{
 				{ "branch-branchpoint", commits[2] },
 			};
-			m_tagResolver.Stub(tr => tr.ResolvedTags).Return(resolvedTags);
+			m_tagResolver.Setup(tr => tr.ResolvedTags).Returns(resolvedTags);
  
-			var resolver = new ManualBranchResolver(m_log, fallback, m_tagResolver, m_rule);
+			var resolver = new ManualBranchResolver(m_log.Object, fallback.Object, m_tagResolver.Object, m_rule);
 			bool result = resolver.Resolve(new[] { "branch" }, commits);
 
 			Assert.IsTrue(result, "Resolved");

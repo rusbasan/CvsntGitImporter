@@ -1,14 +1,13 @@
 ﻿/*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CTC.CvsntGitImporter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
+using Moq;
 
 namespace CTC.CvsntGitImporter.TestCode
 {
@@ -37,7 +36,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			var commits = new[] { commit0, commit1, commit2 };
 			var branches = new BranchStreamCollection(commits, new Dictionary<string, Commit>());
 
-			var player = new CommitPlayer(MockRepository.GenerateStub<ILogger>(), branches);
+			var player = new CommitPlayer(new Mock<ILogger>().Object, branches);
 			var result = player.Play().ToList();
 
 			Assert.IsTrue(result.SequenceEqual(commits));
@@ -69,7 +68,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			var branches = new BranchStreamCollection(commits, branchpoints);
 			commit1.MergeFrom = commit2;
 
-			var player = new CommitPlayer(MockRepository.GenerateStub<ILogger>(), branches);
+			var player = new CommitPlayer(new Mock<ILogger>().Object, branches);
 			var result = player.Play().Select(c => c.CommitId).ToList();
 
 			Assert.IsTrue(result.SequenceEqual("id0", "branch0", "id1"));
@@ -87,7 +86,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 			var branches = new BranchStreamCollection(commits, branchpoints);
 
-			var player = new CommitPlayer(MockRepository.GenerateStub<ILogger>(), branches);
+			var player = new CommitPlayer(new Mock<ILogger>().Object, branches);
 			var result = player.Play().Select(c => c.CommitId).ToList();
 
 			Assert.IsTrue(result.SequenceEqual(new[] { "id0", "branch0_0", "branch1_0", "branch0_1", "id1" }));
@@ -105,7 +104,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 			var branches = new BranchStreamCollection(commits, branchpoints);
 
-			var player = new CommitPlayer(MockRepository.GenerateStub<ILogger>(), branches);
+			var player = new CommitPlayer(new Mock<ILogger>().Object, branches);
 			var result = player.Play().Select(c => c.CommitId).ToList();
 
 			Assert.IsTrue(result.SequenceEqual(new[] { "id0", "branch0_0", "branch1_0", "branch0_1", "id1" }));

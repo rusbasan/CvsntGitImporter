@@ -1,14 +1,12 @@
 ﻿/*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using CTC.CvsntGitImporter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
+using Moq;
 
 namespace CTC.CvsntGitImporter.TestCode
 {
@@ -18,13 +16,13 @@ namespace CTC.CvsntGitImporter.TestCode
 	[TestClass]
 	public class MergeResolverTest
 	{
-		private ILogger m_logger;
+		private Mock<ILogger> m_logger;
 		private FileInfo m_file;
 
 		[TestInitialize]
 		public void Setup()
 		{
-			m_logger = MockRepository.GenerateStub<ILogger>();
+			m_logger = new Mock<ILogger>();
 			m_file = new FileInfo("file0");
 		}
 
@@ -32,7 +30,7 @@ namespace CTC.CvsntGitImporter.TestCode
 		public void SingleMerge_NoReordering()
 		{
 			var streams = CreateSingleMerge();
-			var resolver = new MergeResolver(m_logger, streams);
+			var resolver = new MergeResolver(m_logger.Object, streams);
 			resolver.Resolve();
 
 			Assert.IsTrue(streams["MAIN"].ToList().Select(c => c.CommitId).SequenceEqual("initial", "merge"));
@@ -43,7 +41,7 @@ namespace CTC.CvsntGitImporter.TestCode
 		public void SingleMerge_MergesFilledIn()
 		{
 			var streams = CreateSingleMerge();
-			var resolver = new MergeResolver(m_logger, streams);
+			var resolver = new MergeResolver(m_logger.Object, streams);
 			resolver.Resolve();
 
 			Assert.IsTrue(streams["MAIN"].Successor.CommitId == "merge" && streams["MAIN"].Successor.MergeFrom.CommitId == "branch");
@@ -55,7 +53,7 @@ namespace CTC.CvsntGitImporter.TestCode
 		public void MultipleMerges_NoReordering()
 		{
 			var streams = CreateMultipleMerges();
-			var resolver = new MergeResolver(m_logger, streams);
+			var resolver = new MergeResolver(m_logger.Object, streams);
 			resolver.Resolve();
 
 			Assert.IsTrue(streams["MAIN"].ToList().Select(c => c.CommitId).SequenceEqual("initial", "merge1", "merge2"));
@@ -66,7 +64,7 @@ namespace CTC.CvsntGitImporter.TestCode
 		public void MultipleMerges_MergesFilledIn()
 		{
 			var streams = CreateMultipleMerges();
-			var resolver = new MergeResolver(m_logger, streams);
+			var resolver = new MergeResolver(m_logger.Object, streams);
 			resolver.Resolve();
 
 			var main0 = streams["MAIN"];
@@ -83,7 +81,7 @@ namespace CTC.CvsntGitImporter.TestCode
 		public void CrossedMerge_Reordered()
 		{
 			var streams = CreateCrossedMerges();
-			var resolver = new MergeResolver(m_logger, streams);
+			var resolver = new MergeResolver(m_logger.Object, streams);
 			resolver.Resolve();
 
 			Assert.IsTrue(streams["MAIN"].ToList().Select(c => c.CommitId).SequenceEqual("initial", "merge1", "merge2"));
@@ -94,7 +92,7 @@ namespace CTC.CvsntGitImporter.TestCode
 		public void CrossedMerge_MergesFilledIn()
 		{
 			var streams = CreateCrossedMerges();
-			var resolver = new MergeResolver(m_logger, streams);
+			var resolver = new MergeResolver(m_logger.Object, streams);
 			resolver.Resolve();
 
 			var main0 = streams["MAIN"];
@@ -128,7 +126,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 
 			var streams = new BranchStreamCollection(commits, branchpoints);
-			var resolver = new MergeResolver(m_logger, streams);
+			var resolver = new MergeResolver(m_logger.Object, streams);
 			resolver.Resolve();
 
 			Assert.IsTrue(streams["MAIN"].ToList().Select(c => c.CommitId).SequenceEqual("initial1", "initial2", "initial3", "merge1", "merge2"));
@@ -150,7 +148,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 
 			var streams = new BranchStreamCollection(commits, branchpoints);
-			var resolver = new MergeResolver(m_logger, streams);
+			var resolver = new MergeResolver(m_logger.Object, streams);
 			resolver.Resolve();
 
 			Assert.IsTrue(streams["MAIN"].ToList().All(c => c.MergeFrom == null));
@@ -174,7 +172,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 
 			var streams = new BranchStreamCollection(commits, branchpoints);
-			var resolver = new MergeResolver(m_logger, streams);
+			var resolver = new MergeResolver(m_logger.Object, streams);
 			resolver.Resolve();
 
 			Assert.IsTrue(streams["MAIN"].ToList().All(c => c.MergeFrom == null));

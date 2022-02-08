@@ -1,13 +1,12 @@
 ﻿/*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
 using System;
 using System.Linq;
-using CTC.CvsntGitImporter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
+using Moq;
 
 namespace CTC.CvsntGitImporter.TestCode
 {
@@ -21,7 +20,7 @@ namespace CTC.CvsntGitImporter.TestCode
 
 		public CommitBuilderTest()
 		{
-			m_log = MockRepository.GenerateStub<ILogger>();
+			m_log = new Mock<ILogger>().Object;
 		}
 
 		[TestMethod]

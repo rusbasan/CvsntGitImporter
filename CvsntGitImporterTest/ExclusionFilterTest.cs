@@ -1,14 +1,12 @@
 ﻿/*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
+using Moq;
 
 namespace CTC.CvsntGitImporter.TestCode
 {
@@ -19,13 +17,13 @@ namespace CTC.CvsntGitImporter.TestCode
 	public class ExclusionFilterTest
 	{
 		private ILogger m_log;
-		private IConfig m_config;
+		private Mock<IConfig> m_config;
 
 		[TestInitialize]
 		public void Setup()
 		{
-			m_log = MockRepository.GenerateStub<ILogger>();
-			m_config = MockRepository.GenerateStub<IConfig>();
+			m_log = new Mock<ILogger>().Object;
+			m_config = new Mock<IConfig>();
 		}
 
 		[TestMethod]
@@ -34,8 +32,8 @@ namespace CTC.CvsntGitImporter.TestCode
 			var f1 = new FileInfo("file1");
 			var commit = new Commit("c1").WithRevision(f1, "1.1");
 
-			m_config.Stub(c => c.IncludeFile("file1")).Return(true);
-			var filter = new ExclusionFilter(m_log, m_config);
+			m_config.Setup(c => c.IncludeFile("file1")).Returns(true);
+			var filter = new ExclusionFilter(m_log, m_config.Object);
 
 			var commits = filter.Filter(new[] { commit });
 			Assert.AreSame(commits.Single(), commit);
@@ -48,9 +46,9 @@ namespace CTC.CvsntGitImporter.TestCode
 			var f2 = new FileInfo("file2");
 			var commit = new Commit("c1").WithRevision(f1, "1.1").WithRevision(f2, "1.1");
 
-			m_config.Stub(c => c.IncludeFile("file1")).Return(true);
-			m_config.Stub(c => c.IncludeFile("file2")).Return(false);
-			var filter = new ExclusionFilter(m_log, m_config);
+			m_config.Setup(c => c.IncludeFile("file1")).Returns(true);
+			m_config.Setup(c => c.IncludeFile("file2")).Returns(false);
+			var filter = new ExclusionFilter(m_log, m_config.Object);
 
 			var commits = filter.Filter(new[] { commit });
 			Assert.AreNotSame(commits.Single(), commit);
@@ -65,9 +63,9 @@ namespace CTC.CvsntGitImporter.TestCode
 			var f2 = new FileInfo("file2");
 			var commit = new Commit("c1").WithRevision(f1, "1.1").WithRevision(f2, "1.1");
 
-			m_config.Stub(c => c.IncludeFile("file1")).Return(false);
-			m_config.Stub(c => c.IncludeFile("file2")).Return(false);
-			var filter = new ExclusionFilter(m_log, m_config);
+			m_config.Setup(c => c.IncludeFile("file1")).Returns(false);
+			m_config.Setup(c => c.IncludeFile("file2")).Returns(false);
+			var filter = new ExclusionFilter(m_log, m_config.Object);
 
 			var commits = filter.Filter(new[] { commit });
 			Assert.IsFalse(commits.Any());
@@ -81,10 +79,10 @@ namespace CTC.CvsntGitImporter.TestCode
 			var commit1 = new Commit("c1").WithRevision(f1, "1.1").WithRevision(f2, "1.1");
 			var commit2 = new Commit("c2").WithRevision(f1, "1.2");
 
-			m_config.Stub(c => c.IncludeFile("file1")).Return(false);
-			m_config.Stub(c => c.IncludeFile("file2")).Return(false);
-			m_config.Stub(c => c.IsHeadOnly("file1")).Return(true);
-			var filter = new ExclusionFilter(m_log, m_config);
+			m_config.Setup(c => c.IncludeFile("file1")).Returns(false);
+			m_config.Setup(c => c.IncludeFile("file2")).Returns(false);
+			m_config.Setup(c => c.IsHeadOnly("file1")).Returns(true);
+			var filter = new ExclusionFilter(m_log, m_config.Object);
 
 			var commits = filter.Filter(new[] { commit1, commit2 });
 			Assert.IsFalse(commits.Any());
@@ -100,11 +98,11 @@ namespace CTC.CvsntGitImporter.TestCode
 			var commit1 = new Commit("c1").WithRevision(f1, "1.1").WithRevision(f2, "1.1");
 			var commit2 = new Commit("c2").WithRevision(f1, "1.2");
 
-			m_config.Stub(c => c.IncludeFile("file1")).Return(false);
-			m_config.Stub(c => c.IncludeFile("file2")).Return(true);
-			m_config.Stub(c => c.IsHeadOnly("file1")).Return(false);
-			m_config.Stub(c => c.IsHeadOnly("file2")).Return(false);
-			var filter = new ExclusionFilter(m_log, m_config);
+			m_config.Setup(c => c.IncludeFile("file1")).Returns(false);
+			m_config.Setup(c => c.IncludeFile("file2")).Returns(true);
+			m_config.Setup(c => c.IsHeadOnly("file1")).Returns(false);
+			m_config.Setup(c => c.IsHeadOnly("file2")).Returns(false);
+			var filter = new ExclusionFilter(m_log, m_config.Object);
 
 			var commits = filter.Filter(new[] { commit1, commit2 });
 			Assert.AreEqual(commits.Single().CommitId, "c1");
@@ -129,13 +127,13 @@ namespace CTC.CvsntGitImporter.TestCode
 			IEnumerable<Commit> commits = new[] { mainCommit1, mainCommit2, branchCommit1 };
 			var streams = new BranchStreamCollection(commits, branchpoints);
 
-			m_config.Stub(c => c.IncludeFile("file1")).Return(true);
-			m_config.Stub(c => c.IncludeFile("file2")).Return(false);
-			m_config.Stub(c => c.IsHeadOnly("file1")).Return(false);
-			m_config.Stub(c => c.IsHeadOnly("file2")).Return(true);
-			m_config.Stub(c => c.BranchRename).Return(new Renamer());
+			m_config.Setup(c => c.IncludeFile("file1")).Returns(true);
+			m_config.Setup(c => c.IncludeFile("file2")).Returns(false);
+			m_config.Setup(c => c.IsHeadOnly("file1")).Returns(false);
+			m_config.Setup(c => c.IsHeadOnly("file2")).Returns(true);
+			m_config.Setup(c => c.BranchRename).Returns(new Renamer());
 
-			var filter = new ExclusionFilter(m_log, m_config);
+			var filter = new ExclusionFilter(m_log, m_config.Object);
 			commits = filter.Filter(commits).ToListIfNeeded();
 
 			filter.CreateHeadOnlyCommits(new[] { "MAIN" }, streams, AllFiles(f1, f2));
@@ -160,13 +158,13 @@ namespace CTC.CvsntGitImporter.TestCode
 			IEnumerable<Commit> commits = new[] { mainCommit1, branchCommit1, mainCommit2 };
 			var streams = new BranchStreamCollection(commits, branchpoints);
 
-			m_config.Stub(c => c.IncludeFile("file1")).Return(true);
-			m_config.Stub(c => c.IncludeFile("file2")).Return(false);
-			m_config.Stub(c => c.IsHeadOnly("file1")).Return(false);
-			m_config.Stub(c => c.IsHeadOnly("file2")).Return(true);
-			m_config.Stub(c => c.BranchRename).Return(new Renamer());
+			m_config.Setup(c => c.IncludeFile("file1")).Returns(true);
+			m_config.Setup(c => c.IncludeFile("file2")).Returns(false);
+			m_config.Setup(c => c.IsHeadOnly("file1")).Returns(false);
+			m_config.Setup(c => c.IsHeadOnly("file2")).Returns(true);
+			m_config.Setup(c => c.BranchRename).Returns(new Renamer());
 
-			var filter = new ExclusionFilter(m_log, m_config);
+			var filter = new ExclusionFilter(m_log, m_config.Object);
 			commits = filter.Filter(commits).ToListIfNeeded();
 
 			filter.CreateHeadOnlyCommits(new[] { "MAIN", "branch1" }, streams, AllFiles(f1, f2));
@@ -193,13 +191,13 @@ namespace CTC.CvsntGitImporter.TestCode
 			IEnumerable<Commit> commits = new[] { mainCommit1, branchCommit1, mainCommit2, mainCommit3 };
 			var streams = new BranchStreamCollection(commits, branchpoints);
 
-			m_config.Stub(c => c.IncludeFile("file1")).Return(false);
-			m_config.Stub(c => c.IncludeFile("file2")).Return(false);
-			m_config.Stub(c => c.IsHeadOnly("file1")).Return(true);
-			m_config.Stub(c => c.IsHeadOnly("file2")).Return(true);
-			m_config.Stub(c => c.BranchRename).Return(new Renamer());
+			m_config.Setup(c => c.IncludeFile("file1")).Returns(false);
+			m_config.Setup(c => c.IncludeFile("file2")).Returns(false);
+			m_config.Setup(c => c.IsHeadOnly("file1")).Returns(true);
+			m_config.Setup(c => c.IsHeadOnly("file2")).Returns(true);
+			m_config.Setup(c => c.BranchRename).Returns(new Renamer());
 
-			var filter = new ExclusionFilter(m_log, m_config);
+			var filter = new ExclusionFilter(m_log, m_config.Object);
 			commits = filter.Filter(commits).ToListIfNeeded();
 
 			filter.CreateHeadOnlyCommits(new[] { "MAIN", "branch1" }, streams, AllFiles(f1, f2));
@@ -230,14 +228,14 @@ namespace CTC.CvsntGitImporter.TestCode
 			var renamer = new Renamer();
 			renamer.AddRule(new RenameRule(@"^MAIN$", "master"));
 			renamer.AddRule(new RenameRule(@"^branch(\d)", "BRANCH#$1"));
-			m_config.Stub(c => c.BranchRename).Return(renamer);
+			m_config.Setup(c => c.BranchRename).Returns(renamer);
 
-			m_config.Stub(c => c.IncludeFile("file1")).Return(true);
-			m_config.Stub(c => c.IncludeFile("file2")).Return(false);
-			m_config.Stub(c => c.IsHeadOnly("file1")).Return(false);
-			m_config.Stub(c => c.IsHeadOnly("file2")).Return(true);
+			m_config.Setup(c => c.IncludeFile("file1")).Returns(true);
+			m_config.Setup(c => c.IncludeFile("file2")).Returns(false);
+			m_config.Setup(c => c.IsHeadOnly("file1")).Returns(false);
+			m_config.Setup(c => c.IsHeadOnly("file2")).Returns(true);
 
-			var filter = new ExclusionFilter(m_log, m_config);
+			var filter = new ExclusionFilter(m_log, m_config.Object);
 			commits = filter.Filter(commits).ToListIfNeeded();
 
 			filter.CreateHeadOnlyCommits(new[] { "MAIN", "branch1" }, streams, AllFiles(f1, f2));

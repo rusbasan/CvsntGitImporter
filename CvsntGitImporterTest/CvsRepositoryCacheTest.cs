@@ -1,14 +1,13 @@
 ﻿/*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
 using System;
 using System.IO;
-using CTC.CvsntGitImporter;
 using CTC.CvsntGitImporter.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
+using Moq;
 
 namespace CTC.CvsntGitImporter.TestCode
 {
@@ -36,7 +35,7 @@ namespace CTC.CvsntGitImporter.TestCode
 		public void Construct_CreatesDirectoryIfMissing()
 		{
 			var cacheDir = m_temp.GetPath("dir");
-			var cache = new CvsRepositoryCache(cacheDir, MockRepository.GenerateStub<ICvsRepository>());
+			var cache = new CvsRepositoryCache(cacheDir, new Mock<ICvsRepository>().Object);
 
 			Assert.IsTrue(Directory.Exists(cacheDir));
 		}
@@ -50,12 +49,12 @@ namespace CTC.CvsntGitImporter.TestCode
 					author: "fred",
 					commitId: "c1");
 
-			var repo = MockRepository.GenerateMock<ICvsRepository>();
-			repo.Expect(r => r.GetCvsRevision(f)).Return(new FileContent("file.txt", FileContentData.Empty));
-			var cache = new CvsRepositoryCache(m_temp.Path, repo);
+			var repo = new Mock<ICvsRepository>();
+			repo.Setup(r => r.GetCvsRevision(f)).Returns(new FileContent("file.txt", FileContentData.Empty)).Verifiable();
+			var cache = new CvsRepositoryCache(m_temp.Path, repo.Object);
 			cache.GetCvsRevision(f);
 
-			repo.VerifyAllExpectations();
+			repo.VerifyAll();
 		}
 
 		[TestMethod]
@@ -68,17 +67,17 @@ namespace CTC.CvsntGitImporter.TestCode
 					commitId: "c1");
 
 			var contents = new FileContentData(new byte[] { 1, 2, 3, 4 }, 4);
-			var repo1 = MockRepository.GenerateStub<ICvsRepository>();
-			repo1.Stub(r => r.GetCvsRevision(f)).Return(new FileContent("file.txt", contents));
-			var cache1 = new CvsRepositoryCache(m_temp.Path, repo1);
+			var repo1 = new Mock<ICvsRepository>();
+			repo1.Setup(r => r.GetCvsRevision(f)).Returns(new FileContent("file.txt", contents));
+			var cache1 = new CvsRepositoryCache(m_temp.Path, repo1.Object);
 			cache1.GetCvsRevision(f);
 
 			// create a second cache
-			var repo2 = MockRepository.GenerateMock<ICvsRepository>();
-			var cache2 = new CvsRepositoryCache(m_temp.Path, repo1);
+			var repo2 = new Mock<ICvsRepository>();
+			var cache2 = new CvsRepositoryCache(m_temp.Path, repo1.Object);
 			var data = cache2.GetCvsRevision(f);
 
-			repo2.AssertWasNotCalled(r => r.GetCvsRevision(f));
+			repo2.Verify(r => r.GetCvsRevision(f), Times.Never);
 			Assert.AreNotSame(data.Data, contents);
 			Assert.IsTrue(data.Data.Equals(contents));
 		}
