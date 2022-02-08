@@ -1,7 +1,7 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
- */
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
+*/
 
 using System;
 using System.Collections.Generic;
@@ -244,8 +244,14 @@ namespace CTC.CvsntGitImporter
 				int branchIndex = (parts.Length % 2 == 1) ? parts.Length - 1 : parts.Length - 2;
 				if (parts[branchIndex] % 2 == 1)
 				{
-					throw new ArgumentException(String.Format("Invalid revision: '{0}' - the branch index must be even",
+					// Throw an exception unless it's a special vendor branch (1.1.1 or 1.1.1.1) which doesn't follow
+					// the usual rules
+					if (parts.Length != 3 && parts.Length != 4 || parts.Count(p => p != 1) > 0)
+					{
+						throw new ArgumentException(String.Format(
+							"Invalid revision: '{0}' - the branch index must be even",
 							String.Join(".", parts)));
+					}
 				}
 
 				// check that a branchpoint (a.b.0.X) is correct - X should be even
