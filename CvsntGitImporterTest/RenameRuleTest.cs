@@ -1,9 +1,10 @@
 ﻿/*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
 using System;
+using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CTC.CvsntGitImporter.TestCode
@@ -35,7 +36,7 @@ namespace CTC.CvsntGitImporter.TestCode
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(ArgumentException))]
+		[ExpectedException(typeof(RegexParseException))]
 		public void Parse_InvalidRegex()
 		{
 			var ruleString = @"(.**) / $1x";
