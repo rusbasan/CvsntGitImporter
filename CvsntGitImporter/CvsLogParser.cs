@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -239,7 +239,7 @@ namespace CTC.CvsntGitImporter
 				}
 			}
 
-			var time = DateTime.ParseExact(dateStr, "yyyy/MM/dd HH:mm:ss", CultureInfo.InvariantCulture);
+			var time = DateTime.ParseExact(dateStr, "yyyy/MM/dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
 			var mergepoint = mergepointStr == null ? Revision.Empty : Revision.Create(mergepointStr);
 
 			return new FileRevision(
