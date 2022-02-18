@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -132,7 +132,7 @@ namespace CTC.CvsntGitImporter
 			}
 
 			var relevantCommits = FilterCommits(branchPath);
-			
+
 			foreach (var commit in relevantCommits)
 			{
 				state.Apply(commit);
@@ -258,14 +258,19 @@ namespace CTC.CvsntGitImporter
 			{
 				var file = fr.File;
 				var tagRevision = GetRevisionForTag(file, tag);
-				
+
 				// ignore commits on untagged files for now
 				if (tagRevision == Revision.Empty)
 					continue;
 
 				var curStateRevision = branchState[file.Name];
 
-				if (curStateRevision.Precedes(tagRevision))
+				if (curStateRevision == tagRevision)
+				{
+					// Precedes() below also returns true if the revisions match, so we block that here so an identical
+					// revision isn't incorrectly marked as behind
+				}
+				else if (curStateRevision.Precedes(tagRevision))
 					result = CommitTagMatch.Behind;
 				else if (tagRevision.Precedes(curStateRevision))
 					AddAndCreateList(ref filesAhead, file);
