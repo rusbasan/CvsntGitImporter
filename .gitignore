@@ -119,6 +119,7 @@ _Pvt_Extensions/
 ModelManifest.xml
 *.playlist
 
-# Visual Studio and JetBrains Rider folders
+# Visual Studio and JetBrains Rider folders and files
 /.vs
 /.idea
+/CvsntGitImporter/Properties/launchSettings.json
