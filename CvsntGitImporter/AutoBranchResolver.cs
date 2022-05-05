@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
 using System.Collections.Generic;
@@ -15,8 +15,8 @@ namespace CTC.CvsntGitImporter
 	{
 		private readonly ILogger m_log;
 
-		public AutoBranchResolver(ILogger log, FileCollection allFiles) :
-				base(log: log, allFiles: allFiles, branches: true)
+		public AutoBranchResolver(ILogger log, FileCollection allFiles, bool continueOnError) :
+				base(log: log, allFiles: allFiles, branches: true, continueOnError: continueOnError)
 		{
 			m_log = log;
 		}

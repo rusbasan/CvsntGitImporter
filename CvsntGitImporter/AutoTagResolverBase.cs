@@ -20,13 +20,15 @@ namespace CTC.CvsntGitImporter
 		private readonly FileCollection m_allFiles;
 		private readonly bool m_branches;
 		private readonly List<string> m_unresolvedTags = new List<string>();
+		private readonly bool _continueOnError;
 
-		protected AutoTagResolverBase(ILogger log, FileCollection allFiles, bool branches = false)
+		protected AutoTagResolverBase(ILogger log, FileCollection allFiles, bool branches, bool continueOnError)
 		{
 			m_log = log;
 			m_allFiles = allFiles;
 			m_branches = branches;
 			this.PartialTagThreshold = Config.DefaultPartialTagThreshold;
+			_continueOnError = continueOnError;
 		}
 
 		/// <summary>
@@ -325,7 +327,16 @@ namespace CTC.CvsntGitImporter
 						m_log.WriteLine("Extra:   {0}", file.Name);
 
 						if (extraFiles.Count > PartialTagThreshold)
-							throw new TagResolutionException(String.Format("Tag {0} appears to be a partial tag", tag));
+						{
+							if (_continueOnError == false)
+							{
+                                throw new TagResolutionException(String.Format("Tag {0} appears to be a partial tag", tag));
+                            }
+							else
+							{
+								Console.WriteLine($"Tag {tag} appears to be a partial tag");
+							}
+						}
 					}
 				}
 				else
@@ -388,11 +399,21 @@ namespace CTC.CvsntGitImporter
 
 					if (deleteCommitIndex < 0)
 					{
-						throw new TagResolutionException(String.Format(
+						if (_continueOnError == false)
+						{
+                            throw new TagResolutionException(String.Format(
 								"Tag {0}: file {1} is tagged but a commit for it could not be found", tag, file));
+                        }
+                        else
+						{
+							Console.WriteLine(String.Format(
+								"Tag {0}: file {1} is tagged but a commit for it could not be found", tag, file));
+						}
 					}
-
-					moveRecord.AddCommit(commits[deleteCommitIndex], file);
+					else
+					{
+						moveRecord.AddCommit(commits[deleteCommitIndex], file);
+					}
 				}
 			}
 		}

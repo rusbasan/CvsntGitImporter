@@ -1,6 +1,6 @@
 ﻿/*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -135,7 +135,7 @@ namespace CTC.CvsntGitImporter
 		private static ITagResolver ResolveBranches(IEnumerable<Commit> commits, FileCollection includedFiles)
 		{
 			ITagResolver branchResolver;
-			var autoBranchResolver = new AutoBranchResolver(m_log, includedFiles)
+			var autoBranchResolver = new AutoBranchResolver(m_log, includedFiles, m_config.ContinueOnError)
 			{
 				PartialTagThreshold = m_config.PartialTagThreshold
 			};
@@ -144,7 +144,7 @@ namespace CTC.CvsntGitImporter
 			// if we're matching branchpoints, resolve those tags first
 			if (m_config.BranchpointRule != null)
 			{
-				var tagResolver = new TagResolver(m_log, includedFiles)
+				var tagResolver = new TagResolver(m_log, includedFiles, m_config.ContinueOnError)
 				{
 					PartialTagThreshold = m_config.PartialTagThreshold
 				};
@@ -169,7 +169,7 @@ namespace CTC.CvsntGitImporter
 				branchResolver = new ManualBranchResolver(m_log, autoBranchResolver, tagResolver, m_config.BranchpointRule);
 			}
 
-			// resolve remaining branchpoints 
+			// resolve remaining branchpoints
 			if (!branchResolver.Resolve(includedFiles.SelectMany(f => f.AllBranches).Distinct(), commits))
 			{
 				var unresolvedTags = branchResolver.UnresolvedTags.OrderBy(i => i);
@@ -181,8 +181,16 @@ namespace CTC.CvsntGitImporter
 						m_log.WriteLine("{0}", tag);
 				}
 
-				throw new ImportFailedException(String.Format("Unable to resolve all branches to a single commit: {0}",
-						branchResolver.UnresolvedTags.StringJoin(", ")));
+				if (m_config.ContinueOnError == false)
+				{
+                    throw new ImportFailedException(String.Format("Unable to resolve all branches to a single commit: {0}",
+                            branchResolver.UnresolvedTags.StringJoin(", ")));
+                }
+				else
+				{
+					Console.WriteLine(
+						$"Unable to resolve all branches to a single commit: {branchResolver.UnresolvedTags.StringJoin(", ")}");
+				}
 			}
 
 			return branchResolver;
@@ -190,7 +198,7 @@ namespace CTC.CvsntGitImporter
 
 		private static ITagResolver ResolveTags(IEnumerable<Commit> commits, FileCollection includedFiles)
 		{
-			var tagResolver = new TagResolver(m_log, includedFiles)
+			var tagResolver = new TagResolver(m_log, includedFiles, m_config.ContinueOnError)
 			{
 				PartialTagThreshold = m_config.PartialTagThreshold
 			};
@@ -209,9 +217,17 @@ namespace CTC.CvsntGitImporter
 						m_log.WriteLine("{0}", tag);
 				}
 
-				throw new ImportFailedException(String.Format("Unable to resolve all tags to a single commit: {0}",
+				if (m_config.ContinueOnError == false)
+				{
+                    throw new ImportFailedException(String.Format("Unable to resolve all tags to a single commit: {0}",
 						unresolvedTags.StringJoin(", ")));
-			}
+                }
+                else
+				{
+                    Console.WriteLine(String.Format("Unable to resolve all tags to a single commit: {0}",
+                        unresolvedTags.StringJoin(", ")));
+                }
+            }
 
 			m_resolvedTags = tagResolver.ResolvedTags;
 			return tagResolver;

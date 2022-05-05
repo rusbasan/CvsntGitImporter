@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -56,6 +56,9 @@ namespace CTC.CvsntGitImporter
 
 		[SwitchDef(LongSwitch="--cvs-processes", Description="The number of CVS processes to run in parallel when importing. Defaults to the number of processors on the system")]
 		public uint? CvsProcesses { get; set; }
+
+		[SwitchDef(LongSwitch = "--continue-on-error", Description = "Report branch and tag errors but continue processing")]
+		public bool ContinueOnError { get; set; }
 
 		[SwitchDef(LongSwitch = "--partial-tag-threshold", Description = "The number of untagged files encountered before a tag is declared to be a partial tag. Set to zero to disable partial tag detection")]
 		public uint? PartialTagThreshold { get; set; }

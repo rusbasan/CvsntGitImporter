@@ -1,6 +1,6 @@
 ﻿/*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -157,6 +157,14 @@ namespace CTC.CvsntGitImporter
 		public uint CvsProcesses
 		{
 			get { return m_switches.CvsProcesses ?? (uint)Environment.ProcessorCount; }
+		}
+
+		/// <summary>
+		/// Reports errors but continues running.
+		/// </summary>
+		public Boolean ContinueOnError
+		{
+			get { return m_switches.ContinueOnError; }
 		}
 
 		#endregion General config

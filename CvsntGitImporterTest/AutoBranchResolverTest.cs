@@ -38,7 +38,7 @@ namespace CTC.CvsntGitImporter.TestCode
 				new Commit("c3").WithRevision(file2, "1.1.2.1"),
 			};
 
-			var resolver = new AutoBranchResolver(m_log, commits.CreateAllFiles());
+			var resolver = new AutoBranchResolver(m_log, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "branch1" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -60,7 +60,7 @@ namespace CTC.CvsntGitImporter.TestCode
 				new Commit("c3").WithRevision(file1, "1.2.2.1"),
 			};
 
-			var resolver = new AutoBranchResolver(m_log, commits.CreateAllFiles());
+			var resolver = new AutoBranchResolver(m_log, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "branch1" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");

@@ -38,7 +38,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 			var allFiles = commits.CreateAllFiles();
 
-			var resolver = new TagResolver(m_logger, allFiles);
+			var resolver = new TagResolver(m_logger, allFiles, false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsFalse(result, "Failed");
@@ -62,7 +62,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 			var allFiles = commits.CreateAllFiles();
 
-			var resolver = new TagResolver(m_logger, allFiles);
+			var resolver = new TagResolver(m_logger, allFiles, false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Succeeded");
@@ -85,7 +85,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			var target = commits.ElementAt(2);
 			var allFiles = commits.CreateAllFiles();
 
-			var resolver = new TagResolver(m_logger, allFiles);
+			var resolver = new TagResolver(m_logger, allFiles, false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Succeeded");
@@ -109,7 +109,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 
 			var allFiles = commits.CreateAllFiles();
-			var resolver = new TagResolver(m_logger, allFiles);
+			var resolver = new TagResolver(m_logger, allFiles, false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Succeeded");
@@ -132,7 +132,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 			var allFiles = commits.CreateAllFiles();
 
-			var resolver = new TagResolver(m_logger, allFiles);
+			var resolver = new TagResolver(m_logger, allFiles, false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Succeeded");
@@ -161,7 +161,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 			var allFiles = commits.CreateAllFiles();
 
-			var resolver = new TagResolver(m_logger, allFiles);
+			var resolver = new TagResolver(m_logger, allFiles, false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Succeeded");
@@ -185,7 +185,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 			var allFiles = commits.CreateAllFiles();
 
-			var resolver = new TagResolver(m_logger, allFiles);
+			var resolver = new TagResolver(m_logger, allFiles, false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Succeeded");
@@ -214,7 +214,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			var target = commits.ElementAt(2);
 			var allFiles = commits.CreateAllFiles();
 
-			var resolver = new TagResolver(m_logger, allFiles);
+			var resolver = new TagResolver(m_logger, allFiles, false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Succeeded");
@@ -240,7 +240,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			var target = commits.ElementAt(3);
 			var allFiles = commits.CreateAllFiles();
 
-			var resolver = new TagResolver(m_logger, allFiles);
+			var resolver = new TagResolver(m_logger, allFiles, false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Succeeded");
@@ -263,7 +263,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 			var target = commits.ElementAt(2);
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -283,7 +283,7 @@ namespace CTC.CvsntGitImporter.TestCode
 				new Commit("c1").WithRevision(file1, "1.2").WithRevision(file2, "1.2", isDead: true),
 			};
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -311,7 +311,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 			var target = commits.ElementAt(2);
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -335,7 +335,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 			var target = commits.ElementAt(3);
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -360,7 +360,7 @@ namespace CTC.CvsntGitImporter.TestCode
 				new Commit("c5").WithRevision(file2, "1.2"),
 			};
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -385,7 +385,7 @@ namespace CTC.CvsntGitImporter.TestCode
 				new Commit("c5").WithRevision(file2, "1.2"),
 			};
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -409,7 +409,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 			var target = commits.ElementAt(2);
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -430,7 +430,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 			var target = commits.ElementAt(1);
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -454,7 +454,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 			var target = commits.ElementAt(2);
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -479,7 +479,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			};
 			var target = commits.ElementAt(2);
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -501,7 +501,7 @@ namespace CTC.CvsntGitImporter.TestCode
 				new Commit("c3").WithRevision(file2, "1.1.2.1"),
 			};
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -522,7 +522,7 @@ namespace CTC.CvsntGitImporter.TestCode
 				new Commit("c2").WithRevision(file1, "1.1.2.1"),
 			};
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -547,7 +547,7 @@ namespace CTC.CvsntGitImporter.TestCode
 				new Commit("c5").WithRevision(file3, "1.2", isDead: true),
 			};
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -570,7 +570,7 @@ namespace CTC.CvsntGitImporter.TestCode
 				new Commit("c3").WithRevision(file3, "1.1.2.1"),                          // backport file3
 			};
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -591,7 +591,7 @@ namespace CTC.CvsntGitImporter.TestCode
 				new Commit("c2").WithRevision(file1, "1.1.2.2"),
 			};
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles());
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false);
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsTrue(result, "Resolve succeeded");
@@ -614,7 +614,7 @@ namespace CTC.CvsntGitImporter.TestCode
 				new Commit("c2").WithRevision(file1, "1.2"),
 			};
 
-			var resolver = new TagResolver(m_logger, commits.CreateAllFiles()) { PartialTagThreshold = 2 };
+			var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false) { PartialTagThreshold = 2 };
 			var result = resolver.Resolve(new[] { "tag" }, commits);
 
 			Assert.IsFalse(result, "Resolve failed");
