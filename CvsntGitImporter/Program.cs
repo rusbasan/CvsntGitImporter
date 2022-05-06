@@ -135,7 +135,7 @@ namespace CTC.CvsntGitImporter
 		private static ITagResolver ResolveBranches(IEnumerable<Commit> commits, FileCollection includedFiles)
 		{
 			ITagResolver branchResolver;
-			var autoBranchResolver = new AutoBranchResolver(m_log, includedFiles, m_config.ContinueOnError)
+			var autoBranchResolver = new AutoBranchResolver(m_log, includedFiles, m_config.ContinueOnError, m_config.NoCommitReordering)
 			{
 				PartialTagThreshold = m_config.PartialTagThreshold
 			};
@@ -144,7 +144,7 @@ namespace CTC.CvsntGitImporter
 			// if we're matching branchpoints, resolve those tags first
 			if (m_config.BranchpointRule != null)
 			{
-				var tagResolver = new TagResolver(m_log, includedFiles, m_config.ContinueOnError)
+				var tagResolver = new TagResolver(m_log, includedFiles, m_config.ContinueOnError, m_config.NoCommitReordering)
 				{
 					PartialTagThreshold = m_config.PartialTagThreshold
 				};
@@ -198,7 +198,7 @@ namespace CTC.CvsntGitImporter
 
 		private static ITagResolver ResolveTags(IEnumerable<Commit> commits, FileCollection includedFiles)
 		{
-			var tagResolver = new TagResolver(m_log, includedFiles, m_config.ContinueOnError)
+			var tagResolver = new TagResolver(m_log, includedFiles, m_config.ContinueOnError, m_config.NoCommitReordering)
 			{
 				PartialTagThreshold = m_config.PartialTagThreshold
 			};

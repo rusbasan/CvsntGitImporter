@@ -21,14 +21,17 @@ namespace CTC.CvsntGitImporter
 		private readonly bool m_branches;
 		private readonly List<string> m_unresolvedTags = new List<string>();
 		private readonly bool _continueOnError;
+		private readonly bool _noCommitReordering;
 
-		protected AutoTagResolverBase(ILogger log, FileCollection allFiles, bool branches, bool continueOnError)
-		{
-			m_log = log;
+        protected AutoTagResolverBase(ILogger log, FileCollection allFiles, bool branches, bool continueOnError,
+			bool noCommitReordering)
+        {
+            m_log = log;
 			m_allFiles = allFiles;
 			m_branches = branches;
 			this.PartialTagThreshold = Config.DefaultPartialTagThreshold;
 			_continueOnError = continueOnError;
+			_noCommitReordering = noCommitReordering;
 		}
 
 		/// <summary>
@@ -170,9 +173,20 @@ namespace CTC.CvsntGitImporter
 			// perform any moves
 			moveRecord.FinalCommit = curCandidate;
 			if (moveRecord.Commits.Any())
-				moveRecord.Apply(m_allCommits);
+            {
+				if (_noCommitReordering == false)
+				{
+					moveRecord.Apply(m_allCommits);
+				}
+				else
+				{
+					// Return null rather than trying to use the current candidate, as that can lead to a Git error since it may be
+					// pointing to a commit that hasn't been put into the Git repo yet
+					return null;
+				}
+            }
 
-			CheckCommitIndices(m_allCommits);
+            CheckCommitIndices(m_allCommits);
 			return curCandidate;
 		}
 

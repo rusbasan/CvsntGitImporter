@@ -167,6 +167,16 @@ namespace CTC.CvsntGitImporter
 			get { return m_switches.ContinueOnError; }
 		}
 
+		/// <summary>
+		/// Don't reorder commits.  Depending on how files were tagged or branched, sometimes trying to sort out the
+		/// order of commits is futile and can lead to a garbled history or Git errors because when importing the commits
+		/// because it's trying to refer to other commits that haven't yet been imported.
+		/// </summary>
+		public Boolean NoCommitReordering
+		{
+			get { return m_switches.NoCommitReordering; }
+		}
+
 		#endregion General config
 
 

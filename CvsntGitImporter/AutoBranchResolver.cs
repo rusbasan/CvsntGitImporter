@@ -15,8 +15,8 @@ namespace CTC.CvsntGitImporter
 	{
 		private readonly ILogger m_log;
 
-		public AutoBranchResolver(ILogger log, FileCollection allFiles, bool continueOnError) :
-				base(log: log, allFiles: allFiles, branches: true, continueOnError: continueOnError)
+		public AutoBranchResolver(ILogger log, FileCollection allFiles, bool continueOnError, bool noCommitReordering) :
+				base(log: log, allFiles: allFiles, branches: true, continueOnError: continueOnError, noCommitReordering: noCommitReordering)
 		{
 			m_log = log;
 		}

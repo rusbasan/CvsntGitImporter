@@ -60,6 +60,9 @@ namespace CTC.CvsntGitImporter
 		[SwitchDef(LongSwitch = "--continue-on-error", Description = "Report branch and tag errors but continue processing")]
 		public bool ContinueOnError { get; set; }
 
+		[SwitchDef(LongSwitch = "--no-commit-reordering", Description = "Turns off reordering of commits to try to match tags and branches")]
+		public bool NoCommitReordering { get; set; }
+		
 		[SwitchDef(LongSwitch = "--partial-tag-threshold", Description = "The number of untagged files encountered before a tag is declared to be a partial tag. Set to zero to disable partial tag detection")]
 		public uint? PartialTagThreshold { get; set; }
 

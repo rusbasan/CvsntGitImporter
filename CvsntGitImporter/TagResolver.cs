@@ -15,8 +15,8 @@ namespace CTC.CvsntGitImporter
 	{
 		private readonly ILogger m_log;
 
-		public TagResolver(ILogger log, FileCollection allFiles, bool continueOnError) :
-				base(log: log, allFiles: allFiles, false, continueOnError)
+		public TagResolver(ILogger log, FileCollection allFiles, bool continueOnError, bool noCommitReordering) :
+				base(log: log, allFiles: allFiles, false, continueOnError, noCommitReordering: noCommitReordering)
 		{
 			m_log = log;
 		}
