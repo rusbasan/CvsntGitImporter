@@ -83,7 +83,7 @@ namespace CTC.CvsntGitImporter
 					continue;
 
 				var commitBranchRoot = m_streams[commitSource.Branch];
-				if (commitBranchRoot.Predecessor == null || commitBranchRoot.Predecessor.Branch != commitDest.Branch)
+				if (commitBranchRoot?.Predecessor == null || commitBranchRoot.Predecessor.Branch != commitDest.Branch)
 				{
 					m_log.WriteLine("Warning: ignoring merge to commit {0} - merged commit {1} is on {2} which is not branched off from {3}",
 							commitDest.CommitId, commitSource.CommitId, commitSource.Branch, commitDest.Branch);
