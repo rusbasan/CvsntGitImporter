@@ -1,6 +1,6 @@
-﻿/*
+/*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2023 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -33,6 +33,11 @@ namespace CTC.CvsntGitImporter
 		private bool m_brokenPipe;
 
 		private bool m_isDisposed = false;
+
+		/// <summary>
+		/// Byte patterns for various text encodings for advertising lines that can be removed from code.
+		/// </summary>
+		private List<Byte[]> m_advertisingLinePatterns;
 
 		public Importer(ILogger log, IConfig config, UserMap userMap, BranchStreamCollection branches,
 				IDictionary<string, Commit> tags, Cvs cvs)
@@ -205,7 +210,15 @@ namespace CTC.CvsntGitImporter
 				else
 				{
 					WriteLine("M 644 inline {0}", file.Name);
-					WriteData(file.Data);
+
+					var fileData = file.Data;
+
+					if (m_config.RemoveAdvertising)
+					{
+						fileData = RemoveAdvertising(file.Data);
+					}
+
+					WriteData(fileData);
 				}
 			}
 
@@ -271,5 +284,99 @@ namespace CTC.CvsntGitImporter
 		{
 			return m_encoding.GetBytes(text);
 		}
+
+		/// <summary>
+		/// Removes known advertising lines from code bytes.
+		/// </summary>
+		/// <param name="originalData">The original data, which contains the bytes.</param>
+		/// <returns>The new data, with advertising removed (or the original if there was none).</returns>
+		/// <remarks>
+		/// Could be made more efficient (check multiple patterns at once, use skip tables, etc.), but testing show it
+		/// doesn't add much percentage-wise to the conversion time as it's dominated by other factors.
+		/// </remarks>
+		private FileContentData RemoveAdvertising(FileContentData originalData)
+		{
+			var originalBytes = originalData.Data;
+
+			var newBytes = new Byte[originalBytes.Length];
+
+			var removedAdvertising = false;
+
+			Int32 newBytesIndex = 0;
+
+			for (Int32 i = 0; i < originalBytes.Length; i++)
+			{
+				Boolean skippedAd = false;
+
+				foreach (var pattern in AdvertisingLinePatterns)
+				{
+					if (i + pattern.Length >= originalBytes.Length)
+					{
+						continue;
+					}
+
+					Boolean matched = true;
+
+					for (Int32 patternByteIndex = pattern.Length - 1; patternByteIndex >= 0; patternByteIndex--)
+					{
+						if (originalBytes[i + patternByteIndex] != pattern[patternByteIndex])
+						{
+							matched = false;
+							break;
+						}
+					}
+
+					if (matched)
+					{
+						i += pattern.Length - 1;
+						skippedAd = true;
+						removedAdvertising = true;
+						break;
+					}
+				}
+
+				if (skippedAd == false)
+				{
+					newBytes[newBytesIndex] = originalBytes[i];
+					newBytesIndex++;
+				}
+			}
+
+			return removedAdvertising ? new FileContentData(newBytes, newBytesIndex) : originalData;
+		}
+
+		/// <summary>
+		/// Creates byte patterns for various text encodings for advertising lines that can be removed from code.
+		/// </summary>
+		/// <param name="strings">The strings to create byte patterns for.</param>
+		/// <returns>A list of byte patterns, sorted by size (largest to smallest).</returns>
+		private List<Byte[]> CreateAdvertisingLinePatterns(params String[] strings)
+		{
+			var patterns = new List<Byte[]>();
+
+			foreach (var value in strings)
+			{
+				var valueWithNewline = value + "\n";
+				var valueWithCarriageReturnAndNewLine = value + "\r\n";
+
+				patterns.Add(Encoding.UTF8.GetBytes(valueWithNewline));
+				patterns.Add(Encoding.Unicode.GetBytes(valueWithNewline));
+				patterns.Add(Encoding.BigEndianUnicode.GetBytes(valueWithNewline));
+
+				patterns.Add(Encoding.UTF8.GetBytes(valueWithCarriageReturnAndNewLine));
+				patterns.Add(Encoding.Unicode.GetBytes(valueWithCarriageReturnAndNewLine));
+				patterns.Add(Encoding.BigEndianUnicode.GetBytes(valueWithCarriageReturnAndNewLine));
+			}
+
+			patterns.Sort((a, b) => b.Length - a.Length);
+
+			return patterns;
+		}
+
+		/// <summary>
+		/// Byte patterns for various text encodings for advertising lines that can be removed from code.
+		/// </summary>
+		private List<Byte[]> AdvertisingLinePatterns =>
+			m_advertisingLinePatterns ??= CreateAdvertisingLinePatterns(m_config.AdvertisingLines);
 	}
 }

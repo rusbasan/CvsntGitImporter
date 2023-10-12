@@ -1,15 +1,13 @@
-﻿/*
+/*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * © 2013-2023 Cambridge Technology Consultants Ltd.
  */
 
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using CTC.CvsntGitImporter.Utils;
 
 namespace CTC.CvsntGitImporter
@@ -177,6 +175,9 @@ namespace CTC.CvsntGitImporter
 			get { return m_switches.NoCommitReordering; }
 		}
 
+		/// <inheritdoc />
+		public Boolean RemoveAdvertising => m_switches.RemoveAdvertising;
+
 		#endregion General config
 
 
@@ -205,7 +206,7 @@ namespace CTC.CvsntGitImporter
 		{
 			get { return m_nobody ?? (m_nobody = GetNobodyUser()); }
 		}
-		
+
 		private User GetNobodyUser()
 		{
 			var taggerEmail = m_switches.NobodyEmail;
@@ -330,6 +331,17 @@ namespace CTC.CvsntGitImporter
 
 		#endregion Branches
 
+		#region Filtering
+
+		/// <inheritdoc />
+		public String[] AdvertisingLines { get; } =
+		{
+			"Committed on the Free edition of March Hare Software CVSNT Server.",
+			"Upgrade to CVS Suite for more features and support:",
+			"http://march-hare.com/cvsnt/"
+		};
+
+		#endregion
 
 		private void AddGitConfigOption(string x, bool add)
 		{

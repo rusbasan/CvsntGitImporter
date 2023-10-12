@@ -1,6 +1,6 @@
-﻿/*
+/*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * © 2013-2023 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -88,7 +88,9 @@ namespace CTC.CvsntGitImporter
 
 		private static void Analyse()
 		{
-			var parser = new CvsLogParser(m_config.Sandbox, m_config.CvsLogFileName, m_config.BranchMatcher);
+			var parser = new CvsLogParser(m_config.Sandbox, m_config.CvsLogFileName, m_config.BranchMatcher,
+				line => m_config.RemoveAdvertising && m_config.AdvertisingLines.Any(l => l == line));
+
 			var builder = new CommitBuilder(m_log, parser.Parse());
 			var exclusionFilter = new ExclusionFilter(m_log, m_config);
 

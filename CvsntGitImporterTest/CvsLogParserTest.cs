@@ -1,13 +1,12 @@
-﻿/*
+/*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2023 Cambridge Technology Consultants Ltd.
  */
 
 using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using CTC.CvsntGitImporter.TestCode.Properties;
 using CTC.CvsntGitImporter.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -70,7 +69,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			var rev = revisions.First(r => r.Revision == Revision.Create("1.2"));
 			Assert.AreEqual(rev.Mergepoint, Revision.Create("1.1.2.1"));
 		}
-		
+
 		[TestMethod]
 		public void StateDead()
 		{
@@ -80,7 +79,7 @@ namespace CTC.CvsntGitImporter.TestCode
 			var r = revisions.First();
 			Assert.IsTrue(r.IsDead);
 		}
-		
+
 		[TestMethod]
 		public void FileAddedOnBranch()
 		{
@@ -125,7 +124,7 @@ namespace CTC.CvsntGitImporter.TestCode
 				var cvsLog = temp.GetPath("cvs.log");
 				File.WriteAllText(cvsLog, CvsLogParserResources.NonAscii, Encoding.Default);
 
-				var parser = new CvsLogParser(m_sandbox, cvsLog, m_branchMatcher);
+				var parser = new CvsLogParser(m_sandbox, cvsLog, m_branchMatcher, _ => false);
 				parser.Parse().ToList();
 				var file = parser.Files.Single();
 
@@ -136,7 +135,7 @@ namespace CTC.CvsntGitImporter.TestCode
 
 		private CvsLogParser CreateParser(string log)
 		{
-			return new CvsLogParser(m_sandbox, new StringReader(log), m_branchMatcher);
+			return new CvsLogParser(m_sandbox, new StringReader(log), m_branchMatcher, _ => false);
 		}
 	}
 }

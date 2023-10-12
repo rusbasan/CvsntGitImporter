@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * Â© 2013-2023 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -62,13 +62,15 @@ namespace CTC.CvsntGitImporter
 
 		[SwitchDef(LongSwitch = "--no-commit-reordering", Description = "Turns off reordering of commits to try to match tags and branches")]
 		public bool NoCommitReordering { get; set; }
-		
+
+		[SwitchDef(LongSwitch = "--remove-advertising", Description = "Removes advertising a certain CVSNT vendor put into commit messages and (indirectly) source code")]
+		public bool RemoveAdvertising { get; set; }
+
 		[SwitchDef(LongSwitch = "--partial-tag-threshold", Description = "The number of untagged files encountered before a tag is declared to be a partial tag. Set to zero to disable partial tag detection")]
 		public uint? PartialTagThreshold { get; set; }
 
 		[SwitchDef(LongSwitch = "--import-marker-tag", Description = "The tag to mark the import with")]
 		public string MarkerTag { get; set; }
-
 
 		[SwitchDef(LongSwitch="--default-domain", Description="The default domain name to use for unknown users")]
 		public string DefaultDomain { get; set; }

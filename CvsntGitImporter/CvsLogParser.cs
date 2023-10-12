@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * © 2013-2023 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -29,20 +29,29 @@ namespace CTC.CvsntGitImporter
 		private string m_repo;
 		private string m_fullRepoPath;
 
-		private CvsLogParser(string sandboxPath, CvsLogReader reader, InclusionMatcher branchMatcher)
+		/// <summary>
+		/// Determines if a commit line should be excluded (due to being advertising, etc.)
+		/// </summary>
+		private readonly Func<String, Boolean> m_excludeLine;
+
+		private CvsLogParser(string sandboxPath, CvsLogReader reader, InclusionMatcher branchMatcher,
+			Func<String, Boolean> excludeLine)
 		{
 			m_sandboxPath = sandboxPath;
 			m_reader = reader;
 			m_branchMatcher = branchMatcher;
+			m_excludeLine = excludeLine;
 		}
 
-		public CvsLogParser(string sandboxPath, string logFile, InclusionMatcher branchMatcher)
-			: this(sandboxPath, new CvsLogReader(logFile), branchMatcher)
+		public CvsLogParser(string sandboxPath, string logFile, InclusionMatcher branchMatcher,
+			Func<String, Boolean> excludeLine)
+			: this(sandboxPath, new CvsLogReader(logFile), branchMatcher, excludeLine)
 		{
 		}
 
-		public CvsLogParser(string sandboxPath, TextReader reader, InclusionMatcher branchMatcher)
-			: this(sandboxPath, new CvsLogReader(reader), branchMatcher)
+		public CvsLogParser(string sandboxPath, TextReader reader, InclusionMatcher branchMatcher,
+			Func<String, Boolean> excludeLine)
+			: this(sandboxPath, new CvsLogReader(reader), branchMatcher, excludeLine)
 		{
 		}
 
@@ -157,7 +166,7 @@ namespace CTC.CvsntGitImporter
 						}
 						else if (!line.StartsWith("branches:  "))
 						{
-							if (commit != null)
+							if (commit != null && m_excludeLine(line) == false)
 								commit.AddMessage(line);
 						}
 						break;

@@ -1,6 +1,6 @@
-﻿/*
+/*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2023 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -130,5 +130,17 @@ namespace CTC.CvsntGitImporter
 		/// The renamer for tags.
 		/// </summary>
 		Renamer BranchRename { get; }
+
+		/// <summary>
+		/// Remove known advertising that certain CVSNT vendors put into commit messages and source files (indirectly
+		/// using $Log comments which mirror the commit messages into the source files).
+		/// </summary>
+		Boolean RemoveAdvertising { get; }
+
+		/// <summary>
+		/// Lines of advertising that have been known to be put into commit messages and (indirectly) source files and
+		/// which can optionally be removed.
+		/// </summary>
+		public String[] AdvertisingLines { get; }
 	}
 }
