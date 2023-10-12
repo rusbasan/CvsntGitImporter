@@ -119,6 +119,9 @@ namespace CTC.CvsntGitImporter
 		[SwitchDef(LongSwitch="--rename-branch", ValueDescription="rule", Description="to rename branches as they're imported")]
 		public ObservableCollection<string> RenameBranch { get; set; }
 
+		[SwitchDef(LongSwitch = "--main-branch-name", Description = "The name of the main branch (default: main)")]
+		public String MainBranchName { get; set;  }
+
 
 		public Switches()
 		{

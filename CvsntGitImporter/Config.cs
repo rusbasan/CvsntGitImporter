@@ -36,7 +36,6 @@ namespace CTC.CvsntGitImporter
 
 			BranchMatcher = new InclusionMatcher(ignoreCase: false);
 			BranchRename = new Renamer();
-			BranchRename.AddRule(new RenameRule("^MAIN$", "master"));
 
 			ObserveCollection(m_switches.IncludeFile, x => AddIncludeRule(m_fileMatcher, x, include: true));
 			ObserveCollection(m_switches.ExcludeFile, x => AddIncludeRule(m_fileMatcher, x, include: false));
@@ -64,6 +63,8 @@ namespace CTC.CvsntGitImporter
 			{
 				throw new CommandLineArgsException("Invalid branchpoint rule: {0}", ae.Message);
 			}
+
+			BranchRename.AddRule(new RenameRule("^MAIN$", MainBranchName));
 		}
 
 
@@ -328,6 +329,9 @@ namespace CTC.CvsntGitImporter
 		/// The renamer for tags.
 		/// </summary>
 		public Renamer BranchRename { get; private set; }
+
+		/// <inheritdoc />
+		public String MainBranchName => m_switches.MainBranchName ?? "main";
 
 		#endregion Branches
 

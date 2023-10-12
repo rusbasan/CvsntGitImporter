@@ -142,5 +142,10 @@ namespace CTC.CvsntGitImporter
 		/// which can optionally be removed.
 		/// </summary>
 		public String[] AdvertisingLines { get; }
+
+		/// <summary>
+		/// The name to use for the main Git branch (defaults to "main"; formerly "master").
+		/// </summary>
+		public String MainBranchName { get; }
 	}
 }

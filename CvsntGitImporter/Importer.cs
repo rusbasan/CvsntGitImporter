@@ -181,7 +181,7 @@ namespace CTC.CvsntGitImporter
 					renamedBranch, commit.Author, commit.Time,
 					(commit.MergeFrom == null) ? "" : String.Format(" mergefrom={0}/{1}", commit.MergeFrom.CommitId, commit.MergeFrom.Index));
 
-			WriteLine("commit refs/heads/{0}", (commit.Branch == "MAIN") ? "master" : renamedBranch);
+			WriteLine("commit refs/heads/{0}", (commit.Branch == "MAIN") ? m_config.MainBranchName : renamedBranch);
 			WriteLine("mark :{0}", commit.Index);
 			WriteLine("committer {0} {1}", WriteUser(author), UnixTime.FromDateTime(commit.Time));
 
