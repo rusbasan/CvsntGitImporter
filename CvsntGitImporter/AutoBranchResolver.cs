@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * Â© 2013-2022 Cambridge Technology Consultants Ltd.
  */
 
 using System.Collections.Generic;
