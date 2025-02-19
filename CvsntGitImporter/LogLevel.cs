@@ -3,15 +3,14 @@
  * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
  */
 
-namespace CTC.CvsntGitImporter
+namespace CTC.CvsntGitImporter;
+
+/// <summary>
+/// Log level.
+/// </summary>
+enum LogLevel
 {
-	/// <summary>
-	/// Log level.
-	/// </summary>
-	enum LogLevel
-	{
-		Important,
-		Normal,
-		Debug,
-	}
+	Important,
+	Normal,
+	Debug,
 }

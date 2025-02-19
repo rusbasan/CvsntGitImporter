@@ -8,72 +8,71 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace CTC.CvsntGitImporter
+namespace CTC.CvsntGitImporter;
+
+/// <summary>
+/// Read a log file line by line, tracking the current line number.
+/// </summary>
+class CvsLogReader : IEnumerable<string>
 {
+	private readonly string m_filename;
+	private readonly TextReader m_reader;
+	private int m_lineNumber;
+
 	/// <summary>
-	/// Read a log file line by line, tracking the current line number.
+	/// Gets the current line number.
 	/// </summary>
-	class CvsLogReader : IEnumerable<string>
+	public int LineNumber
 	{
-		private readonly string m_filename;
-		private readonly TextReader m_reader;
-		private int m_lineNumber;
+		get { return m_lineNumber; }
+	}
 
-		/// <summary>
-		/// Gets the current line number.
-		/// </summary>
-		public int LineNumber
+	public CvsLogReader(string filename)
+	{
+		m_filename = filename;
+	}
+
+	public CvsLogReader(TextReader reader)
+	{
+		m_reader = reader;
+		m_filename = "<stream>";
+	}
+
+	private IEnumerable<string> ReadLines()
+	{
+		m_lineNumber = 0;
+
+		TextReader reader = m_reader;
+		bool mustDispose = false;
+		if (reader == null)
 		{
-			get { return m_lineNumber; }
+			reader = new StreamReader(m_filename, Encoding.Default);
+			mustDispose = true;
 		}
 
-		public CvsLogReader(string filename)
+		try
 		{
-			m_filename = filename;
-		}
-
-		public CvsLogReader(TextReader reader)
-		{
-			m_reader = reader;
-			m_filename = "<stream>";
-		}
-
-		private IEnumerable<string> ReadLines()
-		{
-			m_lineNumber = 0;
-
-			TextReader reader = m_reader;
-			bool mustDispose = false;
-			if (reader == null)
+			string line;
+			while ((line = reader.ReadLine()) != null)
 			{
-				reader = new StreamReader(m_filename, Encoding.Default);
-				mustDispose = true;
-			}
-
-			try
-			{
-				string line;
-				while ((line = reader.ReadLine()) != null)
-				{
-					m_lineNumber++;
-					yield return line;
-				}
-			}
-			finally
-			{
-				if (mustDispose)
-					reader.Dispose();
+				m_lineNumber++;
+				yield return line;
 			}
 		}
-
-		public IEnumerator<string> GetEnumerator()
+		finally
 		{
-			return ReadLines().GetEnumerator();
+			if (mustDispose)
+				reader.Dispose();
 		}
+	}
 
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
+	public IEnumerator<string> GetEnumerator()
+	{
+		return ReadLines().GetEnumerator();
+	}
+
+	System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+	{
+		return GetEnumerator();
 	}
 }

@@ -3,19 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CTC.CvsntGitImporter.TestCode
+namespace CTC.CvsntGitImporter.TestCode;
+
+/// <summary>
+/// Extension methods on IEnumerable.
+/// </summary>
+static class EnumerableExtensions
 {
 	/// <summary>
-	/// Extension methods on IEnumerable.
+	/// Is this sequence equal to a list of items.
 	/// </summary>
-	static class EnumerableExtensions
+	public static bool SequenceEqual<T>(this IEnumerable<T> list, params T[] items)
 	{
-		/// <summary>
-		/// Is this sequence equal to a list of items.
-		/// </summary>
-		public static bool SequenceEqual<T>(this IEnumerable<T> list, params T[] items)
-		{
-			return list.SequenceEqual((IEnumerable<T>)items);
-		}
+		return list.SequenceEqual((IEnumerable<T>)items);
 	}
 }

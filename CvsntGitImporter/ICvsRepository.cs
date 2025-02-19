@@ -5,16 +5,15 @@
 
 using System;
 
-namespace CTC.CvsntGitImporter
+namespace CTC.CvsntGitImporter;
+
+/// <summary>
+/// Access files in the CVS repository.
+/// </summary>
+interface ICvsRepository
 {
 	/// <summary>
-	/// Access files in the CVS repository.
+	/// Get the contents of a specific file revision from the repository.
 	/// </summary>
-	interface ICvsRepository
-	{
-		/// <summary>
-		/// Get the contents of a specific file revision from the repository.
-		/// </summary>
-		FileContent GetCvsRevision(FileRevision f);
-	}
+	FileContent GetCvsRevision(FileRevision f);
 }

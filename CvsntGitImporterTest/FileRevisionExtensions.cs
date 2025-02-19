@@ -5,17 +5,16 @@
 
 using CTC.CvsntGitImporter;
 
-namespace CTC.CvsntGitImporter.TestCode
+namespace CTC.CvsntGitImporter.TestCode;
+
+/// <summary>
+/// Extension methods on FileRevision class.
+/// </summary>
+static class FileRevisionExtensions
 {
-	/// <summary>
-	/// Extension methods on FileRevision class.
-	/// </summary>
-	static class FileRevisionExtensions
+	public static FileRevision WithMessage(this FileRevision @this, string message)
 	{
-		public static FileRevision WithMessage(this FileRevision @this, string message)
-		{
-			@this.AddMessage(message);
-			return @this;
-		}
+		@this.AddMessage(message);
+		return @this;
 	}
 }

@@ -5,37 +5,36 @@
 
 using System.Collections.Generic;
 
-namespace CTC.CvsntGitImporter
+namespace CTC.CvsntGitImporter;
+
+/// <summary>
+/// Commit comparison.
+/// </summary>
+abstract class CommitComparer : IEqualityComparer<Commit>
 {
 	/// <summary>
-	/// Commit comparison.
+	/// A CommitComparer that compares by CommitId.
 	/// </summary>
-	abstract class CommitComparer : IEqualityComparer<Commit>
+	public static readonly CommitComparer ById = new IdCommitComparer();
+
+
+	public abstract bool Equals(Commit x, Commit y);
+
+	public abstract int GetHashCode(Commit obj);
+
+	/// <summary>
+	/// CommitComparer that compares by id.
+	/// </summary>
+	private class IdCommitComparer : CommitComparer
 	{
-		/// <summary>
-		/// A CommitComparer that compares by CommitId.
-		/// </summary>
-		public static readonly CommitComparer ById = new IdCommitComparer();
-
-
-		public abstract bool Equals(Commit x, Commit y);
-
-		public abstract int GetHashCode(Commit obj);
-
-		/// <summary>
-		/// CommitComparer that compares by id.
-		/// </summary>
-		private class IdCommitComparer : CommitComparer
+		public override bool Equals(Commit x, Commit y)
 		{
-			public override bool Equals(Commit x, Commit y)
-			{
-				return x.CommitId == y.CommitId;
-			}
+			return x.CommitId == y.CommitId;
+		}
 
-			public override int GetHashCode(Commit obj)
-			{
-				return obj.CommitId.GetHashCode();
-			}
+		public override int GetHashCode(Commit obj)
+		{
+			return obj.CommitId.GetHashCode();
 		}
 	}
 }

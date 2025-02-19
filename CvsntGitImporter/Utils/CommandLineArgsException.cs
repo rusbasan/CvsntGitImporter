@@ -5,24 +5,23 @@
 
 using System;
 
-namespace CTC.CvsntGitImporter.Utils
+namespace CTC.CvsntGitImporter.Utils;
+
+/// <summary>
+/// Exception thrown when the arguments passed to an application are invalid.
+/// </summary>
+[Serializable]
+class CommandLineArgsException : Exception
 {
-	/// <summary>
-	/// Exception thrown when the arguments passed to an application are invalid.
-	/// </summary>
-	[Serializable]
-	class CommandLineArgsException : Exception
+	#region Constructors
+
+	public CommandLineArgsException(string message) : base(message)
 	{
-		#region Constructors
-
-		public CommandLineArgsException(string message) : base(message)
-		{
-		}
-
-		public CommandLineArgsException(string format, params object[] args) : base(String.Format(format, args))
-		{
-		}
-
-		#endregion
 	}
+
+	public CommandLineArgsException(string format, params object[] args) : base(String.Format(format, args))
+	{
+	}
+
+	#endregion
 }

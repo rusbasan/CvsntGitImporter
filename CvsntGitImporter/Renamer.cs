@@ -7,34 +7,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace CTC.CvsntGitImporter
+namespace CTC.CvsntGitImporter;
+
+/// <summary>
+/// Collection of rename rules to rename tags and branches. The rules are processed in the order in which
+/// they were added and processing stops as soon as a rule matches.
+/// </summary>
+class Renamer
 {
+	private readonly List<RenameRule> m_rules = new List<RenameRule>();
+
 	/// <summary>
-	/// Collection of rename rules to rename tags and branches. The rules are processed in the order in which
-	/// they were added and processing stops as soon as a rule matches.
+	/// Adds a renaming rule.
 	/// </summary>
-	class Renamer
+	public void AddRule(RenameRule rule)
 	{
-		private readonly List<RenameRule> m_rules = new List<RenameRule>();
+		m_rules.Add(rule);
+	}
 
-		/// <summary>
-		/// Adds a renaming rule.
-		/// </summary>
-		public void AddRule(RenameRule rule)
-		{
-			m_rules.Add(rule);
-		}
-
-		/// <summary>
-		/// Process a name, renaming it if it matches a rule.
-		/// </summary>
-		public string Process(string name)
-		{
-			var match = m_rules.FirstOrDefault(r => r.IsMatch(name));
-			if (match == null)
-				return name;
-			else
-				return match.Apply(name);
-		}
+	/// <summary>
+	/// Process a name, renaming it if it matches a rule.
+	/// </summary>
+	public string Process(string name)
+	{
+		var match = m_rules.FirstOrDefault(r => r.IsMatch(name));
+		if (match == null)
+			return name;
+		else
+			return match.Apply(name);
 	}
 }
