@@ -1,13 +1,12 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using CTC.CvsntGitImporter;
 
 namespace CTC.CvsntGitImporter.TestCode;
 
@@ -136,7 +135,7 @@ public class CommitListExtensionsTest
     [TestMethod]
     public void ToListIfNeeded_NotAList()
     {
-        var list = Enumerable.Repeat(1, 5);
+        var list = Enumerable.Repeat(1, 5).Where(_ => true);
         var ilist = list.ToListIfNeeded();
         Assert.AreNotSame(list, ilist);
     }
