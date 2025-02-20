@@ -7,6 +7,8 @@
         <RestorePackages>true</RestorePackages>
         <LangVersion>default</LangVersion>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     </PropertyGroup>
     <ItemGroup>
         <Reference Update="System.Core">

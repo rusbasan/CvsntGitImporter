@@ -6,6 +6,8 @@
         <LangVersion>default</LangVersion>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <UseVSHostingProcess>false</UseVSHostingProcess>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     </PropertyGroup>
     <ItemGroup>
         <Compile Update="Properties\Resources.Designer.cs">
