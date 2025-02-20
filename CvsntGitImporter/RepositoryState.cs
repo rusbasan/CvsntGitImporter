@@ -13,96 +13,98 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class RepositoryState
 {
-	private readonly Dictionary<string, RepositoryBranchState> m_branches = new Dictionary<string, RepositoryBranchState>();
-	private readonly FileCollection m_allFiles;
-	private readonly bool m_setupInitialBranchState;
+    private readonly Dictionary<string, RepositoryBranchState> m_branches =
+        new Dictionary<string, RepositoryBranchState>();
 
-	private RepositoryState(FileCollection allFiles, bool setupInitialBranchState)
-	{
-		m_allFiles = allFiles;
-		m_setupInitialBranchState = setupInitialBranchState;
-	}
+    private readonly FileCollection m_allFiles;
+    private readonly bool m_setupInitialBranchState;
 
-	/// <summary>
-	/// Create an instance of RepositoryState that tracks the full state of each branch, i.e. each
-	/// branch inherits all live files from its parent.
-	/// </summary>
-	public static RepositoryState CreateWithFullBranchState(FileCollection allFiles)
-	{
-		return new RepositoryState(allFiles, true);
-	}
+    private RepositoryState(FileCollection allFiles, bool setupInitialBranchState)
+    {
+        m_allFiles = allFiles;
+        m_setupInitialBranchState = setupInitialBranchState;
+    }
 
-	/// <summary>
-	/// Create an instance of RepositoryState that tracks only new files added on a branch.
-	/// </summary>
-	public static RepositoryState CreateWithBranchChangesOnly()
-	{
-		return new RepositoryState(null, false);
-	}
+    /// <summary>
+    /// Create an instance of RepositoryState that tracks the full state of each branch, i.e. each
+    /// branch inherits all live files from its parent.
+    /// </summary>
+    public static RepositoryState CreateWithFullBranchState(FileCollection allFiles)
+    {
+        return new RepositoryState(allFiles, true);
+    }
 
-	/// <summary>
-	/// Gets the state for a branch.
-	/// </summary>
-	public RepositoryBranchState this[string branch]
-	{
-		get
-		{
-			RepositoryBranchState state;
-			if (m_branches.TryGetValue(branch, out state))
-				return state;
+    /// <summary>
+    /// Create an instance of RepositoryState that tracks only new files added on a branch.
+    /// </summary>
+    public static RepositoryState CreateWithBranchChangesOnly()
+    {
+        return new RepositoryState(null, false);
+    }
 
-			state = CreateBranchState(branch);
-			m_branches[branch] = state;
-			return state;
-		}
-	}
+    /// <summary>
+    /// Gets the state for a branch.
+    /// </summary>
+    public RepositoryBranchState this[string branch]
+    {
+        get
+        {
+            RepositoryBranchState state;
+            if (m_branches.TryGetValue(branch, out state))
+                return state;
 
-	/// <summary>
-	/// Apply a commit.
-	/// </summary>
-	public void Apply(Commit commit)
-	{
-		var state = this[commit.Branch];
-		state.Apply(commit);
+            state = CreateBranchState(branch);
+            m_branches[branch] = state;
+            return state;
+        }
+    }
 
-		// find any file revisions that are branchpoints for branches and update the state of those branches
-		var branches = commit
-			.SelectMany(f => f.File.GetBranchesAtRevision(f.Revision))
-			.Distinct()
-			.Where(b => m_branches.ContainsKey(b));
+    /// <summary>
+    /// Apply a commit.
+    /// </summary>
+    public void Apply(Commit commit)
+    {
+        var state = this[commit.Branch];
+        state.Apply(commit);
 
-		foreach (var branch in branches)
-		{
-			var tempCommit = new Commit("");
-			foreach (var fr in commit.Where(f => f.File.GetBranchesAtRevision(f.Revision).Contains(branch)))
-				tempCommit.Add(fr);
-			this[branch].Apply(tempCommit);
-		}
-	}
+        // find any file revisions that are branchpoints for branches and update the state of those branches
+        var branches = commit
+            .SelectMany(f => f.File.GetBranchesAtRevision(f.Revision))
+            .Distinct()
+            .Where(b => m_branches.ContainsKey(b));
 
-	private RepositoryBranchState CreateBranchState(string branch)
-	{
-		var state = new RepositoryBranchState(branch);
+        foreach (var branch in branches)
+        {
+            var tempCommit = new Commit("");
+            foreach (var fr in commit.Where(f => f.File.GetBranchesAtRevision(f.Revision).Contains(branch)))
+                tempCommit.Add(fr);
+            this[branch].Apply(tempCommit);
+        }
+    }
 
-		if (m_setupInitialBranchState)
-		{
-			foreach (var file in m_allFiles)
-			{
-				var branchpointRevision = file.GetBranchpointForBranch(branch);
-				if (branchpointRevision == Revision.Empty)
-					continue;
+    private RepositoryBranchState CreateBranchState(string branch)
+    {
+        var state = new RepositoryBranchState(branch);
 
-				var sourceBranch = file.GetBranch(branchpointRevision);
-				if (sourceBranch != null)
-				{
-					var sourceBranchRevision = this[sourceBranch][file.Name];
+        if (m_setupInitialBranchState)
+        {
+            foreach (var file in m_allFiles)
+            {
+                var branchpointRevision = file.GetBranchpointForBranch(branch);
+                if (branchpointRevision == Revision.Empty)
+                    continue;
 
-					if (sourceBranchRevision != Revision.Empty)
-						state.SetUnsafe(file.Name, branchpointRevision);
-				}
-			}
-		}
+                var sourceBranch = file.GetBranch(branchpointRevision);
+                if (sourceBranch != null)
+                {
+                    var sourceBranchRevision = this[sourceBranch][file.Name];
 
-		return state;
-	}
+                    if (sourceBranchRevision != Revision.Empty)
+                        state.SetUnsafe(file.Name, branchpointRevision);
+                }
+            }
+        }
+
+        return state;
+    }
 }

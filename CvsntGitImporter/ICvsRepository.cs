@@ -1,4 +1,4 @@
-﻿/*
+/*
  * John Hall <john.hall@camtechconsultants.com>
  * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
  */
@@ -12,8 +12,8 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 interface ICvsRepository
 {
-	/// <summary>
-	/// Get the contents of a specific file revision from the repository.
-	/// </summary>
-	FileContent GetCvsRevision(FileRevision f);
+    /// <summary>
+    /// Get the contents of a specific file revision from the repository.
+    /// </summary>
+    FileContent GetCvsRevision(FileRevision f);
 }

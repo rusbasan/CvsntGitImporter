@@ -10,34 +10,34 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class FileContent
 {
-	/// <summary>
-	/// The file name.
-	/// </summary>
-	public readonly string Name;
+    /// <summary>
+    /// The file name.
+    /// </summary>
+    public readonly string Name;
 
-	/// <summary>
-	/// The file's data
-	/// </summary>
-	public readonly FileContentData Data;
+    /// <summary>
+    /// The file's data
+    /// </summary>
+    public readonly FileContentData Data;
 
-	/// <summary>
-	/// Is this a file deletion?
-	/// </summary>
-	public readonly bool IsDead;
+    /// <summary>
+    /// Is this a file deletion?
+    /// </summary>
+    public readonly bool IsDead;
 
-	public FileContent(string path, FileContentData data) : this(path, data, false)
-	{
-	}
+    public FileContent(string path, FileContentData data) : this(path, data, false)
+    {
+    }
 
-	private FileContent(string path, FileContentData data, bool isDead)
-	{
-		this.Name = path;
-		this.Data = data;
-		this.IsDead = isDead;
-	}
+    private FileContent(string path, FileContentData data, bool isDead)
+    {
+        this.Name = path;
+        this.Data = data;
+        this.IsDead = isDead;
+    }
 
-	public static FileContent CreateDeadFile(string path)
-	{
-		return new FileContent(path, FileContentData.Empty, true);
-	}
+    public static FileContent CreateDeadFile(string path)
+    {
+        return new FileContent(path, FileContentData.Empty, true);
+    }
 }

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * John Hall <john.hall@camtechconsultants.com>
  * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
  */
@@ -12,9 +12,9 @@ namespace CTC.CvsntGitImporter.TestCode;
 /// </summary>
 static class FileRevisionExtensions
 {
-	public static FileRevision WithMessage(this FileRevision @this, string message)
-	{
-		@this.AddMessage(message);
-		return @this;
-	}
+    public static FileRevision WithMessage(this FileRevision @this, string message)
+    {
+        @this.AddMessage(message);
+        return @this;
+    }
 }

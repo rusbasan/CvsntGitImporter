@@ -1,4 +1,4 @@
-﻿/*
+/*
  * John Hall <john.hall@camtechconsultants.com>
  * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
  */
@@ -14,8 +14,8 @@ namespace CTC.CvsntGitImporter.TestCode;
 /// </summary>
 static class CommitListExtensions
 {
-	public static FileCollection CreateAllFiles(this IEnumerable<Commit> commits, params FileInfo[] extraFiles)
-	{
-		return new FileCollection(commits.SelectMany(c => c.Select(r => r.File)).Concat(extraFiles).Distinct());
-	}
+    public static FileCollection CreateAllFiles(this IEnumerable<Commit> commits, params FileInfo[] extraFiles)
+    {
+        return new FileCollection(commits.SelectMany(c => c.Select(r => r.File)).Concat(extraFiles).Distinct());
+    }
 }

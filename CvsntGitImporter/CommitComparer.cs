@@ -12,29 +12,29 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 abstract class CommitComparer : IEqualityComparer<Commit>
 {
-	/// <summary>
-	/// A CommitComparer that compares by CommitId.
-	/// </summary>
-	public static readonly CommitComparer ById = new IdCommitComparer();
+    /// <summary>
+    /// A CommitComparer that compares by CommitId.
+    /// </summary>
+    public static readonly CommitComparer ById = new IdCommitComparer();
 
 
-	public abstract bool Equals(Commit x, Commit y);
+    public abstract bool Equals(Commit x, Commit y);
 
-	public abstract int GetHashCode(Commit obj);
+    public abstract int GetHashCode(Commit obj);
 
-	/// <summary>
-	/// CommitComparer that compares by id.
-	/// </summary>
-	private class IdCommitComparer : CommitComparer
-	{
-		public override bool Equals(Commit x, Commit y)
-		{
-			return x.CommitId == y.CommitId;
-		}
+    /// <summary>
+    /// CommitComparer that compares by id.
+    /// </summary>
+    private class IdCommitComparer : CommitComparer
+    {
+        public override bool Equals(Commit x, Commit y)
+        {
+            return x.CommitId == y.CommitId;
+        }
 
-		public override int GetHashCode(Commit obj)
-		{
-			return obj.CommitId.GetHashCode();
-		}
-	}
+        public override int GetHashCode(Commit obj)
+        {
+            return obj.CommitId.GetHashCode();
+        }
+    }
 }

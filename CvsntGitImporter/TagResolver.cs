@@ -13,32 +13,32 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class TagResolver : AutoTagResolverBase
 {
-	private readonly ILogger m_log;
+    private readonly ILogger m_log;
 
-	public TagResolver(ILogger log, FileCollection allFiles, bool continueOnError, bool noCommitReordering) :
-		base(log: log, allFiles: allFiles, false, continueOnError, noCommitReordering: noCommitReordering)
-	{
-		m_log = log;
-	}
+    public TagResolver(ILogger log, FileCollection allFiles, bool continueOnError, bool noCommitReordering) :
+        base(log: log, allFiles: allFiles, false, continueOnError, noCommitReordering: noCommitReordering)
+    {
+        m_log = log;
+    }
 
-	public override bool Resolve(IEnumerable<string> tags, IEnumerable<Commit> commits)
-	{
-		m_log.DoubleRuleOff();
-		m_log.WriteLine("Resolving tags");
+    public override bool Resolve(IEnumerable<string> tags, IEnumerable<Commit> commits)
+    {
+        m_log.DoubleRuleOff();
+        m_log.WriteLine("Resolving tags");
 
-		using (m_log.Indent())
-		{
-			return base.Resolve(tags, commits);
-		}
-	}
+        using (m_log.Indent())
+        {
+            return base.Resolve(tags, commits);
+        }
+    }
 
-	protected override IEnumerable<string> GetTagsForFileRevision(FileInfo file, Revision revision)
-	{
-		return file.GetTagsForRevision(revision);
-	}
+    protected override IEnumerable<string> GetTagsForFileRevision(FileInfo file, Revision revision)
+    {
+        return file.GetTagsForRevision(revision);
+    }
 
-	protected override Revision GetRevisionForTag(FileInfo file, string tag)
-	{
-		return file.GetRevisionForTag(tag);
-	}
+    protected override Revision GetRevisionForTag(FileInfo file, string tag)
+    {
+        return file.GetRevisionForTag(tag);
+    }
 }

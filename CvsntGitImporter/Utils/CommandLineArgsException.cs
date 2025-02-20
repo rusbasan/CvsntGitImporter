@@ -13,15 +13,15 @@ namespace CTC.CvsntGitImporter.Utils;
 [Serializable]
 class CommandLineArgsException : Exception
 {
-	#region Constructors
+    #region Constructors
 
-	public CommandLineArgsException(string message) : base(message)
-	{
-	}
+    public CommandLineArgsException(string message) : base(message)
+    {
+    }
 
-	public CommandLineArgsException(string format, params object[] args) : base(String.Format(format, args))
-	{
-	}
+    public CommandLineArgsException(string format, params object[] args) : base(String.Format(format, args))
+    {
+    }
 
-	#endregion
+    #endregion
 }

@@ -10,7 +10,7 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 enum LogLevel
 {
-	Important,
-	Normal,
-	Debug,
+    Important,
+    Normal,
+    Debug,
 }
