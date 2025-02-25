@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -19,28 +19,28 @@ public class CvsIgnoreFileTest
     [TestMethod]
     public void IsIgnoreFile_MatchesLowerCase()
     {
-        var f = new FileContent("dir/.cvsignore", FileContentData.Empty);
+        var f = new FileContent("dir/.cvsignore", FileContentData.Empty, false);
         Assert.IsTrue(CvsIgnoreFile.IsIgnoreFile(f));
     }
 
     [TestMethod]
     public void IsIgnoreFile_FileInRoot()
     {
-        var f = new FileContent(".cvsignore", FileContentData.Empty);
+        var f = new FileContent(".cvsignore", FileContentData.Empty, false);
         Assert.IsTrue(CvsIgnoreFile.IsIgnoreFile(f));
     }
 
     [TestMethod]
     public void IsIgnoreFile_MixedCase()
     {
-        var f = new FileContent("dir/.CVSignore", FileContentData.Empty);
+        var f = new FileContent("dir/.CVSignore", FileContentData.Empty, false);
         Assert.IsTrue(CvsIgnoreFile.IsIgnoreFile(f));
     }
 
     [TestMethod]
     public void Rewrite_SimpleFileNames()
     {
-        var cvs = new FileContent(".cvsignore", MakeContents("file1", "file2"));
+        var cvs = new FileContent(".cvsignore", MakeContents("file1", "file2"), false);
         var git = CvsIgnoreFile.Rewrite(cvs);
 
         Assert.AreEqual(git.Name, ".gitignore");
@@ -53,7 +53,7 @@ public class CvsIgnoreFileTest
     [TestMethod]
     public void Rewrite_DeletedFile()
     {
-        var cvs = FileContent.CreateDeadFile(".cvsignore");
+        var cvs = FileContent.CreateDeadFile(".cvsignore", false);
         Assert.IsTrue(cvs.IsDead, ".cvsignore file is dead");
         var git = CvsIgnoreFile.Rewrite(cvs);
 
@@ -63,7 +63,7 @@ public class CvsIgnoreFileTest
     [TestMethod]
     public void Rewrite_MultipleEntriesPerLine()
     {
-        var cvs = new FileContent(".cvsignore", MakeContents("file1 file2", "file3"));
+        var cvs = new FileContent(".cvsignore", MakeContents("file1 file2", "file3"), false);
         var git = CvsIgnoreFile.Rewrite(cvs);
 
         Assert.AreEqual(git.Name, ".gitignore");
@@ -77,7 +77,7 @@ public class CvsIgnoreFileTest
     [TestMethod]
     public void Rewrite_BlankLine()
     {
-        var cvs = new FileContent(".cvsignore", MakeContents("file1", "", "file2"));
+        var cvs = new FileContent(".cvsignore", MakeContents("file1", "", "file2"), false);
         var git = CvsIgnoreFile.Rewrite(cvs);
 
         var contents = GetContents(git);
@@ -89,7 +89,7 @@ public class CvsIgnoreFileTest
     [TestMethod]
     public void Rewrite_SpaceInFilename()
     {
-        var cvs = new FileContent(".cvsignore", MakeContents(@"file\ with\ spaces.txt"));
+        var cvs = new FileContent(".cvsignore", MakeContents(@"file\ with\ spaces.txt"), false);
         var git = CvsIgnoreFile.Rewrite(cvs);
 
         Assert.AreEqual(git.Name, ".gitignore");
@@ -101,7 +101,7 @@ public class CvsIgnoreFileTest
     [TestMethod]
     public void Rewrite_EscapedBackslash()
     {
-        var cvs = new FileContent(".cvsignore", MakeContents(@"dir\\file.txt"));
+        var cvs = new FileContent(".cvsignore", MakeContents(@"dir\\file.txt"), false);
         var git = CvsIgnoreFile.Rewrite(cvs);
 
         Assert.AreEqual(git.Name, ".gitignore");
@@ -113,7 +113,7 @@ public class CvsIgnoreFileTest
     [TestMethod]
     public void Rewrite_LeadingSpace()
     {
-        var cvs = new FileContent(".cvsignore", MakeContents(@"  file.txt"));
+        var cvs = new FileContent(".cvsignore", MakeContents(@"  file.txt"), false);
         var git = CvsIgnoreFile.Rewrite(cvs);
 
         Assert.AreEqual(git.Name, ".gitignore");
@@ -125,7 +125,7 @@ public class CvsIgnoreFileTest
     [TestMethod]
     public void Rewrite_MultipleSpacesBetween()
     {
-        var cvs = new FileContent(".cvsignore", MakeContents("file1.txt \t file2.txt"));
+        var cvs = new FileContent(".cvsignore", MakeContents("file1.txt \t file2.txt"), false);
         var git = CvsIgnoreFile.Rewrite(cvs);
 
         Assert.AreEqual(git.Name, ".gitignore");
@@ -138,7 +138,7 @@ public class CvsIgnoreFileTest
     [TestMethod]
     public void Rewrite_FileInSubdir()
     {
-        var cvs = new FileContent("dir1/dir2/.cvsignore", MakeContents("file1"));
+        var cvs = new FileContent("dir1/dir2/.cvsignore", MakeContents("file1"), false);
         var git = CvsIgnoreFile.Rewrite(cvs);
 
         Assert.AreEqual(git.Name, "dir1/dir2/.gitignore");
@@ -147,7 +147,7 @@ public class CvsIgnoreFileTest
     [TestMethod]
     public void Rewrite_NegatedEntry()
     {
-        var cvs = new FileContent("dir1/dir2/.cvsignore", MakeContents("file1", "!file2"));
+        var cvs = new FileContent("dir1/dir2/.cvsignore", MakeContents("file1", "!file2"), false);
         var git = CvsIgnoreFile.Rewrite(cvs);
 
         var contents = GetContents(git);
@@ -159,7 +159,7 @@ public class CvsIgnoreFileTest
     [TestMethod]
     public void Rewrite_WildcardEntry()
     {
-        var cvs = new FileContent("dir1/dir2/.cvsignore", MakeContents("file*.txt"));
+        var cvs = new FileContent("dir1/dir2/.cvsignore", MakeContents("file*.txt"), false);
         var git = CvsIgnoreFile.Rewrite(cvs);
 
         var contents = GetContents(git);

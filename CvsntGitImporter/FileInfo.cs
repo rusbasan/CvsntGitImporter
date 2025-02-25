@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -22,7 +22,6 @@ class FileInfo
     private readonly Dictionary<string, Revision> m_revisionForBranch = new Dictionary<string, Revision>();
     private readonly Dictionary<Revision, string> m_branchForRevision = new Dictionary<Revision, string>();
     private readonly Dictionary<Revision, Commit> m_commits = new Dictionary<Revision, Commit>();
-
 
     /// <summary>
     /// The file's name.
@@ -50,6 +49,20 @@ class FileInfo
         get { return m_revisionForBranch.Keys; }
     }
 
+    /// <summary>
+    /// The keyword substitution flags associate with the file in CVSNT, which can indicate various things but
+    /// most-usefully indicates if a file is binary or text.
+    /// </summary>
+    public String KeywordSubstitution { get; set; } = String.Empty;
+
+    /// <summary>
+    /// Whether the file should be treated as binary (so not change) or text (have line endings normalized).
+    /// </summary>
+    /// <remarks>
+    /// Supposedly a keyword substitution of "kb" or "kB" indicates the file is binary, but in actual repos it seems to
+    /// just have a "b", so just look for that, as none of the other known substitutions have a "b" in them.
+    /// </remarks>
+    public Boolean IsBinary => KeywordSubstitution.Contains('b') || KeywordSubstitution.Contains('B');
 
     public FileInfo(string name)
     {

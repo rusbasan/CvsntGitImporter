@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace CTC.CvsntGitImporter;
 
@@ -33,7 +32,7 @@ static class CvsIgnoreFile
 
         if (file.IsDead)
         {
-            return FileContent.CreateDeadFile(newFilename);
+            return FileContent.CreateDeadFile(newFilename, file.IsBinary);
         }
         else
         {
@@ -47,7 +46,7 @@ static class CvsIgnoreFile
                 buf => buf.ToString());
 
             var bytes = Encoding.UTF8.GetBytes(newContent);
-            return new FileContent(newFilename, new FileContentData(bytes));
+            return new FileContent(newFilename, new FileContentData(bytes), file.IsBinary);
         }
     }
 

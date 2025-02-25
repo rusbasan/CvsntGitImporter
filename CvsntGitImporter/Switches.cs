@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2023 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -78,6 +78,10 @@ class Switches : SwitchesDefBase
         Description =
             "Removes advertising a certain CVSNT vendor put into commit messages and (indirectly) source code")]
     public bool RemoveAdvertising { get; set; }
+
+    [SwitchDef(LongSwitch = "--no-line-ending-normalization",
+        Description = "Disable normalizing text-file line endings to CR")]
+    public Boolean NoLineEndingNormalization { get; set; }
 
     [SwitchDef(LongSwitch = "--partial-tag-threshold",
         Description =

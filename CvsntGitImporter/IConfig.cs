@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2023 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -147,4 +147,9 @@ interface IConfig
     /// The name to use for the main Git branch (defaults to "main"; formerly "master").
     /// </summary>
     public String MainBranchName { get; }
+
+    /// <summary>
+    /// Suppress normalizing line endings to CR in text files (files not being marked as binary in CVSNT).
+    /// </summary>
+    public Boolean NoLineEndingNormalization { get; }
 }

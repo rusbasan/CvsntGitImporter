@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -18,7 +18,7 @@ public class FileContentTest
     public void EmptyFile()
     {
         var data = new FileContentData(new byte[0]);
-        var file = new FileContent("file", data);
+        var file = new FileContent("file", data, false);
 
         Assert.AreEqual("file", file.Name);
         Assert.AreEqual(0, file.Data.Length);
@@ -28,7 +28,7 @@ public class FileContentTest
     [TestMethod]
     public void DeadFile()
     {
-        var file = FileContent.CreateDeadFile("file");
+        var file = FileContent.CreateDeadFile("file", false);
         Assert.IsTrue(file.IsDead);
         Assert.AreEqual("file", file.Name);
     }

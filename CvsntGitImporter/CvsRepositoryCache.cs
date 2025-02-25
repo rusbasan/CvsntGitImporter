@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -42,7 +42,7 @@ class CvsRepositoryCache : ICvsRepository
         if (File.Exists(cachedPath))
         {
             var bytes = File.ReadAllBytes(cachedPath);
-            return new FileContent(f.File.Name, new FileContentData(bytes, bytes.Length));
+            return new FileContent(f.File.Name, new FileContentData(bytes, bytes.Length), f.File.IsBinary);
         }
         else
         {

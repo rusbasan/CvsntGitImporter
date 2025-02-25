@@ -1,10 +1,11 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2023 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -35,9 +36,20 @@ class Importer : IDisposable
     private bool m_isDisposed = false;
 
     /// <summary>
+    /// Byte patterns for various text encodings for advertising lines that can be removed from code and line endings
+    /// that can be standardized.
+    /// </summary>
+    private ReadOnlyCollection<(Byte[] Pattern, Byte[] Replacement)> _lineEndingAndAdvertisingReplacements;
+
+    /// <summary>
+    /// Byte patterns for various text encodings for line endings that can be standardized.
+    /// </summary>
+    private ReadOnlyCollection<(Byte[] Pattern, Byte[] Replacement)> _lineEndingReplacements;
+
+    /// <summary>
     /// Byte patterns for various text encodings for advertising lines that can be removed from code.
     /// </summary>
-    private List<Byte[]> m_advertisingLinePatterns;
+    private ReadOnlyCollection<(Byte[] Pattern, Byte[] Replacement)> _advertisingReplacements;
 
     public Importer(ILogger log, IConfig config, UserMap userMap, BranchStreamCollection branches,
         IDictionary<string, Commit> tags, Cvs cvs)
@@ -49,6 +61,8 @@ class Importer : IDisposable
         m_tags = tags;
         m_cvs = cvs;
         m_player = new CommitPlayer(log, branches);
+
+        CreateTextReplacements();
     }
 
     public void Dispose()
@@ -215,9 +229,20 @@ class Importer : IDisposable
 
                 var fileData = file.Data;
 
-                if (m_config.RemoveAdvertising)
+                if (file.IsBinary == false)
                 {
-                    fileData = RemoveAdvertising(file.Data);
+                    if (m_config.RemoveAdvertising && m_config.NoLineEndingNormalization == false)
+                    {
+                        fileData = AdjustFileText(file.Data, _lineEndingAndAdvertisingReplacements);
+                    }
+                    else if (m_config.NoLineEndingNormalization == false)
+                    {
+                        fileData = AdjustFileText(file.Data, _lineEndingReplacements);
+                    }
+                    else if (m_config.RemoveAdvertising)
+                    {
+                        fileData = AdjustFileText(file.Data, _advertisingReplacements);
+                    }
                 }
 
                 WriteData(fileData);
@@ -288,15 +313,17 @@ class Importer : IDisposable
     }
 
     /// <summary>
-    /// Removes known advertising lines from code bytes.
+    /// Adjusts text to do things like normalize line endings and removes known advertising.
     /// </summary>
     /// <param name="originalData">The original data, which contains the bytes.</param>
-    /// <returns>The new data, with advertising removed (or the original if there was none).</returns>
+    /// <param name="replacements">Pairs of patterns and their replacements.</param>
+    /// <returns>The new data after changes were made to it.</returns>
     /// <remarks>
     /// Could be made more efficient (check multiple patterns at once, use skip tables, etc.), but testing show it
     /// doesn't add much percentage-wise to the conversion time as it's dominated by other factors.
     /// </remarks>
-    private FileContentData RemoveAdvertising(FileContentData originalData)
+    private FileContentData AdjustFileText(FileContentData originalData,
+        ReadOnlyCollection<(Byte[] Pattern, Byte[] Replacement)> replacements)
     {
         var originalBytes = originalData.Data;
 
@@ -310,18 +337,18 @@ class Importer : IDisposable
         {
             Boolean skippedAd = false;
 
-            foreach (var pattern in AdvertisingLinePatterns)
+            foreach (var pattern in replacements)
             {
-                if (i + pattern.Length >= originalBytes.Length)
+                if (i + pattern.Pattern.Length > originalBytes.Length)
                 {
                     continue;
                 }
 
                 Boolean matched = true;
 
-                for (Int32 patternByteIndex = pattern.Length - 1; patternByteIndex >= 0; patternByteIndex--)
+                for (Int32 patternByteIndex = pattern.Pattern.Length - 1; patternByteIndex >= 0; patternByteIndex--)
                 {
-                    if (originalBytes[i + patternByteIndex] != pattern[patternByteIndex])
+                    if (originalBytes[i + patternByteIndex] != pattern.Pattern[patternByteIndex])
                     {
                         matched = false;
                         break;
@@ -330,9 +357,16 @@ class Importer : IDisposable
 
                 if (matched)
                 {
-                    i += pattern.Length - 1;
+                    i += pattern.Pattern.Length - 1;
                     skippedAd = true;
                     removedAdvertising = true;
+
+                    foreach (var replacement in pattern.Replacement)
+                    {
+                        newBytes[newBytesIndex] = replacement;
+                        newBytesIndex++;
+                    }
+
                     break;
                 }
             }
@@ -348,36 +382,51 @@ class Importer : IDisposable
     }
 
     /// <summary>
-    /// Creates byte patterns for various text encodings for advertising lines that can be removed from code.
+    /// Creates byte patterns for replacing text, such as normalizing line endings or removing advertising text.
     /// </summary>
-    /// <param name="strings">The strings to create byte patterns for.</param>
-    /// <returns>A list of byte patterns, sorted by size (largest to smallest).</returns>
-    private List<Byte[]> CreateAdvertisingLinePatterns(params String[] strings)
+    /// <returns>A list of pattern and replacement byte patterns, sorted by order they should be applied.</returns>
+    private void CreateTextReplacements()
     {
-        var patterns = new List<Byte[]>();
+        var advertisingLines = m_config.AdvertisingLines;
 
-        foreach (var value in strings)
+        var advertisingLinePatterns = new List<Byte[]>();
+
+        List<(Byte[] Pattern, Byte[] Replacement)> lineEndingReplacements = [];
+        List<(Byte[] Pattern, Byte[] Replacement)> advertisingReplacements = [];
+
+        foreach (var advertisingLine in advertisingLines)
         {
-            var valueWithNewline = value + "\n";
-            var valueWithCarriageReturnAndNewLine = value + "\r\n";
+            var valueWithNewline = advertisingLine + "\n";
+            var valueWithCarriageReturnAndNewLine = advertisingLine + "\r\n";
 
-            patterns.Add(Encoding.UTF8.GetBytes(valueWithNewline));
-            patterns.Add(Encoding.Unicode.GetBytes(valueWithNewline));
-            patterns.Add(Encoding.BigEndianUnicode.GetBytes(valueWithNewline));
+            advertisingLinePatterns.Add(Encoding.UTF8.GetBytes(valueWithNewline));
+            advertisingLinePatterns.Add(Encoding.Unicode.GetBytes(valueWithNewline));
+            advertisingLinePatterns.Add(Encoding.BigEndianUnicode.GetBytes(valueWithNewline));
 
-            patterns.Add(Encoding.UTF8.GetBytes(valueWithCarriageReturnAndNewLine));
-            patterns.Add(Encoding.Unicode.GetBytes(valueWithCarriageReturnAndNewLine));
-            patterns.Add(Encoding.BigEndianUnicode.GetBytes(valueWithCarriageReturnAndNewLine));
+            advertisingLinePatterns.Add(Encoding.UTF8.GetBytes(valueWithCarriageReturnAndNewLine));
+            advertisingLinePatterns.Add(Encoding.Unicode.GetBytes(valueWithCarriageReturnAndNewLine));
+            advertisingLinePatterns.Add(Encoding.BigEndianUnicode.GetBytes(valueWithCarriageReturnAndNewLine));
         }
 
-        patterns.Sort((a, b) => b.Length - a.Length);
+        advertisingLinePatterns.Sort((a, b) => b.Length - a.Length);
 
-        return patterns;
+        advertisingReplacements.AddRange(advertisingLinePatterns.Select(pattern => (pattern, Array.Empty<Byte>())));
+
+        const String crlf = "\r\n";
+        const String lf = "\n";
+
+        lineEndingReplacements.Add((Encoding.BigEndianUnicode.GetBytes(crlf), Encoding.BigEndianUnicode.GetBytes(lf)));
+        lineEndingReplacements.Add((Encoding.Unicode.GetBytes(crlf), Encoding.Unicode.GetBytes(lf)));
+        lineEndingReplacements.Add((Encoding.UTF8.GetBytes(crlf), Encoding.UTF8.GetBytes(lf)));
+
+        _lineEndingReplacements =
+            new ReadOnlyCollection<(Byte[] Pattern, Byte[] Replacement)>(lineEndingReplacements.ToArray());
+
+        _advertisingReplacements =
+            new ReadOnlyCollection<(Byte[] Pattern, Byte[] Replacement)>(advertisingReplacements.ToArray());
+
+        _lineEndingAndAdvertisingReplacements =
+            new ReadOnlyCollection<(Byte[] Pattern, Byte[] Replacement)>(advertisingReplacements
+                .Concat(lineEndingReplacements).ToArray());
     }
-
-    /// <summary>
-    /// Byte patterns for various text encodings for advertising lines that can be removed from code.
-    /// </summary>
-    private List<Byte[]> AdvertisingLinePatterns =>
-        m_advertisingLinePatterns ??= CreateAdvertisingLinePatterns(m_config.AdvertisingLines);
 }

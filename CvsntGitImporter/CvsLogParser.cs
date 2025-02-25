@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2023 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -96,87 +96,97 @@ class CvsLogParser
 
         foreach (var line in m_reader)
         {
-            switch (state)
+            var  lineProcessed = false;
+
+            while (lineProcessed == false)
             {
-                case State.Start:
-                    if (line.StartsWith("RCS file: "))
-                    {
-                        currentFile = new FileInfo(ExtractFileName(line));
-                        m_files.Add(currentFile);
-                        state = State.InFileHeader;
-                    }
+                lineProcessed = true;
 
-                    break;
-                case State.InFileHeader:
-                    if (line == LogSeparator)
-                        state = State.ExpectCommitRevision;
-                    else if (line == "symbolic names:")
-                        state = State.InTags;
-                    break;
-                case State.InTags:
-                    if (!line.StartsWith("\t"))
-                    {
-                        state = State.InFileHeader;
-                    }
-                    else
-                    {
-                        var tagMatch = Regex.Match(line, @"^\t(\S+): (\S+)");
-                        if (!tagMatch.Success)
-                            throw MakeParseException("Invalid tag line: '{0}'", line);
-
-                        var tagName = tagMatch.Groups[1].Value;
-                        var tagRevision = Revision.Create(tagMatch.Groups[2].Value);
-
-                        if (tagRevision.IsBranch)
+                switch (state)
+                {
+                    case State.Start:
+                        if (line.StartsWith("RCS file: "))
                         {
-                            if (m_branchMatcher.Match(tagName))
-                                currentFile.AddBranchTag(tagName, tagRevision);
-                            else
-                                m_excludedBranches.Add(tagName);
+                            currentFile = new FileInfo(ExtractFileName(line));
+                            m_files.Add(currentFile);
+                            state = State.InFileHeader;
+                        }
+
+                        break;
+                    case State.InFileHeader:
+                        if (line == LogSeparator)
+                            state = State.ExpectCommitRevision;
+                        else if (line == "symbolic names:")
+                            state = State.InTags;
+                        else if (line.StartsWith("keyword substitution:"))
+                            currentFile.KeywordSubstitution = line.Substring(line.IndexOf(':') + 1).Trim();
+                        break;
+                    case State.InTags:
+                        if (!line.StartsWith("\t"))
+                        {
+                            lineProcessed = false;
+                            state = State.InFileHeader;
                         }
                         else
                         {
-                            currentFile.AddTag(tagName, tagRevision);
+                            var tagMatch = Regex.Match(line, @"^\t(\S+): (\S+)");
+                            if (!tagMatch.Success)
+                                throw MakeParseException("Invalid tag line: '{0}'", line);
+
+                            var tagName = tagMatch.Groups[1].Value;
+                            var tagRevision = Revision.Create(tagMatch.Groups[2].Value);
+
+                            if (tagRevision.IsBranch)
+                            {
+                                if (m_branchMatcher.Match(tagName))
+                                    currentFile.AddBranchTag(tagName, tagRevision);
+                                else
+                                    m_excludedBranches.Add(tagName);
+                            }
+                            else
+                            {
+                                currentFile.AddTag(tagName, tagRevision);
+                            }
                         }
-                    }
 
-                    break;
-                case State.ExpectCommitRevision:
-                    if (line.StartsWith("revision "))
-                    {
-                        revision = Revision.Create(line.Substring(9));
-                        state = State.ExpectCommitInfo;
-                    }
-                    else
-                    {
-                        throw MakeParseException("Expected revision line, found '{0}'", line);
-                    }
+                        break;
+                    case State.ExpectCommitRevision:
+                        if (line.StartsWith("revision "))
+                        {
+                            revision = Revision.Create(line.Substring(9));
+                            state = State.ExpectCommitInfo;
+                        }
+                        else
+                        {
+                            throw MakeParseException("Expected revision line, found '{0}'", line);
+                        }
 
-                    break;
-                case State.ExpectCommitInfo:
-                    commit = ParseFields(currentFile, revision, line);
-                    state = State.ExpectCommitMessage;
-                    break;
-                case State.ExpectCommitMessage:
-                    if (line == LogSeparator)
-                    {
-                        if (commit != null)
-                            yield return commit;
-                        state = State.ExpectCommitRevision;
-                    }
-                    else if (line == FileSeparator)
-                    {
-                        if (commit != null)
-                            yield return commit;
-                        state = State.Start;
-                    }
-                    else if (!line.StartsWith("branches:  "))
-                    {
-                        if (commit != null && m_excludeLine(line) == false)
-                            commit.AddMessage(line);
-                    }
+                        break;
+                    case State.ExpectCommitInfo:
+                        commit = ParseFields(currentFile, revision, line);
+                        state = State.ExpectCommitMessage;
+                        break;
+                    case State.ExpectCommitMessage:
+                        if (line == LogSeparator)
+                        {
+                            if (commit != null)
+                                yield return commit;
+                            state = State.ExpectCommitRevision;
+                        }
+                        else if (line == FileSeparator)
+                        {
+                            if (commit != null)
+                                yield return commit;
+                            state = State.Start;
+                        }
+                        else if (!line.StartsWith("branches:  "))
+                        {
+                            if (commit != null && m_excludeLine(line) == false)
+                                commit.AddMessage(line);
+                        }
 
-                    break;
+                        break;
+                }
             }
         }
     }

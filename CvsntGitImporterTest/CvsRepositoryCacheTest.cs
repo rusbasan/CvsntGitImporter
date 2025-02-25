@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -50,7 +50,7 @@ public class CvsRepositoryCacheTest
             commitId: "c1");
 
         var repo = new Mock<ICvsRepository>();
-        repo.Setup(r => r.GetCvsRevision(f)).Returns(new FileContent("file.txt", FileContentData.Empty)).Verifiable();
+        repo.Setup(r => r.GetCvsRevision(f)).Returns(new FileContent("file.txt", FileContentData.Empty, false)).Verifiable();
         var cache = new CvsRepositoryCache(m_temp.Path, repo.Object);
         cache.GetCvsRevision(f);
 
@@ -68,7 +68,7 @@ public class CvsRepositoryCacheTest
 
         var contents = new FileContentData(new byte[] { 1, 2, 3, 4 }, 4);
         var repo1 = new Mock<ICvsRepository>();
-        repo1.Setup(r => r.GetCvsRevision(f)).Returns(new FileContent("file.txt", contents));
+        repo1.Setup(r => r.GetCvsRevision(f)).Returns(new FileContent("file.txt", contents, false));
         var cache1 = new CvsRepositoryCache(m_temp.Path, repo1.Object);
         cache1.GetCvsRevision(f);
 

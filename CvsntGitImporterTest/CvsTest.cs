@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -70,6 +70,6 @@ public class CvsTest
     {
         var data = Encoding.UTF8.GetBytes(String.Format("{0} r{1}", f.File.Name, f.Revision.ToString()));
         var content = new FileContentData(data, data.Length);
-        return new FileContent(f.File.Name, content);
+        return new FileContent(f.File.Name, content, false);
     }
 }

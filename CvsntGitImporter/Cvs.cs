@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -60,7 +60,7 @@ class Cvs
         // now return all dead files
         foreach (var f in commit.Where(f => f.IsDead))
         {
-            yield return FileContent.CreateDeadFile(f.File.Name);
+            yield return FileContent.CreateDeadFile(f.File.Name, f.File.IsBinary);
         }
 
         // wait for tasks to complete and start new ones as they do

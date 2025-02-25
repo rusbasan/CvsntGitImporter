@@ -1,7 +1,9 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
+
+using System;
 
 namespace CTC.CvsntGitImporter;
 
@@ -25,19 +27,25 @@ class FileContent
     /// </summary>
     public readonly bool IsDead;
 
-    public FileContent(string path, FileContentData data) : this(path, data, false)
+    /// <summary>
+    /// Was this flagged as a binary file in CVSNT?
+    /// </summary>
+    public Boolean IsBinary { get; }
+
+    public FileContent(string path, FileContentData data, Boolean isBinary) : this(path, data, isBinary, false)
     {
     }
 
-    private FileContent(string path, FileContentData data, bool isDead)
+    private FileContent(string path, FileContentData data, Boolean isBinary, bool isDead)
     {
         this.Name = path;
         this.Data = data;
         this.IsDead = isDead;
+        IsBinary = isBinary;
     }
 
-    public static FileContent CreateDeadFile(string path)
+    public static FileContent CreateDeadFile(string path, Boolean isBinary)
     {
-        return new FileContent(path, FileContentData.Empty, true);
+        return new FileContent(path, FileContentData.Empty, isBinary, true);
     }
 }

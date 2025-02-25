@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2023 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -179,8 +179,10 @@ class Config : IConfig
     /// <inheritdoc />
     public Boolean RemoveAdvertising => m_switches.RemoveAdvertising;
 
-    #endregion General config
+    /// <inheritdoc />
+    public Boolean NoLineEndingNormalization => m_switches.NoLineEndingNormalization;
 
+    #endregion General config
 
     #region Users
 

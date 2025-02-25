@@ -1,10 +1,9 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -38,7 +37,7 @@ class CvsRepository : ICvsRepository
         InvokeCvs("-f", "-Q", "update", "-r" + f.Revision.ToString(), f.File.Name);
 
         var dataPath = Path.Combine(m_sandboxPath, f.File.Name.Replace('/', '\\'));
-        return new FileContent(f.File.Name, new FileContentData(File.ReadAllBytes(dataPath)));
+        return new FileContent(f.File.Name, new FileContentData(File.ReadAllBytes(dataPath)), f.File.IsBinary);
     }
 
     /// <summary>
