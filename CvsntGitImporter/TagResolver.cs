@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System.Collections.Generic;
@@ -13,20 +13,20 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class TagResolver : AutoTagResolverBase
 {
-    private readonly ILogger m_log;
+    private readonly ILogger _log;
 
     public TagResolver(ILogger log, FileCollection allFiles, bool continueOnError, bool noCommitReordering) :
         base(log: log, allFiles: allFiles, false, continueOnError, noCommitReordering: noCommitReordering)
     {
-        m_log = log;
+        _log = log;
     }
 
     public override bool Resolve(IEnumerable<string> tags, IEnumerable<Commit> commits)
     {
-        m_log.DoubleRuleOff();
-        m_log.WriteLine("Resolving tags");
+        _log.DoubleRuleOff();
+        _log.WriteLine("Resolving tags");
 
-        using (m_log.Indent())
+        using (_log.Indent())
         {
             return base.Resolve(tags, commits);
         }

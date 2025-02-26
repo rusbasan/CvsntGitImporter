@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -15,7 +15,7 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class FileRevision
 {
-    private StringBuilder m_messageBuf = new StringBuilder();
+    private StringBuilder _messageBuf = new StringBuilder();
 
     public readonly FileInfo File;
     public readonly Revision Revision;
@@ -27,7 +27,7 @@ class FileRevision
 
     public string Message
     {
-        get { return m_messageBuf.ToString(); }
+        get { return _messageBuf.ToString(); }
     }
 
     /// <summary>
@@ -65,9 +65,9 @@ class FileRevision
 
     public void AddMessage(string line)
     {
-        if (m_messageBuf.Length > 0)
-            m_messageBuf.Append(Environment.NewLine);
-        m_messageBuf.Append(line);
+        if (_messageBuf.Length > 0)
+            _messageBuf.Append(Environment.NewLine);
+        _messageBuf.Append(line);
     }
 
     public override string ToString()

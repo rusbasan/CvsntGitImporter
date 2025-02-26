@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -73,14 +73,14 @@ public class RevisionTest
 
     [TestMethod]
     [ExpectedException(typeof(InvalidOperationException))]
-    public void BranchStem_MainRevision()
+    public void BranchSte_MainRevision()
     {
         var r = Revision.Create("1.1");
         var stem = r.BranchStem;
     }
 
     [TestMethod]
-    public void BranchStem_BranchRevision()
+    public void BranchSte_BranchRevision()
     {
         var r = Revision.Create("1.1.2.5");
         var expected = Revision.Create("1.1.2");
@@ -88,7 +88,7 @@ public class RevisionTest
     }
 
     [TestMethod]
-    public void BranchStem_Branchpoint()
+    public void BranchSte_Branchpoint()
     {
         var r = Revision.Create("1.1.0.6");
         var expected = Revision.Create("1.1.6");

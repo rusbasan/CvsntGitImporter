@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2023 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -19,24 +19,24 @@ namespace CTC.CvsntGitImporter.TestCode;
 [TestClass]
 public class CvsLogParserTest
 {
-    private TempDir m_temp;
-    private string m_sandbox;
-    private InclusionMatcher m_branchMatcher;
+    private TempDir _temp;
+    private string _sandbox;
+    private InclusionMatcher _branchMatcher;
 
     [TestInitialize]
     public void Setup()
     {
-        m_temp = new TempDir();
-        Directory.CreateDirectory(m_temp.GetPath("CVS"));
-        File.WriteAllText(m_temp.GetPath(@"CVS\Repository"), "module");
-        m_sandbox = m_temp.Path;
-        m_branchMatcher = new InclusionMatcher();
+        _temp = new TempDir();
+        Directory.CreateDirectory(_temp.GetPath("CVS"));
+        File.WriteAllText(_temp.GetPath(@"CVS\Repository"), "module");
+        _sandbox = _temp.Path;
+        _branchMatcher = new InclusionMatcher();
     }
 
     [TestCleanup]
     public void Clearup()
     {
-        m_temp.Dispose();
+        _temp.Dispose();
     }
 
     [TestMethod]
@@ -103,8 +103,8 @@ public class CvsLogParserTest
     [TestMethod]
     public void ExcludeBranches()
     {
-        m_branchMatcher.AddExcludeRule(@"^branch2");
-        m_branchMatcher.AddIncludeRule(@"^branch1");
+        _branchMatcher.AddExcludeRule(@"^branch2");
+        _branchMatcher.AddIncludeRule(@"^branch1");
 
         var parser = CreateParser(CvsLogParserResources.Branches);
         parser.Parse().ToList();
@@ -124,7 +124,7 @@ public class CvsLogParserTest
             var cvsLog = temp.GetPath("cvs.log");
             File.WriteAllText(cvsLog, CvsLogParserResources.NonAscii, Encoding.Default);
 
-            var parser = new CvsLogParser(m_sandbox, cvsLog, m_branchMatcher, _ => false);
+            var parser = new CvsLogParser(_sandbox, cvsLog, _branchMatcher, _ => false);
             parser.Parse().ToList();
             var file = parser.Files.Single();
 
@@ -135,6 +135,6 @@ public class CvsLogParserTest
 
     private CvsLogParser CreateParser(string log)
     {
-        return new CvsLogParser(m_sandbox, new StringReader(log), m_branchMatcher, _ => false);
+        return new CvsLogParser(_sandbox, new StringReader(log), _branchMatcher, _ => false);
     }
 }

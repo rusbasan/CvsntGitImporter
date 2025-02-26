@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System.Collections.Generic;
@@ -15,14 +15,14 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class Renamer
 {
-    private readonly List<RenameRule> m_rules = new List<RenameRule>();
+    private readonly List<RenameRule> _rules = new List<RenameRule>();
 
     /// <summary>
     /// Adds a renaming rule.
     /// </summary>
     public void AddRule(RenameRule rule)
     {
-        m_rules.Add(rule);
+        _rules.Add(rule);
     }
 
     /// <summary>
@@ -30,7 +30,7 @@ class Renamer
     /// </summary>
     public string Process(string name)
     {
-        var match = m_rules.FirstOrDefault(r => r.IsMatch(name));
+        var match = _rules.FirstOrDefault(r => r.IsMatch(name));
         if (match == null)
             return name;
         else

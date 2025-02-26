@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -15,9 +15,9 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class Revision : IEquatable<Revision>
 {
-    private static Dictionary<string, Revision> m_cache = new Dictionary<string, Revision>();
+    private static Dictionary<string, Revision> _cache = new Dictionary<string, Revision>();
 
-    private int[] m_parts;
+    private int[] _parts;
 
     /// <summary>
     /// The empty revision.
@@ -34,14 +34,14 @@ class Revision : IEquatable<Revision>
         if (value.Length > 0 && !Regex.IsMatch(value, @"\d+(\.\d+){1,}"))
             throw new ArgumentException(String.Format("Invalid revision format: '{0}'", value));
 
-        m_parts = value.Split('.').Select(p => int.Parse(p)).ToArray();
-        Validate(m_parts);
+        _parts = value.Split('.').Select(p => int.Parse(p)).ToArray();
+        Validate(_parts);
     }
 
     private Revision(int[] parts)
     {
-        m_parts = parts;
-        Validate(m_parts);
+        _parts = parts;
+        Validate(_parts);
     }
 
     /// <summary>
@@ -60,11 +60,11 @@ class Revision : IEquatable<Revision>
     public static Revision Create(string value)
     {
         Revision r;
-        if (m_cache.TryGetValue(value, out r))
+        if (_cache.TryGetValue(value, out r))
             return r;
 
         r = new Revision(value);
-        m_cache.Add(value, r);
+        _cache.Add(value, r);
         return r;
     }
 
@@ -73,7 +73,7 @@ class Revision : IEquatable<Revision>
     /// </summary>
     public IEnumerable<int> Parts
     {
-        get { return m_parts; }
+        get { return _parts; }
     }
 
     /// <summary>
@@ -81,7 +81,7 @@ class Revision : IEquatable<Revision>
     /// </summary>
     public bool IsBranch
     {
-        get { return m_parts.Length > 3 && m_parts[m_parts.Length - 2] == 0; }
+        get { return _parts.Length > 3 && _parts[_parts.Length - 2] == 0; }
     }
 
     /// <summary>
@@ -94,18 +94,18 @@ class Revision : IEquatable<Revision>
     {
         get
         {
-            if (m_parts.Length <= 2)
+            if (_parts.Length <= 2)
                 throw new InvalidOperationException("Cannot get branch stem for revisions on MAIN");
 
-            var branchParts = new int[m_parts.Length - 1];
+            var branchParts = new int[_parts.Length - 1];
             if (IsBranch)
             {
-                Array.Copy(m_parts, branchParts, m_parts.Length - 2);
-                branchParts[branchParts.Length - 1] = m_parts[m_parts.Length - 1];
+                Array.Copy(_parts, branchParts, _parts.Length - 2);
+                branchParts[branchParts.Length - 1] = _parts[_parts.Length - 1];
             }
             else
             {
-                Array.Copy(m_parts, branchParts, m_parts.Length - 1);
+                Array.Copy(_parts, branchParts, _parts.Length - 1);
             }
 
             return Revision.Create(String.Join(".", branchParts));
@@ -117,13 +117,13 @@ class Revision : IEquatable<Revision>
     /// </summary>
     public Revision GetBranchpoint()
     {
-        if (m_parts.Length <= 2)
+        if (_parts.Length <= 2)
             throw new InvalidOperationException("Cannot get branch stem for revisions on MAIN");
 
         // round the number of parts down to the next multiple of 2
-        var newPartsLength = (m_parts.Length - 1) / 2 * 2;
+        var newPartsLength = (_parts.Length - 1) / 2 * 2;
         var newParts = new int[newPartsLength];
-        Array.Copy(m_parts, newParts, newPartsLength);
+        Array.Copy(_parts, newParts, newPartsLength);
         return Revision.Create(String.Join(".", newParts));
     }
 
@@ -137,8 +137,8 @@ class Revision : IEquatable<Revision>
         else if (other == Revision.First)
             return this == Revision.Empty;
 
-        var precedingParts = new int[other.m_parts.Length];
-        Array.Copy(other.m_parts, precedingParts, other.m_parts.Length);
+        var precedingParts = new int[other._parts.Length];
+        Array.Copy(other._parts, precedingParts, other._parts.Length);
 
         precedingParts[precedingParts.Length - 1]--;
         if (precedingParts[precedingParts.Length - 1] == 0 && precedingParts.Length > 2)
@@ -149,7 +149,7 @@ class Revision : IEquatable<Revision>
             Array.Copy(tmp, precedingParts, precedingParts.Length);
         }
 
-        return PartsEqual(m_parts, precedingParts);
+        return PartsEqual(_parts, precedingParts);
     }
 
     /// <summary>
@@ -157,28 +157,28 @@ class Revision : IEquatable<Revision>
     /// </summary>
     public bool Precedes(Revision other)
     {
-        if (this.m_parts.Length > other.m_parts.Length)
+        if (this._parts.Length > other._parts.Length)
             return false;
 
-        var length = this.m_parts.Length;
+        var length = this._parts.Length;
         var truncatedParts = new int[length];
-        Array.Copy(other.m_parts, truncatedParts, length);
+        Array.Copy(other._parts, truncatedParts, length);
 
         for (int i = 0; i < length - 1; i++)
         {
-            if (this.m_parts[i] != other.m_parts[i])
+            if (this._parts[i] != other._parts[i])
                 return false;
         }
 
-        return this.m_parts[length - 1] <= other.m_parts[length - 1];
+        return this._parts[length - 1] <= other._parts[length - 1];
     }
 
     public override string ToString()
     {
-        if (m_parts.Length == 0)
+        if (_parts.Length == 0)
             return "<none>";
         else
-            return String.Join(".", m_parts);
+            return String.Join(".", _parts);
     }
 
     public static bool operator ==(Revision a, string b)
@@ -206,7 +206,7 @@ class Revision : IEquatable<Revision>
 
     public override int GetHashCode()
     {
-        return m_parts.GetHashCode();
+        return _parts.GetHashCode();
     }
 
 

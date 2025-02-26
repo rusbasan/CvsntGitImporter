@@ -17,26 +17,26 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class CvsRepository : ICvsRepository
 {
-    private readonly ILogger m_log;
-    private readonly string m_sandboxPath;
-    private readonly Task m_ensureAllDirectories;
+    private readonly ILogger _log;
+    private readonly string _sandboxPath;
+    private readonly Task _ensureAllDirectories;
 
     public CvsRepository(ILogger log, string sandboxPath)
     {
-        m_log = log;
-        m_sandboxPath = sandboxPath;
+        _log = log;
+        _sandboxPath = sandboxPath;
 
         // start the CVS update command that ensures that all empty directories are created
-        m_ensureAllDirectories = EnsureAllDirectories();
+        _ensureAllDirectories = EnsureAllDirectories();
     }
 
     public FileContent GetCvsRevision(FileRevision f)
     {
-        m_ensureAllDirectories.Wait();
+        _ensureAllDirectories.Wait();
 
         InvokeCvs("-f", "-Q", "update", "-r" + f.Revision.ToString(), f.File.Name);
 
-        var dataPath = Path.Combine(m_sandboxPath, f.File.Name.Replace('/', '\\'));
+        var dataPath = Path.Combine(_sandboxPath, f.File.Name.Replace('/', '\\'));
         return new FileContent(f.File.Name, new FileContentData(File.ReadAllBytes(dataPath)), f.File.IsBinary);
     }
 
@@ -58,7 +58,7 @@ class CvsRepository : ICvsRepository
             {
                 FileName = "cvs.exe",
                 Arguments = quotedArguments,
-                WorkingDirectory = m_sandboxPath,
+                WorkingDirectory = _sandboxPath,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -89,22 +89,22 @@ class CvsRepository : ICvsRepository
 
         if (error.Length > 0 || process.ExitCode != 0)
         {
-            m_log.DoubleRuleOff();
-            m_log.WriteLine("Cvs command failed");
-            m_log.WriteLine("Command: cvs {0}", quotedArguments);
+            _log.DoubleRuleOff();
+            _log.WriteLine("Cvs command failed");
+            _log.WriteLine("Command: cvs {0}", quotedArguments);
 
             if (error.Length > 0)
             {
-                m_log.RuleOff();
-                m_log.WriteLine("Error:");
-                m_log.WriteLine("{0}", error);
+                _log.RuleOff();
+                _log.WriteLine("Error:");
+                _log.WriteLine("{0}", error);
             }
 
             if (output.Length > 0)
             {
-                m_log.RuleOff();
-                m_log.WriteLine("Output:");
-                m_log.WriteLine("{0}", output);
+                _log.RuleOff();
+                _log.WriteLine("Output:");
+                _log.WriteLine("{0}", output);
             }
         }
 

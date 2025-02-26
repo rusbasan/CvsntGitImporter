@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System.Collections.Generic;
@@ -16,21 +16,21 @@ namespace CTC.CvsntGitImporter.TestCode;
 [TestClass]
 public class MergeResolverTest
 {
-    private Mock<ILogger> m_logger;
-    private FileInfo m_file;
+    private Mock<ILogger> _logger;
+    private FileInfo _file;
 
     [TestInitialize]
     public void Setup()
     {
-        m_logger = new Mock<ILogger>();
-        m_file = new FileInfo("file0");
+        _logger = new Mock<ILogger>();
+        _file = new FileInfo("file0");
     }
 
     [TestMethod]
     public void SingleMerge_NoReordering()
     {
         var streams = CreateSingleMerge();
-        var resolver = new MergeResolver(m_logger.Object, streams);
+        var resolver = new MergeResolver(_logger.Object, streams);
         resolver.Resolve();
 
         Assert.IsTrue(streams["MAIN"].ToList().Select(c => c.CommitId).SequenceEqual("initial", "merge"));
@@ -41,7 +41,7 @@ public class MergeResolverTest
     public void SingleMerge_MergesFilledIn()
     {
         var streams = CreateSingleMerge();
-        var resolver = new MergeResolver(m_logger.Object, streams);
+        var resolver = new MergeResolver(_logger.Object, streams);
         resolver.Resolve();
 
         Assert.IsTrue(streams["MAIN"].Successor.CommitId == "merge" &&
@@ -54,7 +54,7 @@ public class MergeResolverTest
     public void MultipleMerges_NoReordering()
     {
         var streams = CreateMultipleMerges();
-        var resolver = new MergeResolver(m_logger.Object, streams);
+        var resolver = new MergeResolver(_logger.Object, streams);
         resolver.Resolve();
 
         Assert.IsTrue(streams["MAIN"].ToList().Select(c => c.CommitId).SequenceEqual("initial", "merge1", "merge2"));
@@ -65,7 +65,7 @@ public class MergeResolverTest
     public void MultipleMerges_MergesFilledIn()
     {
         var streams = CreateMultipleMerges();
-        var resolver = new MergeResolver(m_logger.Object, streams);
+        var resolver = new MergeResolver(_logger.Object, streams);
         resolver.Resolve();
 
         var main0 = streams["MAIN"];
@@ -82,7 +82,7 @@ public class MergeResolverTest
     public void CrossedMerge_Reordered()
     {
         var streams = CreateCrossedMerges();
-        var resolver = new MergeResolver(m_logger.Object, streams);
+        var resolver = new MergeResolver(_logger.Object, streams);
         resolver.Resolve();
 
         Assert.IsTrue(streams["MAIN"].ToList().Select(c => c.CommitId).SequenceEqual("initial", "merge1", "merge2"));
@@ -93,7 +93,7 @@ public class MergeResolverTest
     public void CrossedMerge_MergesFilledIn()
     {
         var streams = CreateCrossedMerges();
-        var resolver = new MergeResolver(m_logger.Object, streams);
+        var resolver = new MergeResolver(_logger.Object, streams);
         resolver.Resolve();
 
         var main0 = streams["MAIN"];
@@ -111,15 +111,15 @@ public class MergeResolverTest
     {
         var commits = new List<Commit>()
         {
-            new Commit("initial1").WithRevision(m_file, "1.1"),
-            new Commit("initial2").WithRevision(m_file, "1.2"),
-            new Commit("initial3").WithRevision(m_file, "1.3"),
-            new Commit("branch1").WithRevision(m_file, "1.3.2.1"),
-            new Commit("branch2").WithRevision(m_file, "1.3.2.2"),
-            new Commit("merge1").WithRevision(m_file, "1.4", mergepoint: "1.3.2.2"),
-            new Commit("merge2").WithRevision(m_file, "1.5", mergepoint: "1.3.2.1"),
+            new Commit("initial1").WithRevision(_file, "1.1"),
+            new Commit("initial2").WithRevision(_file, "1.2"),
+            new Commit("initial3").WithRevision(_file, "1.3"),
+            new Commit("branch1").WithRevision(_file, "1.3.2.1"),
+            new Commit("branch2").WithRevision(_file, "1.3.2.2"),
+            new Commit("merge1").WithRevision(_file, "1.4", mergepoint: "1.3.2.2"),
+            new Commit("merge2").WithRevision(_file, "1.5", mergepoint: "1.3.2.1"),
         };
-        m_file.WithBranch("branch", "1.3.0.2");
+        _file.WithBranch("branch", "1.3.0.2");
 
         var branchpoints = new Dictionary<string, Commit>()
         {
@@ -127,7 +127,7 @@ public class MergeResolverTest
         };
 
         var streams = new BranchStreamCollection(commits, branchpoints);
-        var resolver = new MergeResolver(m_logger.Object, streams);
+        var resolver = new MergeResolver(_logger.Object, streams);
         resolver.Resolve();
 
         Assert.IsTrue(streams["MAIN"].ToList().Select(c => c.CommitId)
@@ -140,8 +140,8 @@ public class MergeResolverTest
     {
         var commits = new List<Commit>()
         {
-            new Commit("initial").WithRevision(m_file, "1.1"),
-            new Commit("merge").WithRevision(m_file, "1.2", mergepoint: "1.1.2.1"),
+            new Commit("initial").WithRevision(_file, "1.1"),
+            new Commit("merge").WithRevision(_file, "1.2", mergepoint: "1.1.2.1"),
         };
 
         var branchpoints = new Dictionary<string, Commit>()
@@ -150,7 +150,7 @@ public class MergeResolverTest
         };
 
         var streams = new BranchStreamCollection(commits, branchpoints);
-        var resolver = new MergeResolver(m_logger.Object, streams);
+        var resolver = new MergeResolver(_logger.Object, streams);
         resolver.Resolve();
 
         Assert.IsTrue(streams["MAIN"].ToList().All(c => c.MergeFrom == null));
@@ -161,12 +161,12 @@ public class MergeResolverTest
     {
         var commits = new List<Commit>()
         {
-            new Commit("initial").WithRevision(m_file, "1.1"),
-            new Commit("branch1").WithRevision(m_file, "1.1.2.1"),
-            new Commit("main1").WithRevision(m_file, "1.2"),
-            new Commit("branch2").WithRevision(m_file, "1.1.2.2", mergepoint: "1.2"),
+            new Commit("initial").WithRevision(_file, "1.1"),
+            new Commit("branch1").WithRevision(_file, "1.1.2.1"),
+            new Commit("main1").WithRevision(_file, "1.2"),
+            new Commit("branch2").WithRevision(_file, "1.1.2.2", mergepoint: "1.2"),
         };
-        m_file.WithBranch("branch", "1.1.0.2");
+        _file.WithBranch("branch", "1.1.0.2");
 
         var branchpoints = new Dictionary<string, Commit>()
         {
@@ -174,7 +174,7 @@ public class MergeResolverTest
         };
 
         var streams = new BranchStreamCollection(commits, branchpoints);
-        var resolver = new MergeResolver(m_logger.Object, streams);
+        var resolver = new MergeResolver(_logger.Object, streams);
         resolver.Resolve();
 
         Assert.IsTrue(streams["MAIN"].ToList().All(c => c.MergeFrom == null));
@@ -186,11 +186,11 @@ public class MergeResolverTest
     {
         var commits = new List<Commit>()
         {
-            new Commit("initial").WithRevision(m_file, "1.1"),
-            new Commit("branch").WithRevision(m_file, "1.1.2.1"),
-            new Commit("merge").WithRevision(m_file, "1.2", mergepoint: "1.1.2.1"),
+            new Commit("initial").WithRevision(_file, "1.1"),
+            new Commit("branch").WithRevision(_file, "1.1.2.1"),
+            new Commit("merge").WithRevision(_file, "1.2", mergepoint: "1.1.2.1"),
         };
-        m_file.WithBranch("branch", "1.1.0.2");
+        _file.WithBranch("branch", "1.1.0.2");
 
         var branchpoints = new Dictionary<string, Commit>()
         {
@@ -204,13 +204,13 @@ public class MergeResolverTest
     {
         var commits = new List<Commit>()
         {
-            new Commit("initial").WithRevision(m_file, "1.1"),
-            new Commit("branch1").WithRevision(m_file, "1.1.2.1"),
-            new Commit("branch2").WithRevision(m_file, "1.1.2.2"),
-            new Commit("merge1").WithRevision(m_file, "1.2", mergepoint: "1.1.2.1"),
-            new Commit("merge2").WithRevision(m_file, "1.3", mergepoint: "1.1.2.2"),
+            new Commit("initial").WithRevision(_file, "1.1"),
+            new Commit("branch1").WithRevision(_file, "1.1.2.1"),
+            new Commit("branch2").WithRevision(_file, "1.1.2.2"),
+            new Commit("merge1").WithRevision(_file, "1.2", mergepoint: "1.1.2.1"),
+            new Commit("merge2").WithRevision(_file, "1.3", mergepoint: "1.1.2.2"),
         };
-        m_file.WithBranch("branch", "1.1.0.2");
+        _file.WithBranch("branch", "1.1.0.2");
 
         var branchpoints = new Dictionary<string, Commit>()
         {
@@ -224,13 +224,13 @@ public class MergeResolverTest
     {
         var commits = new List<Commit>()
         {
-            new Commit("initial").WithRevision(m_file, "1.1"),
-            new Commit("branch1").WithRevision(m_file, "1.1.2.1"),
-            new Commit("branch2").WithRevision(m_file, "1.1.2.2"),
-            new Commit("merge1").WithRevision(m_file, "1.2", mergepoint: "1.1.2.2"),
-            new Commit("merge2").WithRevision(m_file, "1.3", mergepoint: "1.1.2.1"),
+            new Commit("initial").WithRevision(_file, "1.1"),
+            new Commit("branch1").WithRevision(_file, "1.1.2.1"),
+            new Commit("branch2").WithRevision(_file, "1.1.2.2"),
+            new Commit("merge1").WithRevision(_file, "1.2", mergepoint: "1.1.2.2"),
+            new Commit("merge2").WithRevision(_file, "1.3", mergepoint: "1.1.2.1"),
         };
-        m_file.WithBranch("branch", "1.1.0.2");
+        _file.WithBranch("branch", "1.1.0.2");
 
         var branchpoints = new Dictionary<string, Commit>()
         {

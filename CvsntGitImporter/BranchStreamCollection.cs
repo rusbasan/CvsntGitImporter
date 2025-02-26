@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -15,12 +15,12 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class BranchStreamCollection
 {
-    private readonly Dictionary<string, Commit> m_roots = new Dictionary<string, Commit>();
-    private readonly Dictionary<string, Commit> m_heads = new Dictionary<string, Commit>();
+    private readonly Dictionary<string, Commit> _roots = new Dictionary<string, Commit>();
+    private readonly Dictionary<string, Commit> _heads = new Dictionary<string, Commit>();
 
-    private string m_lastBranch;
-    private Commit m_lastBranchHead;
-    private int m_nextIndex = 1;
+    private string _lastBranch;
+    private Commit _lastBranchHead;
+    private int _nextIndex = 1;
 
     public BranchStreamCollection(IEnumerable<Commit> commits, IDictionary<string, Commit> branchpoints)
     {
@@ -31,7 +31,7 @@ class BranchStreamCollection
         }
 
         // join branches to their branchpoints
-        foreach (var kvp in m_roots)
+        foreach (var kvp in _roots)
         {
             if (kvp.Key == "MAIN")
                 continue;
@@ -51,7 +51,7 @@ class BranchStreamCollection
         get
         {
             Commit root;
-            return m_roots.TryGetValue(branch, out root) ? root : null;
+            return _roots.TryGetValue(branch, out root) ? root : null;
         }
     }
 
@@ -60,7 +60,7 @@ class BranchStreamCollection
     /// </summary>
     public IEnumerable<string> Branches
     {
-        get { return m_roots.Keys.ToList(); }
+        get { return _roots.Keys.ToList(); }
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ class BranchStreamCollection
         get
         {
             yield return "MAIN";
-            foreach (var branch in EnumerateBranches(m_roots["MAIN"]))
+            foreach (var branch in EnumerateBranches(_roots["MAIN"]))
                 yield return branch;
         }
     }
@@ -83,7 +83,7 @@ class BranchStreamCollection
     public Commit Head(string branch)
     {
         Commit head;
-        return m_heads.TryGetValue(branch, out head) ? head : null;
+        return _heads.TryGetValue(branch, out head) ? head : null;
     }
 
     /// <summary>
@@ -122,9 +122,9 @@ class BranchStreamCollection
             if (commit == commitToReplace)
             {
                 var branch = commitToMove.Branch;
-                if (m_roots[branch] == commitToMove)
+                if (_roots[branch] == commitToMove)
                 {
-                    m_roots[branch] = commitToMove.Successor;
+                    _roots[branch] = commitToMove.Successor;
 
                     if (branch != "MAIN")
                     {
@@ -147,8 +147,8 @@ class BranchStreamCollection
                 commitToMove.Predecessor = commit;
                 commit.Successor = commitToMove;
 
-                if (m_heads[branch] == commitToReplace)
-                    m_heads[branch] = commitToMove;
+                if (_heads[branch] == commitToReplace)
+                    _heads[branch] = commitToMove;
 
                 return;
             }
@@ -192,31 +192,31 @@ class BranchStreamCollection
         Commit head;
         var branch = commit.Branch;
 
-        if (branch == m_lastBranch)
+        if (branch == _lastBranch)
         {
             // optimisation - assume last commit was on the same branch
-            head = m_lastBranchHead;
+            head = _lastBranchHead;
             head.Successor = commit;
             commit.Predecessor = head;
         }
         else
         {
-            if (m_heads.TryGetValue(branch, out head))
+            if (_heads.TryGetValue(branch, out head))
             {
                 head.Successor = commit;
                 commit.Predecessor = head;
             }
             else
             {
-                m_roots.Add(branch, commit);
+                _roots.Add(branch, commit);
             }
 
-            m_lastBranch = commit.Branch;
+            _lastBranch = commit.Branch;
         }
 
-        commit.Index = m_nextIndex++;
-        m_lastBranchHead = commit;
-        m_heads[branch] = commit;
+        commit.Index = _nextIndex++;
+        _lastBranchHead = commit;
+        _heads[branch] = commit;
     }
 
     private IEnumerable<string> EnumerateBranches(Commit root)

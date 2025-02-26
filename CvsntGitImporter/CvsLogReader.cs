@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -15,38 +15,38 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class CvsLogReader : IEnumerable<string>
 {
-    private readonly string m_filename;
-    private readonly TextReader m_reader;
-    private int m_lineNumber;
+    private readonly string _filename;
+    private readonly TextReader _reader;
+    private int _lineNumber;
 
     /// <summary>
     /// Gets the current line number.
     /// </summary>
     public int LineNumber
     {
-        get { return m_lineNumber; }
+        get { return _lineNumber; }
     }
 
     public CvsLogReader(string filename)
     {
-        m_filename = filename;
+        _filename = filename;
     }
 
     public CvsLogReader(TextReader reader)
     {
-        m_reader = reader;
-        m_filename = "<stream>";
+        _reader = reader;
+        _filename = "<stream>";
     }
 
     private IEnumerable<string> ReadLines()
     {
-        m_lineNumber = 0;
+        _lineNumber = 0;
 
-        TextReader reader = m_reader;
+        TextReader reader = _reader;
         bool mustDispose = false;
         if (reader == null)
         {
-            reader = new StreamReader(m_filename, Encoding.Default);
+            reader = new StreamReader(_filename, Encoding.Default);
             mustDispose = true;
         }
 
@@ -55,7 +55,7 @@ class CvsLogReader : IEnumerable<string>
             string line;
             while ((line = reader.ReadLine()) != null)
             {
-                m_lineNumber++;
+                _lineNumber++;
                 yield return line;
             }
         }

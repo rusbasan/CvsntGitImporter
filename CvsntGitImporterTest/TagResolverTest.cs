@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System.Collections.Generic;
@@ -16,12 +16,12 @@ namespace CTC.CvsntGitImporter.TestCode;
 [TestClass]
 public class TagResolverTest
 {
-    private ILogger m_logger;
+    private ILogger _logger;
 
     [TestInitialize]
     public void Setup()
     {
-        m_logger = new Mock<ILogger>().Object;
+        _logger = new Mock<ILogger>().Object;
     }
 
 
@@ -38,7 +38,7 @@ public class TagResolverTest
         };
         var allFiles = commits.CreateAllFiles();
 
-        var resolver = new TagResolver(m_logger, allFiles, false, false);
+        var resolver = new TagResolver(_logger, allFiles, false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsFalse(result, "Failed");
@@ -62,7 +62,7 @@ public class TagResolverTest
         };
         var allFiles = commits.CreateAllFiles();
 
-        var resolver = new TagResolver(m_logger, allFiles, false, false);
+        var resolver = new TagResolver(_logger, allFiles, false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Succeeded");
@@ -86,7 +86,7 @@ public class TagResolverTest
         var target = commits.ElementAt(2);
         var allFiles = commits.CreateAllFiles();
 
-        var resolver = new TagResolver(m_logger, allFiles, false, false);
+        var resolver = new TagResolver(_logger, allFiles, false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Succeeded");
@@ -109,7 +109,7 @@ public class TagResolverTest
         };
 
         var allFiles = commits.CreateAllFiles();
-        var resolver = new TagResolver(m_logger, allFiles, false, false);
+        var resolver = new TagResolver(_logger, allFiles, false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Succeeded");
@@ -133,7 +133,7 @@ public class TagResolverTest
         };
         var allFiles = commits.CreateAllFiles();
 
-        var resolver = new TagResolver(m_logger, allFiles, false, false);
+        var resolver = new TagResolver(_logger, allFiles, false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Succeeded");
@@ -164,7 +164,7 @@ public class TagResolverTest
         };
         var allFiles = commits.CreateAllFiles();
 
-        var resolver = new TagResolver(m_logger, allFiles, false, false);
+        var resolver = new TagResolver(_logger, allFiles, false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Succeeded");
@@ -188,7 +188,7 @@ public class TagResolverTest
         };
         var allFiles = commits.CreateAllFiles();
 
-        var resolver = new TagResolver(m_logger, allFiles, false, false);
+        var resolver = new TagResolver(_logger, allFiles, false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Succeeded");
@@ -219,7 +219,7 @@ public class TagResolverTest
         var target = commits.ElementAt(2);
         var allFiles = commits.CreateAllFiles();
 
-        var resolver = new TagResolver(m_logger, allFiles, false, false);
+        var resolver = new TagResolver(_logger, allFiles, false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Succeeded");
@@ -245,7 +245,7 @@ public class TagResolverTest
         var target = commits.ElementAt(3);
         var allFiles = commits.CreateAllFiles();
 
-        var resolver = new TagResolver(m_logger, allFiles, false, false);
+        var resolver = new TagResolver(_logger, allFiles, false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Succeeded");
@@ -269,7 +269,7 @@ public class TagResolverTest
         };
         var target = commits.ElementAt(2);
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -289,7 +289,7 @@ public class TagResolverTest
             new Commit("c1").WithRevision(file1, "1.2").WithRevision(file2, "1.2", isDead: true),
         };
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -317,7 +317,7 @@ public class TagResolverTest
         };
         var target = commits.ElementAt(2);
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -342,7 +342,7 @@ public class TagResolverTest
         };
         var target = commits.ElementAt(3);
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -367,7 +367,7 @@ public class TagResolverTest
             new Commit("c5").WithRevision(file2, "1.2"),
         };
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -392,7 +392,7 @@ public class TagResolverTest
             new Commit("c5").WithRevision(file2, "1.2"),
         };
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -416,7 +416,7 @@ public class TagResolverTest
         };
         var target = commits.ElementAt(2);
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -437,7 +437,7 @@ public class TagResolverTest
         };
         var target = commits.ElementAt(1);
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -461,7 +461,7 @@ public class TagResolverTest
         };
         var target = commits.ElementAt(2);
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -486,7 +486,7 @@ public class TagResolverTest
         };
         var target = commits.ElementAt(2);
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -508,7 +508,7 @@ public class TagResolverTest
             new Commit("c3").WithRevision(file2, "1.1.2.1"),
         };
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -529,7 +529,7 @@ public class TagResolverTest
             new Commit("c2").WithRevision(file1, "1.1.2.1"),
         };
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -554,7 +554,7 @@ public class TagResolverTest
             new Commit("c5").WithRevision(file3, "1.2", isDead: true),
         };
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -578,7 +578,7 @@ public class TagResolverTest
             new Commit("c3").WithRevision(file3, "1.1.2.1"), // backport file3
         };
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -599,7 +599,7 @@ public class TagResolverTest
             new Commit("c2").WithRevision(file1, "1.1.2.2"),
         };
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false);
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -622,7 +622,7 @@ public class TagResolverTest
             new Commit("c2").WithRevision(file1, "1.2"),
         };
 
-        var resolver = new TagResolver(m_logger, commits.CreateAllFiles(), false, false) { PartialTagThreshold = 2 };
+        var resolver = new TagResolver(_logger, commits.CreateAllFiles(), false, false) { PartialTagThreshold = 2 };
         var result = resolver.Resolve(new[] { "tag" }, commits);
 
         Assert.IsFalse(result, "Resolve failed");

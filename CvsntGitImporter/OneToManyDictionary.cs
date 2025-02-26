@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System.Collections.Generic;
@@ -15,7 +15,7 @@ namespace CTC.CvsntGitImporter;
 /// that do not exist. For example, the indexer returns an empty list if a value does not exist.</remarks>
 class OneToManyDictionary<TKey, TValue>
 {
-    private readonly Dictionary<TKey, HashSet<TValue>> m_dict;
+    private readonly Dictionary<TKey, HashSet<TValue>> _dict;
 
     public OneToManyDictionary() : this(EqualityComparer<TKey>.Default)
     {
@@ -23,7 +23,7 @@ class OneToManyDictionary<TKey, TValue>
 
     public OneToManyDictionary(IEqualityComparer<TKey> comparer)
     {
-        m_dict = new Dictionary<TKey, HashSet<TValue>>(comparer);
+        _dict = new Dictionary<TKey, HashSet<TValue>>(comparer);
     }
 
     /// <summary>
@@ -35,12 +35,12 @@ class OneToManyDictionary<TKey, TValue>
         get
         {
             HashSet<TValue> values;
-            if (m_dict.TryGetValue(key, out values))
+            if (_dict.TryGetValue(key, out values))
                 return values;
             else
                 return Enumerable.Empty<TValue>();
         }
-        set { m_dict[key] = new HashSet<TValue>(value); }
+        set { _dict[key] = new HashSet<TValue>(value); }
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ class OneToManyDictionary<TKey, TValue>
     /// </summary>
     public IEnumerable<TKey> Keys
     {
-        get { return m_dict.Keys; }
+        get { return _dict.Keys; }
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ class OneToManyDictionary<TKey, TValue>
     /// </summary>
     public int Count
     {
-        get { return m_dict.Count; }
+        get { return _dict.Count; }
     }
 
     /// <summary>
@@ -65,10 +65,10 @@ class OneToManyDictionary<TKey, TValue>
     public void Add(TKey key, TValue value)
     {
         HashSet<TValue> values;
-        if (m_dict.TryGetValue(key, out values))
+        if (_dict.TryGetValue(key, out values))
             values.Add(value);
         else
-            m_dict[key] = new HashSet<TValue>() { value };
+            _dict[key] = new HashSet<TValue>() { value };
     }
 
     /// <summary>
@@ -77,10 +77,10 @@ class OneToManyDictionary<TKey, TValue>
     public void AddRange(TKey key, IEnumerable<TValue> values)
     {
         HashSet<TValue> existingValues;
-        if (m_dict.TryGetValue(key, out existingValues))
+        if (_dict.TryGetValue(key, out existingValues))
             existingValues.AddRange(values);
         else
-            m_dict[key] = new HashSet<TValue>(values);
+            _dict[key] = new HashSet<TValue>(values);
     }
 
     /// <summary>
@@ -88,7 +88,7 @@ class OneToManyDictionary<TKey, TValue>
     /// </summary>
     public bool ContainsKey(TKey key)
     {
-        return m_dict.ContainsKey(key);
+        return _dict.ContainsKey(key);
     }
 
     /// <summary>
@@ -96,6 +96,6 @@ class OneToManyDictionary<TKey, TValue>
     /// </summary>
     public void Remove(TKey key)
     {
-        m_dict.Remove(key);
+        _dict.Remove(key);
     }
 }

@@ -1,6 +1,6 @@
 /*
  * John.Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -19,7 +19,7 @@ namespace CTC.CvsntGitImporter.Utils;
 /// </summary>
 class SwitchesParser
 {
-    private SwitchesDefBase m_def;
+    private SwitchesDefBase _def;
 
     /// <summary>
     /// Ctor is private because users should use the static Parse method.
@@ -27,7 +27,7 @@ class SwitchesParser
     /// <param name="def"></param>
     private SwitchesParser(SwitchesDefBase def)
     {
-        m_def = def;
+        _def = def;
     }
 
 
@@ -70,19 +70,19 @@ class SwitchesParser
 
             i++;
 
-            if (m_def.Args.GetSwitchType(arg) == typeof(bool))
+            if (_def.Args.GetSwitchType(arg) == typeof(bool))
             {
-                m_def.Args.Set(arg, true);
+                _def.Args.Set(arg, true);
             }
             else
             {
                 if (i >= args.Length)
                     throw new CommandLineArgsException("Missing argument to the {0} switch", arg);
 
-                if (m_def.Args.GetSwitchType(arg) == typeof(string))
-                    m_def.Args.Set(arg, args[i++]);
-                else if (m_def.Args.GetSwitchType(arg) == typeof(uint?))
-                    m_def.Args.Set(arg, ParseIntValue(args[i++]));
+                if (_def.Args.GetSwitchType(arg) == typeof(string))
+                    _def.Args.Set(arg, args[i++]);
+                else if (_def.Args.GetSwitchType(arg) == typeof(uint?))
+                    _def.Args.Set(arg, ParseIntValue(args[i++]));
             }
         }
 

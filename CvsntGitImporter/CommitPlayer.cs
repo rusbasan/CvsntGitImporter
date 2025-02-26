@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -14,15 +14,15 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class CommitPlayer
 {
-    private readonly ILogger m_log;
-    private readonly BranchStreamCollection m_streams;
-    private readonly Dictionary<string, Commit> m_branchHeads = new Dictionary<string, Commit>();
+    private readonly ILogger _log;
+    private readonly BranchStreamCollection _streams;
+    private readonly Dictionary<string, Commit> _branchHeads = new Dictionary<string, Commit>();
     private static readonly Commit EndMarker = new Commit("ENDMARKER") { Index = int.MaxValue };
 
     public CommitPlayer(ILogger log, BranchStreamCollection streams)
     {
-        m_log = log;
-        m_streams = streams;
+        _log = log;
+        _streams = streams;
     }
 
     /// <summary>
@@ -30,7 +30,7 @@ class CommitPlayer
     /// </summary>
     public int Count
     {
-        get { return m_streams.Branches.Select(b => CountCommits(m_streams[b])).Sum(); }
+        get { return _streams.Branches.Select(b => CountCommits(_streams[b])).Sum(); }
     }
 
     /// <summary>
@@ -38,11 +38,11 @@ class CommitPlayer
     /// </summary>
     public IEnumerable<Commit> Play()
     {
-        foreach (var branch in m_streams.Branches)
-            m_branchHeads[branch] = m_streams[branch];
+        foreach (var branch in _streams.Branches)
+            _branchHeads[branch] = _streams[branch];
 
         // ensure first commit is the first commit from MAIN
-        var mainHead = m_streams["MAIN"];
+        var mainHead = _streams["MAIN"];
         yield return mainHead;
         UpdateHead("MAIN", mainHead.Successor);
 
@@ -65,7 +65,7 @@ class CommitPlayer
     {
         var branch = commit.Branch;
         Commit nextCommit;
-        while ((nextCommit = m_branchHeads[branch]).Index <= commit.Index)
+        while ((nextCommit = _branchHeads[branch]).Index <= commit.Index)
         {
             // may need to recursively fast forward to handle stacked branches
             if (nextCommit.MergeFrom != null)
@@ -83,7 +83,7 @@ class CommitPlayer
     {
         Commit earliest = null;
 
-        foreach (var c in m_branchHeads.Values.Where(c => c != EndMarker))
+        foreach (var c in _branchHeads.Values.Where(c => c != EndMarker))
         {
             if (earliest == null || c.Time < earliest.Time)
                 earliest = c;
@@ -94,7 +94,7 @@ class CommitPlayer
 
     private void UpdateHead(string branch, Commit commit)
     {
-        m_branchHeads[branch] = commit ?? EndMarker;
+        _branchHeads[branch] = commit ?? EndMarker;
     }
 
     private int CountCommits(Commit root)

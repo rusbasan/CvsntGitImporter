@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -13,13 +13,13 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class RenameRule
 {
-    private readonly Regex m_pattern;
-    private readonly string m_replacement;
+    private readonly Regex _pattern;
+    private readonly string _replacement;
 
     public RenameRule(Regex pattern, string replacement)
     {
-        this.m_pattern = pattern;
-        this.m_replacement = replacement;
+        this._pattern = pattern;
+        this._replacement = replacement;
     }
 
     public RenameRule(string pattern, string replacement) : this(new Regex(pattern), replacement)
@@ -46,7 +46,7 @@ class RenameRule
     /// </summary>
     public bool IsMatch(string input)
     {
-        return m_pattern.IsMatch(input);
+        return _pattern.IsMatch(input);
     }
 
     /// <summary>
@@ -54,11 +54,11 @@ class RenameRule
     /// </summary>
     public string Apply(string input)
     {
-        return m_pattern.Replace(input, m_replacement);
+        return _pattern.Replace(input, _replacement);
     }
 
     public override string ToString()
     {
-        return string.Format("{0} -> {1}", m_pattern.ToString(), m_replacement);
+        return string.Format("{0} -> {1}", _pattern.ToString(), _replacement);
     }
 }

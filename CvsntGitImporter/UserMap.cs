@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -16,22 +16,22 @@ namespace CTC.CvsntGitImporter;
 /// <remarks>The file is a tab separated file with three columns: CVS user name, real name and e-mail address</remarks>
 class UserMap
 {
-    private readonly Dictionary<string, User> m_map = new Dictionary<string, User>();
-    private readonly string m_defaultDomain;
+    private readonly Dictionary<string, User> _map = new Dictionary<string, User>();
+    private readonly string _defaultDomain;
 
     public UserMap(string defaultDomain)
     {
-        m_defaultDomain = defaultDomain;
+        _defaultDomain = defaultDomain;
     }
 
     public User GetUser(string cvsName)
     {
         User result;
-        if (m_map.TryGetValue(cvsName, out result))
+        if (_map.TryGetValue(cvsName, out result))
             return result;
 
         result = CreateDefaultUser(cvsName);
-        m_map[cvsName] = result;
+        _map[cvsName] = result;
         return result;
     }
 
@@ -40,7 +40,7 @@ class UserMap
     /// </summary>
     public void AddEntry(string cvsName, User user)
     {
-        m_map[cvsName] = user;
+        _map[cvsName] = user;
     }
 
     /// <summary>
@@ -91,12 +91,12 @@ class UserMap
                     throw new IOException(String.Format("{0}({1}): Invalid format in user file", filename, lineNumber));
 
                 var cvsName = parts[0].Trim();
-                if (m_map.ContainsKey(cvsName))
+                if (_map.ContainsKey(cvsName))
                     throw new IOException(String.Format("{0}({1}): User {2} appears twice", filename, lineNumber,
                         cvsName));
 
                 var user = new User(parts[1].Trim(), parts[2].Trim());
-                m_map[cvsName] = user;
+                _map[cvsName] = user;
             }
         }
         catch (UnauthorizedAccessException uae)
@@ -112,6 +112,6 @@ class UserMap
 
     private User CreateDefaultUser(string cvsName)
     {
-        return new User(cvsName, String.Format("{0}@{1}", cvsName.Replace(' ', '_'), m_defaultDomain), generated: true);
+        return new User(cvsName, String.Format("{0}@{1}", cvsName.Replace(' ', '_'), _defaultDomain), generated: true);
     }
 }

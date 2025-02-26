@@ -14,14 +14,14 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class FileInfo
 {
-    private readonly Dictionary<string, Revision> m_revisionForTag = new Dictionary<string, Revision>();
+    private readonly Dictionary<string, Revision> _revisionForTag = new Dictionary<string, Revision>();
 
-    private readonly OneToManyDictionary<Revision, string> m_tagsForRevision =
+    private readonly OneToManyDictionary<Revision, string> _tagsForRevision =
         new OneToManyDictionary<Revision, string>();
 
-    private readonly Dictionary<string, Revision> m_revisionForBranch = new Dictionary<string, Revision>();
-    private readonly Dictionary<Revision, string> m_branchForRevision = new Dictionary<Revision, string>();
-    private readonly Dictionary<Revision, Commit> m_commits = new Dictionary<Revision, Commit>();
+    private readonly Dictionary<string, Revision> _revisionForBranch = new Dictionary<string, Revision>();
+    private readonly Dictionary<Revision, string> _branchForRevision = new Dictionary<Revision, string>();
+    private readonly Dictionary<Revision, Commit> _commits = new Dictionary<Revision, Commit>();
 
     /// <summary>
     /// The file's name.
@@ -38,7 +38,7 @@ class FileInfo
     /// </summary>
     public IEnumerable<string> AllTags
     {
-        get { return m_revisionForTag.Keys; }
+        get { return _revisionForTag.Keys; }
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ class FileInfo
     /// </summary>
     public IEnumerable<string> AllBranches
     {
-        get { return m_revisionForBranch.Keys; }
+        get { return _revisionForBranch.Keys; }
     }
 
     /// <summary>
@@ -77,8 +77,8 @@ class FileInfo
         if (revision.IsBranch)
             throw new ArgumentException(String.Format("Invalid tag revision: {0} is a branch tag revision", revision));
 
-        m_revisionForTag[name] = revision;
-        m_tagsForRevision.Add(revision, name);
+        _revisionForTag[name] = revision;
+        _tagsForRevision.Add(revision, name);
     }
 
     /// <summary>
@@ -91,8 +91,8 @@ class FileInfo
         if (!revision.IsBranch)
             throw new ArgumentException(String.Format("Invalid branch tag revision: {0}", revision));
 
-        m_revisionForBranch[name] = revision;
-        m_branchForRevision[revision.BranchStem] = name;
+        _revisionForBranch[name] = revision;
+        _branchForRevision[revision.BranchStem] = name;
     }
 
     /// <summary>
@@ -108,7 +108,7 @@ class FileInfo
         {
             var branchStem = revision.BranchStem;
             string branchTag;
-            return m_branchForRevision.TryGetValue(branchStem, out branchTag) ? branchTag : null;
+            return _branchForRevision.TryGetValue(branchStem, out branchTag) ? branchTag : null;
         }
     }
 
@@ -117,7 +117,7 @@ class FileInfo
     /// </summary>
     public IEnumerable<string> GetBranchesAtRevision(Revision revision)
     {
-        foreach (var kvp in m_branchForRevision)
+        foreach (var kvp in _branchForRevision)
         {
             if (kvp.Key.BranchStem.Equals(revision))
                 yield return kvp.Value;
@@ -130,7 +130,7 @@ class FileInfo
     public Revision GetBranchpointForBranch(string branch)
     {
         Revision branchRevision;
-        if (m_revisionForBranch.TryGetValue(branch, out branchRevision))
+        if (_revisionForBranch.TryGetValue(branch, out branchRevision))
             return branchRevision.GetBranchpoint();
         else
             return Revision.Empty;
@@ -141,7 +141,7 @@ class FileInfo
     /// </summary>
     public IEnumerable<string> GetTagsForRevision(Revision revision)
     {
-        return m_tagsForRevision[revision];
+        return _tagsForRevision[revision];
     }
 
     /// <summary>
@@ -151,7 +151,7 @@ class FileInfo
     public Revision GetRevisionForTag(string tag)
     {
         Revision revision;
-        if (m_revisionForTag.TryGetValue(tag, out revision))
+        if (_revisionForTag.TryGetValue(tag, out revision))
             return revision;
         else
             return Revision.Empty;
@@ -166,7 +166,7 @@ class FileInfo
             return revision.Parts.Count() == 2;
 
         Revision branchRevision;
-        if (m_revisionForBranch.TryGetValue(branch, out branchRevision))
+        if (_revisionForBranch.TryGetValue(branch, out branchRevision))
             return (revision.Parts.Count() > 2 && branchRevision.BranchStem == revision.BranchStem) ||
                    revision.Precedes(branchRevision);
         else
@@ -178,7 +178,7 @@ class FileInfo
     /// </summary>
     public void AddCommit(Commit commit, Revision r)
     {
-        m_commits.Add(r, commit);
+        _commits.Add(r, commit);
     }
 
     /// <summary>
@@ -186,7 +186,7 @@ class FileInfo
     /// </summary>
     public void UpdateCommit(Commit commit, Revision r)
     {
-        m_commits[r] = commit;
+        _commits[r] = commit;
     }
 
     /// <summary>
@@ -196,7 +196,7 @@ class FileInfo
     public Commit GetCommit(Revision r)
     {
         Commit commit;
-        return m_commits.TryGetValue(r, out commit) ? commit : null;
+        return _commits.TryGetValue(r, out commit) ? commit : null;
     }
 
     public override string ToString()

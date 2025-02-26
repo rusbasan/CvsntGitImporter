@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -15,20 +15,20 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 abstract class AutoTagResolverBase : ITagResolver
 {
-    private readonly ILogger m_log;
-    private IList<Commit> m_allCommits;
-    private readonly FileCollection m_allFiles;
-    private readonly bool m_branches;
-    private readonly List<string> m_unresolvedTags = new List<string>();
+    private readonly ILogger _log;
+    private IList<Commit> _allCommits;
+    private readonly FileCollection _allFiles;
+    private readonly bool _branches;
+    private readonly List<string> _unresolvedTags = new List<string>();
     private readonly bool _continueOnError;
     private readonly bool _noCommitReordering;
 
     protected AutoTagResolverBase(ILogger log, FileCollection allFiles, bool branches, bool continueOnError,
         bool noCommitReordering)
     {
-        m_log = log;
-        m_allFiles = allFiles;
-        m_branches = branches;
+        _log = log;
+        _allFiles = allFiles;
+        _branches = branches;
         this.PartialTagThreshold = Config.DefaultPartialTagThreshold;
         _continueOnError = continueOnError;
         _noCommitReordering = noCommitReordering;
@@ -50,7 +50,7 @@ abstract class AutoTagResolverBase : ITagResolver
     /// </summary>
     public IEnumerable<string> UnresolvedTags
     {
-        get { return m_unresolvedTags; }
+        get { return _unresolvedTags; }
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ abstract class AutoTagResolverBase : ITagResolver
     /// </summary>
     public IEnumerable<Commit> Commits
     {
-        get { return m_allCommits; }
+        get { return _allCommits; }
     }
 
     /// <summary>
@@ -79,17 +79,17 @@ abstract class AutoTagResolverBase : ITagResolver
     /// if fixing tags failed</returns>
     public virtual bool Resolve(IEnumerable<string> tags, IEnumerable<Commit> commits)
     {
-        m_allCommits = commits.ToListIfNeeded();
-        SetCommitIndices(m_allCommits);
+        _allCommits = commits.ToListIfNeeded();
+        SetCommitIndices(_allCommits);
 
-        m_unresolvedTags.Clear();
+        _unresolvedTags.Clear();
         this.ResolvedTags = new Dictionary<string, Commit>();
 
         foreach (var tag in tags)
         {
-            m_log.WriteLine("Resolve {0}", tag);
+            _log.WriteLine("Resolve {0}", tag);
 
-            using (m_log.Indent())
+            using (_log.Indent())
             {
                 Commit commit = null;
                 try
@@ -98,37 +98,37 @@ abstract class AutoTagResolverBase : ITagResolver
                 }
                 catch (TagResolutionException tre)
                 {
-                    m_log.WriteLine("{0}", tre.Message);
+                    _log.WriteLine("{0}", tre.Message);
                 }
 
                 if (commit == null)
                 {
-                    m_unresolvedTags.Add(tag);
-                    m_log.WriteLine("Unresolved");
+                    _unresolvedTags.Add(tag);
+                    _log.WriteLine("Unresolved");
                 }
                 else
                 {
                     ResolvedTags[tag] = commit;
-                    m_log.WriteLine("Resolved: {0}", commit.ConciseFormat);
+                    _log.WriteLine("Resolved: {0}", commit.ConciseFormat);
                 }
             }
         }
 
-        CheckCommitIndices(m_allCommits);
-        return m_unresolvedTags.Count == 0;
+        CheckCommitIndices(_allCommits);
+        return _unresolvedTags.Count == 0;
     }
 
     private Commit ResolveTag(string tag)
     {
-        var state = RepositoryState.CreateWithFullBranchState(m_allFiles);
-        var moveRecord = new CommitMoveRecord(tag, m_log);
+        var state = RepositoryState.CreateWithFullBranchState(_allFiles);
+        var moveRecord = new CommitMoveRecord(tag, _log);
         Commit curCandidate = null;
 
         Queue<string> branchPath;
         var lastCandidate = FindLastCandidate(tag, out branchPath);
         if (lastCandidate == null)
         {
-            m_log.WriteLine("No commits");
+            _log.WriteLine("No commits");
             return null;
         }
 
@@ -162,7 +162,7 @@ abstract class AutoTagResolverBase : ITagResolver
         }
 
         // now check added/removed files
-        m_log.WriteLine("Candidate: {0}", curCandidate.ConciseFormat);
+        _log.WriteLine("Candidate: {0}", curCandidate.ConciseFormat);
         var candidateBranchState = GetBranchStateForCommit(curCandidate, relevantCommits);
         CheckAddedRemovedFiles(tag, candidateBranchState, relevantCommits, moveRecord, ref curCandidate);
 
@@ -172,7 +172,7 @@ abstract class AutoTagResolverBase : ITagResolver
         {
             if (_noCommitReordering == false)
             {
-                moveRecord.Apply(m_allCommits);
+                moveRecord.Apply(_allCommits);
             }
             else
             {
@@ -182,13 +182,13 @@ abstract class AutoTagResolverBase : ITagResolver
             }
         }
 
-        CheckCommitIndices(m_allCommits);
+        CheckCommitIndices(_allCommits);
         return curCandidate;
     }
 
     private Commit FindLastCandidate(string tag, out Queue<string> branchPath)
     {
-        var candidateCommits = from c in m_allCommits
+        var candidateCommits = from c in _allCommits
             where IsCandidate(tag, c)
             select c;
 
@@ -222,7 +222,7 @@ abstract class AutoTagResolverBase : ITagResolver
         var currentBranch = branchPath.Dequeue();
         var filteredCommits = new List<Commit>();
 
-        foreach (var commit in m_allCommits)
+        foreach (var commit in _allCommits)
         {
             if (commit.Branch != currentBranch)
             {
@@ -297,7 +297,7 @@ abstract class AutoTagResolverBase : ITagResolver
         if (result == CommitTagMatch.ExactMatch)
         {
             // if no files are ahead in the commit, now check whether the whole tree is at the correct version
-            foreach (var file in m_allFiles)
+            foreach (var file in _allFiles)
             {
                 if (GetRevisionForTag(file, tag) != branchState[file.Name])
                 {
@@ -312,7 +312,7 @@ abstract class AutoTagResolverBase : ITagResolver
 
     private RepositoryBranchState GetBranchStateForCommit(Commit targetCommit, List<Commit> commits)
     {
-        var state = RepositoryState.CreateWithFullBranchState(m_allFiles);
+        var state = RepositoryState.CreateWithFullBranchState(_allFiles);
 
         foreach (var commit in commits)
         {
@@ -331,14 +331,14 @@ abstract class AutoTagResolverBase : ITagResolver
         List<FileInfo> extraFiles = null;
         var liveFiles = new HashSet<string>(candidateBranchState.LiveFiles);
 
-        foreach (var file in m_allFiles)
+        foreach (var file in _allFiles)
         {
             if (GetRevisionForTag(file, tag) == Revision.Empty)
             {
                 if (liveFiles.Contains(file.Name))
                 {
                     AddAndCreateList(ref extraFiles, file);
-                    m_log.WriteLine("Extra:   {0}", file.Name);
+                    _log.WriteLine("Extra:   {0}", file.Name);
 
                     if (extraFiles.Count > PartialTagThreshold)
                     {
@@ -358,7 +358,7 @@ abstract class AutoTagResolverBase : ITagResolver
                 if (!liveFiles.Contains(file.Name))
                 {
                     AddAndCreateList(ref missingFiles, file);
-                    m_log.WriteLine("Missing: {0}", file.Name);
+                    _log.WriteLine("Missing: {0}", file.Name);
                 }
             }
         }

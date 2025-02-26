@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -15,13 +15,13 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class Commit : IEnumerable<FileRevision>
 {
-    private readonly List<FileRevision> m_files = new List<FileRevision>();
-    private DateTime? m_time;
-    private string m_message;
-    private string m_author;
-    private string m_branch;
-    private List<string> m_errors;
-    private List<Commit> m_branches;
+    private readonly List<FileRevision> _files = new List<FileRevision>();
+    private DateTime? _time;
+    private string _message;
+    private string _author;
+    private string _branch;
+    private List<string> _errors;
+    private List<Commit> _branches;
 
     /// <summary>
     /// The CVS commit ID.
@@ -56,7 +56,7 @@ class Commit : IEnumerable<FileRevision>
     /// </summary>
     public IEnumerable<Commit> Branches
     {
-        get { return m_branches ?? Enumerable.Empty<Commit>(); }
+        get { return _branches ?? Enumerable.Empty<Commit>(); }
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ class Commit : IEnumerable<FileRevision>
     /// </summary>
     public bool IsBranchpoint
     {
-        get { return m_branches != null && m_branches.Any(); }
+        get { return _branches != null && _branches.Any(); }
     }
 
     /// <summary>
@@ -74,11 +74,11 @@ class Commit : IEnumerable<FileRevision>
     {
         get
         {
-            if (m_time.HasValue)
-                return m_time.Value;
+            if (_time.HasValue)
+                return _time.Value;
 
-            var time = m_files.Select(c => c.Time).Min();
-            m_time = time;
+            var time = _files.Select(c => c.Time).Min();
+            _time = time;
             return time;
         }
     }
@@ -90,10 +90,10 @@ class Commit : IEnumerable<FileRevision>
     {
         get
         {
-            if (m_message == null)
-                m_message = String.Join(Environment.NewLine + Environment.NewLine,
-                    m_files.Select(c => c.Message).Distinct());
-            return m_message;
+            if (_message == null)
+                _message = String.Join(Environment.NewLine + Environment.NewLine,
+                    _files.Select(c => c.Message).Distinct());
+            return _message;
         }
     }
 
@@ -104,10 +104,10 @@ class Commit : IEnumerable<FileRevision>
     {
         get
         {
-            if (m_author == null)
-                m_author = m_files.First().Author;
+            if (_author == null)
+                _author = _files.First().Author;
 
-            return m_author;
+            return _author;
         }
     }
 
@@ -118,10 +118,10 @@ class Commit : IEnumerable<FileRevision>
     {
         get
         {
-            if (m_branch == null)
-                m_branch = m_files.First().Branch;
+            if (_branch == null)
+                _branch = _files.First().Branch;
 
-            return m_branch;
+            return _branch;
         }
     }
 
@@ -130,7 +130,7 @@ class Commit : IEnumerable<FileRevision>
     /// </summary>
     public IEnumerable<FileRevision> MergedFiles
     {
-        get { return m_files.Where(f => f.Mergepoint != Revision.Empty); }
+        get { return _files.Where(f => f.Mergepoint != Revision.Empty); }
     }
 
     /// <summary>
@@ -143,7 +143,7 @@ class Commit : IEnumerable<FileRevision>
     /// </summary>
     public IEnumerable<string> Errors
     {
-        get { return m_errors ?? Enumerable.Empty<string>(); }
+        get { return _errors ?? Enumerable.Empty<string>(); }
     }
 
 
@@ -154,17 +154,17 @@ class Commit : IEnumerable<FileRevision>
 
     public void Add(FileRevision commit)
     {
-        m_time = null;
-        m_message = null;
-        m_files.Add(commit);
+        _time = null;
+        _message = null;
+        _files.Add(commit);
     }
 
     public void AddBranch(Commit commit)
     {
-        if (m_branches == null)
-            m_branches = new List<Commit>(1) { commit };
+        if (_branches == null)
+            _branches = new List<Commit>(1) { commit };
         else
-            m_branches.Add(commit);
+            _branches.Add(commit);
     }
 
     public void ReplaceBranch(Commit existing, Commit replacement)
@@ -173,31 +173,31 @@ class Commit : IEnumerable<FileRevision>
             throw new ArgumentNullException();
 
         int index = -1;
-        if (m_branches != null)
-            index = m_branches.IndexOf(existing);
+        if (_branches != null)
+            index = _branches.IndexOf(existing);
 
         if (index < 0)
             throw new ArgumentException(String.Format("Commit {0} does not exist as a branch from this commit",
                 existing.CommitId));
 
-        m_branches[index] = replacement;
+        _branches[index] = replacement;
     }
 
     public bool Verify(bool fussy = false)
     {
-        m_errors = null;
+        _errors = null;
 
-        var authors = m_files.Select(c => c.Author).Distinct();
+        var authors = _files.Select(c => c.Author).Distinct();
         if (authors.Count() > 1)
             AddError("Multiple authors found: {0}", String.Join(", ", authors));
 
         if (fussy)
         {
-            var times = m_files.Select(c => c.Time).Distinct();
+            var times = _files.Select(c => c.Time).Distinct();
             if (times.Max() - times.Min() >= TimeSpan.FromMinutes(1))
                 AddError("Times vary too much: {0}", String.Join(", ", times));
 
-            var branches = m_files.Select(c => c.Branch).Distinct();
+            var branches = _files.Select(c => c.Branch).Distinct();
             if (branches.Count() > 1)
                 AddError("Multiple branches found: {0}", String.Join(", ", branches));
         }
@@ -228,7 +228,7 @@ class Commit : IEnumerable<FileRevision>
                     var buf = new StringBuilder();
                     var branches = mergedBranches.Concat(thisFileBranches).Distinct();
                     buf.AppendFormat("Multiple branches merged from found: {0}\r\n", FormatBranchList(branches));
-                    m_files.Aggregate(buf,
+                    _files.Aggregate(buf,
                         (sb, f) => sb.AppendFormat("    {0}: {1}\r\n", f, FormatBranchList(PossibleMergedBranches(f))));
                     AddError(buf.ToString());
                     break;
@@ -261,10 +261,10 @@ class Commit : IEnumerable<FileRevision>
     {
         var msg = String.Format(format, args);
 
-        if (m_errors == null)
-            m_errors = new List<string>() { msg };
+        if (_errors == null)
+            _errors = new List<string>() { msg };
         else
-            m_errors.Add(msg);
+            _errors.Add(msg);
     }
 
     public override string ToString()
@@ -273,17 +273,17 @@ class Commit : IEnumerable<FileRevision>
             CommitId,
             Time,
             (Index == 0) ? "" : String.Format("index={0} ", Index),
-            String.Join(", ", m_files));
+            String.Join(", ", _files));
     }
 
 
     public IEnumerator<FileRevision> GetEnumerator()
     {
-        return m_files.GetEnumerator();
+        return _files.GetEnumerator();
     }
 
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
     {
-        return m_files.GetEnumerator();
+        return _files.GetEnumerator();
     }
 }

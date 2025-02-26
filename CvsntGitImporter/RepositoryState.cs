@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System.Collections.Generic;
@@ -13,16 +13,16 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class RepositoryState
 {
-    private readonly Dictionary<string, RepositoryBranchState> m_branches =
+    private readonly Dictionary<string, RepositoryBranchState> _branches =
         new Dictionary<string, RepositoryBranchState>();
 
-    private readonly FileCollection m_allFiles;
-    private readonly bool m_setupInitialBranchState;
+    private readonly FileCollection _allFiles;
+    private readonly bool _setupInitialBranchState;
 
     private RepositoryState(FileCollection allFiles, bool setupInitialBranchState)
     {
-        m_allFiles = allFiles;
-        m_setupInitialBranchState = setupInitialBranchState;
+        _allFiles = allFiles;
+        _setupInitialBranchState = setupInitialBranchState;
     }
 
     /// <summary>
@@ -50,11 +50,11 @@ class RepositoryState
         get
         {
             RepositoryBranchState state;
-            if (m_branches.TryGetValue(branch, out state))
+            if (_branches.TryGetValue(branch, out state))
                 return state;
 
             state = CreateBranchState(branch);
-            m_branches[branch] = state;
+            _branches[branch] = state;
             return state;
         }
     }
@@ -71,7 +71,7 @@ class RepositoryState
         var branches = commit
             .SelectMany(f => f.File.GetBranchesAtRevision(f.Revision))
             .Distinct()
-            .Where(b => m_branches.ContainsKey(b));
+            .Where(b => _branches.ContainsKey(b));
 
         foreach (var branch in branches)
         {
@@ -86,9 +86,9 @@ class RepositoryState
     {
         var state = new RepositoryBranchState(branch);
 
-        if (m_setupInitialBranchState)
+        if (_setupInitialBranchState)
         {
-            foreach (var file in m_allFiles)
+            foreach (var file in _allFiles)
             {
                 var branchpointRevision = file.GetBranchpointForBranch(branch);
                 if (branchpointRevision == Revision.Empty)

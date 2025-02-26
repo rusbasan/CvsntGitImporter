@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -87,7 +87,7 @@ public class TempDir : IDisposable
 
     #region Disposal
 
-    private bool m_isDisposed = false;
+    private bool _isDisposed = false;
 
     public void Dispose()
     {
@@ -96,12 +96,12 @@ public class TempDir : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!m_isDisposed && disposing)
+        if (!_isDisposed && disposing)
         {
             try
             {
                 Info.Delete(true);
-                m_isDisposed = true;
+                _isDisposed = true;
             }
             catch (IOException)
             {

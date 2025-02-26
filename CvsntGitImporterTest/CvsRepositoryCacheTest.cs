@@ -17,24 +17,24 @@ namespace CTC.CvsntGitImporter.TestCode;
 [TestClass]
 public class CvsRepositoryCacheTest
 {
-    private TempDir m_temp;
+    private TempDir _temp;
 
     [TestInitialize]
     public void Setup()
     {
-        m_temp = new TempDir();
+        _temp = new TempDir();
     }
 
     [TestCleanup]
     public void Clearup()
     {
-        m_temp.Dispose();
+        _temp.Dispose();
     }
 
     [TestMethod]
     public void Construct_CreatesDirectoryIfMissing()
     {
-        var cacheDir = m_temp.GetPath("dir");
+        var cacheDir = _temp.GetPath("dir");
         var cache = new CvsRepositoryCache(cacheDir, new Mock<ICvsRepository>().Object);
 
         Assert.IsTrue(Directory.Exists(cacheDir));
@@ -51,7 +51,7 @@ public class CvsRepositoryCacheTest
 
         var repo = new Mock<ICvsRepository>();
         repo.Setup(r => r.GetCvsRevision(f)).Returns(new FileContent("file.txt", FileContentData.Empty, false)).Verifiable();
-        var cache = new CvsRepositoryCache(m_temp.Path, repo.Object);
+        var cache = new CvsRepositoryCache(_temp.Path, repo.Object);
         cache.GetCvsRevision(f);
 
         repo.VerifyAll();
@@ -69,12 +69,12 @@ public class CvsRepositoryCacheTest
         var contents = new FileContentData(new byte[] { 1, 2, 3, 4 }, 4);
         var repo1 = new Mock<ICvsRepository>();
         repo1.Setup(r => r.GetCvsRevision(f)).Returns(new FileContent("file.txt", contents, false));
-        var cache1 = new CvsRepositoryCache(m_temp.Path, repo1.Object);
+        var cache1 = new CvsRepositoryCache(_temp.Path, repo1.Object);
         cache1.GetCvsRevision(f);
 
         // create a second cache
         var repo2 = new Mock<ICvsRepository>();
-        var cache2 = new CvsRepositoryCache(m_temp.Path, repo1.Object);
+        var cache2 = new CvsRepositoryCache(_temp.Path, repo1.Object);
         var data = cache2.GetCvsRevision(f);
 
         repo2.Verify(r => r.GetCvsRevision(f), Times.Never);

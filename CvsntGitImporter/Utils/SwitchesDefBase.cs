@@ -1,6 +1,6 @@
 /*
  * John.Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -17,14 +17,14 @@ namespace CTC.CvsntGitImporter.Utils;
 /// </summary>
 abstract class SwitchesDefBase
 {
-    private string[] m_extra = new string[0];
+    private string[] _extra = new string[0];
 
     /// <summary>
     /// Any extra arguments found following the switches.
     /// </summary>
     public IList<string> ExtraArguments
     {
-        get { return Array.AsReadOnly<string>(m_extra); }
+        get { return Array.AsReadOnly<string>(_extra); }
     }
 
     /// <summary>
@@ -248,7 +248,7 @@ abstract class SwitchesDefBase
     /// </summary>
     internal void SetExtraArguments(string[] args)
     {
-        m_extra = args;
+        _extra = args;
     }
 
     #endregion

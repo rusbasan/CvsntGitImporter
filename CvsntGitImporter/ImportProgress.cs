@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -12,27 +12,27 @@ namespace CTC.CvsntGitImporter;
 class ImportProgress
 {
     private const int WindowSize = 100;
-    private readonly int m_totalCount;
-    private readonly LinkedList<TimeSpan> m_windowTimes = new LinkedList<TimeSpan>();
+    private readonly int _totalCount;
+    private readonly LinkedList<TimeSpan> _windowTimes = new LinkedList<TimeSpan>();
 
-    private int m_lastEtaLength = 0;
+    private int _lastEtaLength = 0;
 
     public ImportProgress(int totalCount)
     {
-        m_totalCount = totalCount;
-        m_windowTimes.AddFirst(TimeSpan.Zero);
+        _totalCount = totalCount;
+        _windowTimes.AddFirst(TimeSpan.Zero);
     }
 
     public void Update(TimeSpan elapsed, int count)
     {
-        m_windowTimes.AddLast(elapsed);
-        if (m_windowTimes.Count > WindowSize)
-            m_windowTimes.RemoveFirst();
+        _windowTimes.AddLast(elapsed);
+        if (_windowTimes.Count > WindowSize)
+            _windowTimes.RemoveFirst();
 
         var progress = new StringBuilder();
-        progress.AppendFormat("({0}%", count * 100 / m_totalCount);
+        progress.AppendFormat("({0}%", count * 100 / _totalCount);
 
-        if (count < m_totalCount)
+        if (count < _totalCount)
         {
             var remaining = CalculateRemaining(count);
             progress.AppendFormat(", {0} remaining", remaining.ToFriendlyDisplay(1));
@@ -41,19 +41,19 @@ class ImportProgress
         progress.Append(")");
 
         var etaLength = progress.Length;
-        if (etaLength < m_lastEtaLength)
-            progress.Append(new String(' ', m_lastEtaLength - etaLength));
-        m_lastEtaLength = etaLength;
+        if (etaLength < _lastEtaLength)
+            progress.Append(new String(' ', _lastEtaLength - etaLength));
+        _lastEtaLength = etaLength;
 
-        Console.Out.Write("\rProcessed {0} of {1} commits {2}", count, m_totalCount, progress);
+        Console.Out.Write("\rProcessed {0} of {1} commits {2}", count, _totalCount, progress);
     }
 
     private TimeSpan CalculateRemaining(int count)
     {
-        int windowSize = m_windowTimes.Count;
+        int windowSize = _windowTimes.Count;
 
-        double msTaken = m_windowTimes.Last.Value.TotalMilliseconds - m_windowTimes.First.Value.TotalMilliseconds;
-        double msRemaining = (msTaken / windowSize) * (m_totalCount - count);
+        double msTaken = _windowTimes.Last.Value.TotalMilliseconds - _windowTimes.First.Value.TotalMilliseconds;
+        double msRemaining = (msTaken / windowSize) * (_totalCount - count);
 
         return TimeSpan.FromMilliseconds(msRemaining);
     }

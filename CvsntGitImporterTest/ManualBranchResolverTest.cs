@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System.Collections.Generic;
@@ -16,15 +16,15 @@ namespace CTC.CvsntGitImporter.TestCode;
 [TestClass]
 public class ManualBranchResolverTest
 {
-    private Mock<ILogger> m_log;
-    private Mock<ITagResolver> m_tagResolver;
-    private RenameRule m_rule;
+    private Mock<ILogger> _log;
+    private Mock<ITagResolver> _tagResolver;
+    private RenameRule _rule;
 
     public ManualBranchResolverTest()
     {
-        m_log = new Mock<ILogger>();
-        m_tagResolver = new Mock<ITagResolver>();
-        m_rule = new RenameRule(@"^(.*)", "$1-branchpoint");
+        _log = new Mock<ILogger>();
+        _tagResolver = new Mock<ITagResolver>();
+        _rule = new RenameRule(@"^(.*)", "$1-branchpoint");
     }
 
     [TestMethod]
@@ -37,9 +37,9 @@ public class ManualBranchResolverTest
         {
             { "branch-branchpoint", commit1 },
         };
-        m_tagResolver.Setup(tr => tr.ResolvedTags).Returns(resolvedTags);
+        _tagResolver.Setup(tr => tr.ResolvedTags).Returns(resolvedTags);
 
-        var resolver = new ManualBranchResolver(m_log.Object, fallback.Object, m_tagResolver.Object, m_rule);
+        var resolver = new ManualBranchResolver(_log.Object, fallback.Object, _tagResolver.Object, _rule);
         bool result = resolver.Resolve(new[] { "branch" }, new[] { commit1 });
 
         Assert.IsTrue(result, "Resolved");
@@ -62,9 +62,9 @@ public class ManualBranchResolverTest
         fallback.Setup(f => f.Commits).Returns(new[] { commit1 });
 
         var resolvedTags = new Dictionary<string, Commit>();
-        m_tagResolver.Setup(tr => tr.ResolvedTags).Returns(resolvedTags);
+        _tagResolver.Setup(tr => tr.ResolvedTags).Returns(resolvedTags);
 
-        var resolver = new ManualBranchResolver(m_log.Object, fallback.Object, m_tagResolver.Object, m_rule);
+        var resolver = new ManualBranchResolver(_log.Object, fallback.Object, _tagResolver.Object, _rule);
         bool result = resolver.Resolve(new[] { "branch" }, new[] { commit1 });
 
         Assert.IsTrue(result, "Resolved");
@@ -83,9 +83,9 @@ public class ManualBranchResolverTest
         fallback.Setup(f => f.Commits).Returns(Enumerable.Empty<Commit>());
 
         var resolvedTags = new Dictionary<string, Commit>();
-        m_tagResolver.Setup(tr => tr.ResolvedTags).Returns(resolvedTags);
+        _tagResolver.Setup(tr => tr.ResolvedTags).Returns(resolvedTags);
 
-        var resolver = new ManualBranchResolver(m_log.Object, fallback.Object, m_tagResolver.Object, m_rule);
+        var resolver = new ManualBranchResolver(_log.Object, fallback.Object, _tagResolver.Object, _rule);
         bool result = resolver.Resolve(new[] { "branch" }, Enumerable.Empty<Commit>());
 
         Assert.IsFalse(result, "Resolved");
@@ -111,9 +111,9 @@ public class ManualBranchResolverTest
         {
             { "branch-branchpoint", commits[2] },
         };
-        m_tagResolver.Setup(tr => tr.ResolvedTags).Returns(resolvedTags);
+        _tagResolver.Setup(tr => tr.ResolvedTags).Returns(resolvedTags);
 
-        var resolver = new ManualBranchResolver(m_log.Object, fallback.Object, m_tagResolver.Object, m_rule);
+        var resolver = new ManualBranchResolver(_log.Object, fallback.Object, _tagResolver.Object, _rule);
         bool result = resolver.Resolve(new[] { "branch" }, commits);
 
         Assert.IsTrue(result, "Resolved");

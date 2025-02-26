@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -17,15 +17,15 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class GitRepo
 {
-    private readonly ILogger m_log;
-    private readonly string m_dir;
-    private readonly StringBuilder m_stderr = new StringBuilder();
-    private Process m_importProcess;
+    private readonly ILogger _log;
+    private readonly string _dir;
+    private readonly StringBuilder _stderr = new StringBuilder();
+    private Process _importProcess;
 
     public GitRepo(ILogger log, string directory)
     {
-        m_log = log;
-        m_dir = directory;
+        _log = log;
+        _dir = directory;
     }
 
     /// <summary>
@@ -36,8 +36,8 @@ class GitRepo
     {
         try
         {
-            if (!Directory.Exists(m_dir))
-                Directory.CreateDirectory(m_dir);
+            if (!Directory.Exists(_dir))
+                Directory.CreateDirectory(_dir);
 
             RunGitProcess("Git init", "init --bare");
 
@@ -67,7 +67,7 @@ class GitRepo
     /// <exception cref="IOException">there was an error starting the process</exception>
     public Stream StartImport()
     {
-        if (m_importProcess != null)
+        if (_importProcess != null)
             throw new InvalidOperationException("Import already underway");
 
         try
@@ -79,15 +79,15 @@ class GitRepo
             {
                 if (e.Data != null)
                 {
-                    m_stderr.Append(e.Data);
-                    m_stderr.AppendLine();
+                    _stderr.Append(e.Data);
+                    _stderr.AppendLine();
                 }
             };
 
             git.Start();
             git.BeginErrorReadLine();
 
-            m_importProcess = git;
+            _importProcess = git;
             return git.StandardInput.BaseStream;
         }
         catch (Win32Exception w32e)
@@ -102,7 +102,7 @@ class GitRepo
     /// <exception cref="IOException">there was an error doing the import</exception>
     public void EndImport()
     {
-        var process = m_importProcess;
+        var process = _importProcess;
         if (process == null)
             return;
 
@@ -113,16 +113,16 @@ class GitRepo
 
             if (process.ExitCode != 0)
             {
-                if (m_stderr.Length == 0)
+                if (_stderr.Length == 0)
                     throw new IOException(String.Format("Git import failed with exit code {0}", process.ExitCode));
                 else
-                    throw new IOException(String.Format("Git import failed: {0}", m_stderr));
+                    throw new IOException(String.Format("Git import failed: {0}", _stderr));
             }
         }
         finally
         {
-            m_importProcess = null;
-            m_stderr.Clear();
+            _importProcess = null;
+            _stderr.Clear();
         }
     }
 
@@ -143,7 +143,7 @@ class GitRepo
             {
                 FileName = "git.exe",
                 Arguments = arguments,
-                WorkingDirectory = m_dir,
+                WorkingDirectory = _dir,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -153,14 +153,14 @@ class GitRepo
 
     private void RunGitProcess(string description, string arguments)
     {
-        m_log.WriteLine("{0}: Command line: git {1}", description, arguments);
+        _log.WriteLine("{0}: Command line: git {1}", description, arguments);
         var errorOutput = new StringBuilder();
 
         var git = CreateGitProcess(arguments);
         git.OutputDataReceived += (_, e) =>
         {
             if (e.Data != null)
-                m_log.WriteLine(e.Data.TrimEnd());
+                _log.WriteLine(e.Data.TrimEnd());
         };
         git.ErrorDataReceived += (_, e) =>
         {

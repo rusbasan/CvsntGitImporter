@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System.Collections.Generic;
@@ -16,11 +16,11 @@ namespace CTC.CvsntGitImporter.TestCode;
 [TestClass]
 public class AutoBranchResolverTest
 {
-    private ILogger m_log;
+    private ILogger _log;
 
     public AutoBranchResolverTest()
     {
-        m_log = new Mock<ILogger>().Object;
+        _log = new Mock<ILogger>().Object;
     }
 
     [TestMethod]
@@ -38,7 +38,7 @@ public class AutoBranchResolverTest
             new Commit("c3").WithRevision(file2, "1.1.2.1"),
         };
 
-        var resolver = new AutoBranchResolver(m_log, commits.CreateAllFiles(), false, false);
+        var resolver = new AutoBranchResolver(_log, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "branch1" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");
@@ -60,7 +60,7 @@ public class AutoBranchResolverTest
             new Commit("c3").WithRevision(file1, "1.2.2.1"),
         };
 
-        var resolver = new AutoBranchResolver(m_log, commits.CreateAllFiles(), false, false);
+        var resolver = new AutoBranchResolver(_log, commits.CreateAllFiles(), false, false);
         var result = resolver.Resolve(new[] { "branch1" }, commits);
 
         Assert.IsTrue(result, "Resolve succeeded");

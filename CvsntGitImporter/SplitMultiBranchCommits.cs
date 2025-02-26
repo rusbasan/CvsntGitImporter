@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -15,16 +15,16 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class SplitMultiBranchCommits : IEnumerable<Commit>
 {
-    private readonly IEnumerable<Commit> m_commits;
+    private readonly IEnumerable<Commit> _commits;
 
     public SplitMultiBranchCommits(IEnumerable<Commit> commits)
     {
-        m_commits = commits;
+        _commits = commits;
     }
 
     private IEnumerable<Commit> Filter()
     {
-        foreach (var commit in m_commits)
+        foreach (var commit in _commits)
         {
             var branches = commit.Select(f => f.Branch).Distinct();
             if (branches.Count() > 1)

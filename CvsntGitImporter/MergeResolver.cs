@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -15,21 +15,21 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class MergeResolver
 {
-    private readonly ILogger m_log;
-    private readonly BranchStreamCollection m_streams;
+    private readonly ILogger _log;
+    private readonly BranchStreamCollection _streams;
 
     public MergeResolver(ILogger log, BranchStreamCollection streams)
     {
-        m_log = log;
-        m_streams = streams;
+        _log = log;
+        _streams = streams;
     }
 
     public void Resolve()
     {
-        m_log.DoubleRuleOff();
-        m_log.WriteLine("Resolving merges...");
+        _log.DoubleRuleOff();
+        _log.WriteLine("Resolving merges...");
 
-        using (m_log.Indent())
+        using (_log.Indent())
         {
             ResolveMerges();
         }
@@ -38,12 +38,12 @@ class MergeResolver
     private void ResolveMerges()
     {
         int failures = 0;
-        foreach (var branch in m_streams.Branches)
+        foreach (var branch in _streams.Branches)
         {
-            m_log.WriteLine("{0}", branch);
-            using (m_log.Indent())
+            _log.WriteLine("{0}", branch);
+            using (_log.Indent())
             {
-                var branchRoot = m_streams[branch];
+                var branchRoot = _streams[branch];
                 failures += ProcessBranch(branchRoot);
             }
         }
@@ -82,10 +82,10 @@ class MergeResolver
             if (commitSource == null)
                 continue;
 
-            var commitBranchRoot = m_streams[commitSource.Branch];
+            var commitBranchRoot = _streams[commitSource.Branch];
             if (commitBranchRoot?.Predecessor == null || commitBranchRoot.Predecessor.Branch != commitDest.Branch)
             {
-                m_log.WriteLine(
+                _log.WriteLine(
                     "Warning: ignoring merge to commit {0} - merged commit {1} is on {2} which is not branched off from {3}",
                     commitDest.CommitId, commitSource.CommitId, commitSource.Branch, commitDest.Branch);
                 continue;
@@ -94,26 +94,26 @@ class MergeResolver
             var lastMergeSource = getLastMerge(commitSource.Branch);
             if (lastMergeSource != null && commitSource.Index < lastMergeSource.Index)
             {
-                m_log.WriteLine("Merges from {0} to {1} are crossed ({2}->{3})",
+                _log.WriteLine("Merges from {0} to {1} are crossed ({2}->{3})",
                     commitSource.Branch, commitDest.Branch, commitSource.CommitId, commitDest.CommitId);
 
                 if (commitSource.Branches.Any())
                 {
-                    m_log.WriteLine("Warning: not moving {0} as it is a branchpoint for {1}", commitSource.CommitId,
+                    _log.WriteLine("Warning: not moving {0} as it is a branchpoint for {1}", commitSource.CommitId,
                         String.Join(", ", commitSource.Branches.Select(c => c.Branch)));
                     continue;
                 }
                 else if (lastMergeSource.Branches.Any())
                 {
-                    m_log.WriteLine("Warning: not moving {0} as it is a branchpoint for {1}", lastMergeSource.CommitId,
+                    _log.WriteLine("Warning: not moving {0} as it is a branchpoint for {1}", lastMergeSource.CommitId,
                         String.Join(", ", lastMergeSource.Branches.Select(c => c.Branch)));
                     continue;
                 }
                 else
                 {
-                    using (m_log.Indent())
+                    using (_log.Indent())
                     {
-                        m_streams.MoveCommit(commitSource, lastMergeSource);
+                        _streams.MoveCommit(commitSource, lastMergeSource);
 
                         // don't update last merge as it has not changed
                     }

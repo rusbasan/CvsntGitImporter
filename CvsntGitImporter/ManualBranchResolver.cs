@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System.Collections.Generic;
@@ -10,46 +10,46 @@ namespace CTC.CvsntGitImporter;
 
 class ManualBranchResolver : ITagResolver
 {
-    private readonly ILogger m_log;
-    private readonly ITagResolver m_fallback;
-    private readonly ITagResolver m_tagResolver;
-    private readonly RenameRule m_branchpointRule;
-    private Dictionary<string, Commit> m_resolvedCommits;
-    private IList<Commit> m_commits;
+    private readonly ILogger _log;
+    private readonly ITagResolver _fallback;
+    private readonly ITagResolver _tagResolver;
+    private readonly RenameRule _branchpointRule;
+    private Dictionary<string, Commit> _resolvedCommits;
+    private IList<Commit> _commits;
 
     public ManualBranchResolver(ILogger log, ITagResolver fallbackResolver, ITagResolver tagResolver,
         RenameRule branchpointRule)
     {
-        m_log = log;
-        m_fallback = fallbackResolver;
-        m_tagResolver = tagResolver;
-        m_branchpointRule = branchpointRule;
+        _log = log;
+        _fallback = fallbackResolver;
+        _tagResolver = tagResolver;
+        _branchpointRule = branchpointRule;
     }
 
     public IDictionary<string, Commit> ResolvedTags
     {
-        get { return m_resolvedCommits; }
+        get { return _resolvedCommits; }
     }
 
     public IEnumerable<string> UnresolvedTags
     {
-        get { return m_fallback.UnresolvedTags; }
+        get { return _fallback.UnresolvedTags; }
     }
 
     public IEnumerable<Commit> Commits
     {
-        get { return m_commits; }
+        get { return _commits; }
     }
 
     public bool Resolve(IEnumerable<string> branches, IEnumerable<Commit> commits)
     {
-        var rule = m_branchpointRule;
-        m_resolvedCommits = new Dictionary<string, Commit>();
-        m_commits = commits.ToListIfNeeded();
+        var rule = _branchpointRule;
+        _resolvedCommits = new Dictionary<string, Commit>();
+        _commits = commits.ToListIfNeeded();
 
-        m_log.DoubleRuleOff();
-        m_log.WriteLine("Matching branches to branchpoints");
-        using (m_log.Indent())
+        _log.DoubleRuleOff();
+        _log.WriteLine("Matching branches to branchpoints");
+        using (_log.Indent())
         {
             foreach (var branch in branches.Where(b => rule.IsMatch(b)))
             {
@@ -58,25 +58,25 @@ class ManualBranchResolver : ITagResolver
                 var commit = ResolveBranchpoint(branch, tag);
                 if (commit != null)
                 {
-                    m_resolvedCommits[branch] = commit;
-                    m_log.WriteLine("Branch {0} -> Tag {1}", branch, tag);
+                    _resolvedCommits[branch] = commit;
+                    _log.WriteLine("Branch {0} -> Tag {1}", branch, tag);
                 }
                 else
                 {
-                    m_log.WriteLine("Branch {0}: tag {1} is unresolved", branch, tag);
+                    _log.WriteLine("Branch {0}: tag {1} is unresolved", branch, tag);
                 }
             }
         }
 
-        var otherBranches = branches.Except(m_resolvedCommits.Keys).ToList();
+        var otherBranches = branches.Except(_resolvedCommits.Keys).ToList();
         if (otherBranches.Any())
         {
-            var result = m_fallback.Resolve(otherBranches, m_commits);
+            var result = _fallback.Resolve(otherBranches, _commits);
 
-            foreach (var kvp in m_fallback.ResolvedTags)
-                m_resolvedCommits[kvp.Key] = kvp.Value;
+            foreach (var kvp in _fallback.ResolvedTags)
+                _resolvedCommits[kvp.Key] = kvp.Value;
 
-            m_commits = m_fallback.Commits.ToListIfNeeded();
+            _commits = _fallback.Commits.ToListIfNeeded();
             return result;
         }
         else
@@ -88,12 +88,12 @@ class ManualBranchResolver : ITagResolver
     private Commit ResolveBranchpoint(string branch, string tag)
     {
         Commit branchCommit;
-        if (!m_tagResolver.ResolvedTags.TryGetValue(tag, out branchCommit))
+        if (!_tagResolver.ResolvedTags.TryGetValue(tag, out branchCommit))
             return null;
 
         // check for commits to the branch that occur before the tag
         CommitMoveRecord moveRecord = null;
-        foreach (var c in m_commits)
+        foreach (var c in _commits)
         {
             if (c == branchCommit)
                 break;
@@ -101,17 +101,17 @@ class ManualBranchResolver : ITagResolver
             if (c.Branch == branch)
             {
                 if (moveRecord == null)
-                    moveRecord = new CommitMoveRecord(branch, m_log) { FinalCommit = branchCommit };
+                    moveRecord = new CommitMoveRecord(branch, _log) { FinalCommit = branchCommit };
                 moveRecord.AddCommit(c, c.Select(r => r.File));
             }
         }
 
         if (moveRecord != null)
         {
-            m_log.WriteLine("Some commits on {0} need moving after branchpoint {1}", branch, tag);
-            using (m_log.Indent())
+            _log.WriteLine("Some commits on {0} need moving after branchpoint {1}", branch, tag);
+            using (_log.Indent())
             {
-                moveRecord.Apply(m_commits);
+                moveRecord.Apply(_commits);
             }
         }
 

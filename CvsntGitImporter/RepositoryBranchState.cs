@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -15,9 +15,9 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class RepositoryBranchState
 {
-    private readonly string m_branch;
+    private readonly string _branch;
 
-    private readonly Dictionary<string, Revision> m_files =
+    private readonly Dictionary<string, Revision> _files =
         new Dictionary<string, Revision>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
@@ -28,7 +28,7 @@ class RepositoryBranchState
         get
         {
             Revision value;
-            if (m_files.TryGetValue(filename, out value))
+            if (_files.TryGetValue(filename, out value))
                 return value;
             else
                 return Revision.Empty;
@@ -53,7 +53,7 @@ class RepositoryBranchState
     /// </summary>
     public void SetUnsafe(string filename, Revision value)
     {
-        m_files[filename] = value;
+        _files[filename] = value;
     }
 
     /// <summary>
@@ -61,12 +61,12 @@ class RepositoryBranchState
     /// </summary>
     public IEnumerable<string> LiveFiles
     {
-        get { return m_files.Keys; }
+        get { return _files.Keys; }
     }
 
     public RepositoryBranchState(string branch)
     {
-        m_branch = branch;
+        _branch = branch;
     }
 
     /// <summary>
@@ -74,8 +74,8 @@ class RepositoryBranchState
     /// </summary>
     private RepositoryBranchState(string branch, RepositoryBranchState other) : this(branch)
     {
-        foreach (var kvp in other.m_files)
-            m_files[kvp.Key] = kvp.Value;
+        foreach (var kvp in other._files)
+            _files[kvp.Key] = kvp.Value;
     }
 
     /// <summary>
@@ -86,9 +86,9 @@ class RepositoryBranchState
         foreach (var f in commit)
         {
             if (f.IsDead)
-                m_files.Remove(f.File.Name);
+                _files.Remove(f.File.Name);
             else
-                m_files[f.File.Name] = f.Revision;
+                _files[f.File.Name] = f.Revision;
         }
     }
 

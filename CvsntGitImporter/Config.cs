@@ -14,22 +14,22 @@ namespace CTC.CvsntGitImporter;
 
 class Config : IConfig
 {
-    private readonly Switches m_switches;
-    private readonly string m_debugLogDir;
-    private User m_nobody;
-    private UserMap m_userMap;
-    private List<GitConfigOption> m_gitConfigOptions;
-    private readonly InclusionMatcher m_fileMatcher = new InclusionMatcher(ignoreCase: true);
-    private readonly InclusionMatcher m_headOnlyMatcher = new InclusionMatcher(ignoreCase: true) { Default = false };
+    private readonly Switches _switches;
+    private readonly string _debugLogDir;
+    private User _nobody;
+    private UserMap _userMap;
+    private List<GitConfigOption> _gitConfigOptions;
+    private readonly InclusionMatcher _fileMatcher = new InclusionMatcher(ignoreCase: true);
+    private readonly InclusionMatcher _headOnlyMatcher = new InclusionMatcher(ignoreCase: true) { Default = false };
 
 
     public Config(Switches switches)
     {
-        m_switches = switches;
-        m_debugLogDir = Path.Combine(Environment.CurrentDirectory, "DebugLogs");
+        _switches = switches;
+        _debugLogDir = Path.Combine(Environment.CurrentDirectory, "DebugLogs");
 
-        ObserveCollection(m_switches.GitConfigSet, x => AddGitConfigOption(x, add: false));
-        ObserveCollection(m_switches.GitConfigAdd, x => AddGitConfigOption(x, add: true));
+        ObserveCollection(_switches.GitConfigSet, x => AddGitConfigOption(x, add: false));
+        ObserveCollection(_switches.GitConfigAdd, x => AddGitConfigOption(x, add: true));
 
         TagMatcher = new InclusionMatcher(ignoreCase: false);
         TagRename = new Renamer();
@@ -37,27 +37,27 @@ class Config : IConfig
         BranchMatcher = new InclusionMatcher(ignoreCase: false);
         BranchRename = new Renamer();
 
-        ObserveCollection(m_switches.IncludeFile, x => AddIncludeRule(m_fileMatcher, x, include: true));
-        ObserveCollection(m_switches.ExcludeFile, x => AddIncludeRule(m_fileMatcher, x, include: false));
-        ObserveCollection(m_switches.HeadOnly, x => AddIncludeRule(m_headOnlyMatcher, x, include: true));
+        ObserveCollection(_switches.IncludeFile, x => AddIncludeRule(_fileMatcher, x, include: true));
+        ObserveCollection(_switches.ExcludeFile, x => AddIncludeRule(_fileMatcher, x, include: false));
+        ObserveCollection(_switches.HeadOnly, x => AddIncludeRule(_headOnlyMatcher, x, include: true));
 
-        ObserveCollection(m_switches.IncludeTag, x => AddIncludeRule(TagMatcher, x, include: true));
-        ObserveCollection(m_switches.ExcludeTag, x => AddIncludeRule(TagMatcher, x, include: false));
-        ObserveCollection(m_switches.RenameTag, x => AddRenameRule(TagRename, x));
+        ObserveCollection(_switches.IncludeTag, x => AddIncludeRule(TagMatcher, x, include: true));
+        ObserveCollection(_switches.ExcludeTag, x => AddIncludeRule(TagMatcher, x, include: false));
+        ObserveCollection(_switches.RenameTag, x => AddRenameRule(TagRename, x));
 
-        ObserveCollection(m_switches.IncludeBranch, x => AddIncludeRule(BranchMatcher, x, include: true));
-        ObserveCollection(m_switches.ExcludeBranch, x => AddIncludeRule(BranchMatcher, x, include: false));
-        ObserveCollection(m_switches.RenameBranch, x => AddRenameRule(BranchRename, x));
+        ObserveCollection(_switches.IncludeBranch, x => AddIncludeRule(BranchMatcher, x, include: true));
+        ObserveCollection(_switches.ExcludeBranch, x => AddIncludeRule(BranchMatcher, x, include: false));
+        ObserveCollection(_switches.RenameBranch, x => AddRenameRule(BranchRename, x));
     }
 
     public void ParseCommandLineSwitches(params string[] args)
     {
-        m_switches.Parse(args);
+        _switches.Parse(args);
 
         try
         {
-            if (m_switches.BranchpointRule != null)
-                BranchpointRule = RenameRule.Parse(m_switches.BranchpointRule);
+            if (_switches.BranchpointRule != null)
+                BranchpointRule = RenameRule.Parse(_switches.BranchpointRule);
         }
         catch (ArgumentException ae)
         {
@@ -75,7 +75,7 @@ class Config : IConfig
     /// </summary>
     public bool Debug
     {
-        get { return m_switches.Debug; }
+        get { return _switches.Debug; }
     }
 
     /// <summary>
@@ -83,7 +83,7 @@ class Config : IConfig
     /// </summary>
     public string DebugLogDir
     {
-        get { return m_debugLogDir; }
+        get { return _debugLogDir; }
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ class Config : IConfig
     /// </summary>
     public bool DoImport
     {
-        get { return !m_switches.NoImport; }
+        get { return !_switches.NoImport; }
     }
 
     /// <summary>
@@ -99,7 +99,7 @@ class Config : IConfig
     /// </summary>
     public bool CreateCvsLog
     {
-        get { return m_switches.CvsLog == null || !File.Exists(m_switches.CvsLog); }
+        get { return _switches.CvsLog == null || !File.Exists(_switches.CvsLog); }
     }
 
     /// <summary>
@@ -107,7 +107,7 @@ class Config : IConfig
     /// </summary>
     public string CvsLogFileName
     {
-        get { return m_switches.CvsLog ?? Path.Combine(DebugLogDir, "cvs.log"); }
+        get { return _switches.CvsLog ?? Path.Combine(DebugLogDir, "cvs.log"); }
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ class Config : IConfig
     /// </summary>
     public string Sandbox
     {
-        get { return m_switches.Sandbox; }
+        get { return _switches.Sandbox; }
     }
 
     /// <summary>
@@ -123,7 +123,7 @@ class Config : IConfig
     /// </summary>
     public string GitDir
     {
-        get { return m_switches.GitDir; }
+        get { return _switches.GitDir; }
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ class Config : IConfig
     /// </summary>
     public IEnumerable<GitConfigOption> GitConfig
     {
-        get { return m_gitConfigOptions ?? Enumerable.Empty<GitConfigOption>(); }
+        get { return _gitConfigOptions ?? Enumerable.Empty<GitConfigOption>(); }
     }
 
     /// <summary>
@@ -139,7 +139,7 @@ class Config : IConfig
     /// </summary>
     public bool Repack
     {
-        get { return m_switches.Repack; }
+        get { return _switches.Repack; }
     }
 
     /// <summary>
@@ -147,7 +147,7 @@ class Config : IConfig
     /// </summary>
     public string CvsCache
     {
-        get { return m_switches.CvsCache; }
+        get { return _switches.CvsCache; }
     }
 
     /// <summary>
@@ -155,7 +155,7 @@ class Config : IConfig
     /// </summary>
     public uint CvsProcesses
     {
-        get { return m_switches.CvsProcesses ?? (uint)Environment.ProcessorCount; }
+        get { return _switches.CvsProcesses ?? (uint)Environment.ProcessorCount; }
     }
 
     /// <summary>
@@ -163,7 +163,7 @@ class Config : IConfig
     /// </summary>
     public Boolean ContinueOnError
     {
-        get { return m_switches.ContinueOnError; }
+        get { return _switches.ContinueOnError; }
     }
 
     /// <summary>
@@ -173,14 +173,14 @@ class Config : IConfig
     /// </summary>
     public Boolean NoCommitReordering
     {
-        get { return m_switches.NoCommitReordering; }
+        get { return _switches.NoCommitReordering; }
     }
 
     /// <inheritdoc />
-    public Boolean RemoveAdvertising => m_switches.RemoveAdvertising;
+    public Boolean RemoveAdvertising => _switches.RemoveAdvertising;
 
     /// <inheritdoc />
-    public Boolean NoLineEndingNormalization => m_switches.NoLineEndingNormalization;
+    public Boolean NoLineEndingNormalization => _switches.NoLineEndingNormalization;
 
     #endregion General config
 
@@ -191,7 +191,7 @@ class Config : IConfig
     /// </summary>
     public string DefaultDomain
     {
-        get { return m_switches.DefaultDomain ?? Environment.MachineName; }
+        get { return _switches.DefaultDomain ?? Environment.MachineName; }
     }
 
     /// <summary>
@@ -199,7 +199,7 @@ class Config : IConfig
     /// </summary>
     public UserMap Users
     {
-        get { return m_userMap ?? (m_userMap = GetUserMap()); }
+        get { return _userMap ?? (_userMap = GetUserMap()); }
     }
 
     /// <summary>
@@ -207,15 +207,15 @@ class Config : IConfig
     /// </summary>
     public User Nobody
     {
-        get { return m_nobody ?? (m_nobody = GetNobodyUser()); }
+        get { return _nobody ?? (_nobody = GetNobodyUser()); }
     }
 
     private User GetNobodyUser()
     {
-        var taggerEmail = m_switches.NobodyEmail;
+        var taggerEmail = _switches.NobodyEmail;
         if (taggerEmail == null)
         {
-            var name = m_switches.NobodyName ?? Environment.GetEnvironmentVariable("USERNAME") ?? "nobody";
+            var name = _switches.NobodyName ?? Environment.GetEnvironmentVariable("USERNAME") ?? "nobody";
             name = name.Trim();
 
             var spaceIndex = name.IndexOf(' ');
@@ -224,18 +224,18 @@ class Config : IConfig
             taggerEmail = String.Format("{0}@{1}", name, DefaultDomain);
         }
 
-        return new User(m_switches.NobodyName, taggerEmail);
+        return new User(_switches.NobodyName, taggerEmail);
     }
 
     private UserMap GetUserMap()
     {
-        var m_userMap = new UserMap(this.DefaultDomain);
-        m_userMap.AddEntry("", this.Nobody);
+        var _userMap = new UserMap(this.DefaultDomain);
+        _userMap.AddEntry("", this.Nobody);
 
-        if (m_switches.UserFile != null)
-            m_userMap.ParseUserFile(m_switches.UserFile);
+        if (_switches.UserFile != null)
+            _userMap.ParseUserFile(_switches.UserFile);
 
-        return m_userMap;
+        return _userMap;
     }
 
     #endregion Users
@@ -248,7 +248,7 @@ class Config : IConfig
     /// </summary>
     public IEnumerable<string> HeadOnlyBranches
     {
-        get { return m_switches.HeadOnlyBranches ?? Enumerable.Empty<string>(); }
+        get { return _switches.HeadOnlyBranches ?? Enumerable.Empty<string>(); }
     }
 
     /// <summary>
@@ -257,7 +257,7 @@ class Config : IConfig
     /// <remarks>Excludes files that are "head-only"</remarks>
     public bool IncludeFile(string filename)
     {
-        return m_fileMatcher.Match(filename) && !m_headOnlyMatcher.Match(filename);
+        return _fileMatcher.Match(filename) && !_headOnlyMatcher.Match(filename);
     }
 
     /// <summary>
@@ -265,7 +265,7 @@ class Config : IConfig
     /// </summary>
     public bool IsHeadOnly(string filename)
     {
-        return m_fileMatcher.Match(filename) && m_headOnlyMatcher.Match(filename);
+        return _fileMatcher.Match(filename) && _headOnlyMatcher.Match(filename);
     }
 
     #endregion
@@ -283,7 +283,7 @@ class Config : IConfig
     /// </summary>
     public int PartialTagThreshold
     {
-        get { return (int)m_switches.PartialTagThreshold.GetValueOrDefault(DefaultPartialTagThreshold); }
+        get { return (int)_switches.PartialTagThreshold.GetValueOrDefault(DefaultPartialTagThreshold); }
     }
 
     /// <summary>
@@ -303,12 +303,12 @@ class Config : IConfig
     {
         get
         {
-            if (m_switches.MarkerTag == null)
+            if (_switches.MarkerTag == null)
                 return "cvs-import";
-            else if (m_switches.MarkerTag.Length == 0)
+            else if (_switches.MarkerTag.Length == 0)
                 return null;
             else
-                return m_switches.MarkerTag;
+                return _switches.MarkerTag;
         }
     }
 
@@ -333,7 +333,7 @@ class Config : IConfig
     public Renamer BranchRename { get; private set; }
 
     /// <inheritdoc />
-    public String MainBranchName => m_switches.MainBranchName ?? "main";
+    public String MainBranchName => _switches.MainBranchName ?? "main";
 
     #endregion Branches
 
@@ -355,10 +355,10 @@ class Config : IConfig
         {
             var option = GitConfigOption.Parse(x, add);
 
-            if (m_gitConfigOptions == null)
-                m_gitConfigOptions = new List<GitConfigOption>() { option };
+            if (_gitConfigOptions == null)
+                _gitConfigOptions = new List<GitConfigOption>() { option };
             else
-                m_gitConfigOptions.Add(option);
+                _gitConfigOptions.Add(option);
         }
         catch (ArgumentException ae)
         {

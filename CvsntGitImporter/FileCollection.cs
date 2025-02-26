@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -16,12 +16,12 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class FileCollection : IEnumerable<FileInfo>
 {
-    private readonly Dictionary<string, FileInfo> m_files = new Dictionary<string, FileInfo>();
+    private readonly Dictionary<string, FileInfo> _files = new Dictionary<string, FileInfo>();
 
     public FileCollection(IEnumerable<FileInfo> files)
     {
         foreach (var f in files)
-            m_files.Add(f.Name, f);
+            _files.Add(f.Name, f);
     }
 
     /// <summary>
@@ -30,12 +30,12 @@ class FileCollection : IEnumerable<FileInfo>
     /// <exception cref="KeyNotFoundException">if the file is not in the collection</exception>
     public FileInfo this[string filename]
     {
-        get { return m_files[filename]; }
+        get { return _files[filename]; }
     }
 
     public IEnumerator<FileInfo> GetEnumerator()
     {
-        return m_files.Values.GetEnumerator();
+        return _files.Values.GetEnumerator();
     }
 
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()

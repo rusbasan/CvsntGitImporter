@@ -18,8 +18,8 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class Cvs
 {
-    private readonly ICvsRepository m_repository;
-    private readonly int m_cvsProcessCount;
+    private readonly ICvsRepository _repository;
+    private readonly int _cvsProcessCount;
 
     public const int MaxProcessCount = 128;
 
@@ -28,8 +28,8 @@ class Cvs
         if (cvsProcessCount < 1 || cvsProcessCount > MaxProcessCount)
             throw new ArgumentOutOfRangeException("cvsProcessCount");
 
-        m_repository = repository;
-        m_cvsProcessCount = (int)cvsProcessCount;
+        _repository = repository;
+        _cvsProcessCount = (int)cvsProcessCount;
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ class Cvs
             select dir as IEnumerable<FileRevision>;
         var dirQueue = new Queue<IEnumerable<FileRevision>>(packages);
 
-        var taskCount = Math.Min(dirQueue.Count, m_cvsProcessCount);
+        var taskCount = Math.Min(dirQueue.Count, _cvsProcessCount);
         var tasks = new List<Task<FileContent>>(taskCount);
         var taskQueues = new List<Queue<FileRevision>>(taskCount);
 
@@ -93,7 +93,7 @@ class Cvs
 
     private Task<FileContent> StartNextFile(FileRevision r)
     {
-        return Task<FileContent>.Factory.StartNew(() => m_repository.GetCvsRevision(r));
+        return Task<FileContent>.Factory.StartNew(() => _repository.GetCvsRevision(r));
     }
 
 

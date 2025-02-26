@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -16,16 +16,16 @@ namespace CTC.CvsntGitImporter.TestCode;
 [TestClass]
 public class CommitTest
 {
-    private FileInfo m_f1;
-    private FileInfo m_f2;
-    private FileInfo m_f3;
+    private FileInfo _f1;
+    private FileInfo _f2;
+    private FileInfo _f3;
 
     [TestInitialize]
     public void Setup()
     {
-        m_f1 = new FileInfo("f1");
-        m_f2 = new FileInfo("f2");
-        m_f3 = new FileInfo("f3");
+        _f1 = new FileInfo("f1");
+        _f2 = new FileInfo("f2");
+        _f3 = new FileInfo("f3");
     }
 
 
@@ -35,7 +35,7 @@ public class CommitTest
     public void MergedFiles_None()
     {
         var commit = new Commit("abc")
-            .WithRevision(m_f1, "1.2");
+            .WithRevision(_f1, "1.2");
         var result = commit.MergedFiles;
 
         Assert.IsFalse(result.Any());
@@ -45,8 +45,8 @@ public class CommitTest
     public void MergedFiles_All()
     {
         var commit = new Commit("abc")
-            .WithRevision(m_f1, "1.2", mergepoint: "1.1.2.1")
-            .WithRevision(m_f2, "1.3", mergepoint: "1.1.4.2");
+            .WithRevision(_f1, "1.2", mergepoint: "1.1.2.1")
+            .WithRevision(_f2, "1.3", mergepoint: "1.1.4.2");
         var result = commit.MergedFiles;
 
         Assert.AreEqual(result.Count(), 2);
@@ -56,8 +56,8 @@ public class CommitTest
     public void MergedFiles_Mixture()
     {
         var commit = new Commit("abc")
-            .WithRevision(m_f1, "1.2", mergepoint: "1.1.2.1")
-            .WithRevision(m_f2, "1.3");
+            .WithRevision(_f1, "1.2", mergepoint: "1.1.2.1")
+            .WithRevision(_f2, "1.3");
         var result = commit.MergedFiles;
 
         Assert.AreEqual(result.Single().File.Name, "f1");
@@ -71,12 +71,12 @@ public class CommitTest
     [TestMethod]
     public void Verify_MergeFromTwoBranches()
     {
-        m_f1.WithBranch("branch1", "1.1.0.2");
-        m_f2.WithBranch("branch2", "1.1.0.2");
+        _f1.WithBranch("branch1", "1.1.0.2");
+        _f2.WithBranch("branch2", "1.1.0.2");
 
         var commit = new Commit("abc")
-            .WithRevision(m_f1, "1.2", mergepoint: "1.1.2.1")
-            .WithRevision(m_f2, "1.2", mergepoint: "1.1.2.1");
+            .WithRevision(_f1, "1.2", mergepoint: "1.1.2.1")
+            .WithRevision(_f2, "1.2", mergepoint: "1.1.2.1");
         commit.Verify();
 
         Assert.IsTrue(commit.Errors.Single().Contains("Multiple branches merged from"));
@@ -85,11 +85,11 @@ public class CommitTest
     [TestMethod]
     public void Verify_MergeFromTwoBranches_OneIsExcluded()
     {
-        m_f1.WithBranch("branch1", "1.1.0.2");
+        _f1.WithBranch("branch1", "1.1.0.2");
 
         var commit = new Commit("abc")
-            .WithRevision(m_f1, "1.2", mergepoint: "1.1.2.1")
-            .WithRevision(m_f2, "1.2", mergepoint: "1.1.2.1");
+            .WithRevision(_f1, "1.2", mergepoint: "1.1.2.1")
+            .WithRevision(_f2, "1.2", mergepoint: "1.1.2.1");
         var result = commit.Verify();
 
         Assert.IsTrue(result, "Verification succeeded");
@@ -98,13 +98,13 @@ public class CommitTest
     [TestMethod]
     public void Verify_MergeFromTwoBranchesAndNonMerge()
     {
-        m_f1.WithBranch("branch1", "1.1.0.2");
-        m_f2.WithBranch("branch2", "1.1.0.2");
+        _f1.WithBranch("branch1", "1.1.0.2");
+        _f2.WithBranch("branch2", "1.1.0.2");
 
         var commit = new Commit("abc")
-            .WithRevision(m_f3, "1.1")
-            .WithRevision(m_f1, "1.2", mergepoint: "1.1.2.1")
-            .WithRevision(m_f2, "1.2", mergepoint: "1.1.2.1");
+            .WithRevision(_f3, "1.1")
+            .WithRevision(_f1, "1.2", mergepoint: "1.1.2.1")
+            .WithRevision(_f2, "1.2", mergepoint: "1.1.2.1");
         commit.Verify();
 
         Assert.IsTrue(commit.Errors.Single().Contains("Multiple branches merged from"));
@@ -113,12 +113,12 @@ public class CommitTest
     [TestMethod]
     public void Verify_MergeFromParallelBranch_WithUnmodifiedFileOnSourceBranch()
     {
-        m_f1.WithBranch("branch1", "1.1.0.2").WithBranch("branch2", "1.2.0.2");
-        m_f2.WithBranch("branch1", "1.1.0.2").WithBranch("branch2", "1.2.0.2");
+        _f1.WithBranch("branch1", "1.1.0.2").WithBranch("branch2", "1.2.0.2");
+        _f2.WithBranch("branch1", "1.1.0.2").WithBranch("branch2", "1.2.0.2");
 
         var commit = new Commit("abc")
-            .WithRevision(m_f1, "1.2.2.1", mergepoint: "1.1.2.1") // file was modified on branch1
-            .WithRevision(m_f2, "1.2.2.1", mergepoint: "1.1"); // file was not modified on branch1
+            .WithRevision(_f1, "1.2.2.1", mergepoint: "1.1.2.1") // file was modified on branch1
+            .WithRevision(_f2, "1.2.2.1", mergepoint: "1.1"); // file was not modified on branch1
         bool result = commit.Verify();
 
         Assert.IsTrue(result, "Verification succeeded");
@@ -132,7 +132,7 @@ public class CommitTest
     [TestMethod]
     public void IsBranchpoint_NoBranches()
     {
-        var commit = new Commit("abc").WithRevision(m_f1, "1.1");
+        var commit = new Commit("abc").WithRevision(_f1, "1.1");
 
         Assert.IsFalse(commit.IsBranchpoint);
     }
@@ -140,9 +140,9 @@ public class CommitTest
     [TestMethod]
     public void IsBranchpoint_WithBranches()
     {
-        m_f1.WithBranch("branch", "1.1.0.2");
-        var commit = new Commit("main1").WithRevision(m_f1, "1.1");
-        var branchCommit = new Commit("branch1").WithRevision(m_f1, "1.1.2.1");
+        _f1.WithBranch("branch", "1.1.0.2");
+        var commit = new Commit("main1").WithRevision(_f1, "1.1");
+        var branchCommit = new Commit("branch1").WithRevision(_f1, "1.1.2.1");
         commit.AddBranch(branchCommit);
 
         Assert.IsTrue(commit.IsBranchpoint);
@@ -157,9 +157,9 @@ public class CommitTest
     [ExpectedException(typeof(ArgumentException))]
     public void ReplaceBranch_NonExistent()
     {
-        var commit = new Commit("main1").WithRevision(m_f1, "1.1");
-        var branchCommit1 = new Commit("branch1").WithRevision(m_f1, "1.1.2.1");
-        var branchCommit2 = new Commit("branch2").WithRevision(m_f1, "1.1.2.2");
+        var commit = new Commit("main1").WithRevision(_f1, "1.1");
+        var branchCommit1 = new Commit("branch1").WithRevision(_f1, "1.1.2.1");
+        var branchCommit2 = new Commit("branch2").WithRevision(_f1, "1.1.2.2");
 
         commit.ReplaceBranch(branchCommit1, branchCommit2);
     }
@@ -167,10 +167,10 @@ public class CommitTest
     [TestMethod]
     public void ReplaceBranch()
     {
-        m_f1.WithBranch("branch", "1.1.0.2");
-        var commit = new Commit("main1").WithRevision(m_f1, "1.1");
-        var branchCommit1 = new Commit("branch1").WithRevision(m_f1, "1.1.2.1");
-        var branchCommit2 = new Commit("branch2").WithRevision(m_f1, "1.1.2.2");
+        _f1.WithBranch("branch", "1.1.0.2");
+        var commit = new Commit("main1").WithRevision(_f1, "1.1");
+        var branchCommit1 = new Commit("branch1").WithRevision(_f1, "1.1.2.1");
+        var branchCommit2 = new Commit("branch2").WithRevision(_f1, "1.1.2.2");
         commit.AddBranch(branchCommit1);
 
         commit.ReplaceBranch(branchCommit1, branchCommit2);

@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -16,11 +16,11 @@ namespace CTC.CvsntGitImporter.TestCode;
 [TestClass]
 public class CommitBuilderTest
 {
-    private ILogger m_log;
+    private ILogger _log;
 
     public CommitBuilderTest()
     {
-        m_log = new Mock<ILogger>().Object;
+        _log = new Mock<ILogger>().Object;
     }
 
     [TestMethod]
@@ -34,7 +34,7 @@ public class CommitBuilderTest
                 .WithMessage("file file.txt was initially added on branch branch."),
         };
 
-        var builder = new CommitBuilder(m_log, revisions);
+        var builder = new CommitBuilder(_log, revisions);
         var commits = builder.GetCommits().ToList();
 
         var fileRevision = commits.Single().Single();
@@ -51,7 +51,7 @@ public class CommitBuilderTest
             file.CreateRevision("1.1", "main", isDead: true).WithMessage("created"),
         };
 
-        var builder = new CommitBuilder(m_log, revisions);
+        var builder = new CommitBuilder(_log, revisions);
         var commits = builder.GetCommits().ToList();
 
         var fileRevision = commits.Single().Single();
@@ -69,7 +69,7 @@ public class CommitBuilderTest
             f2.CreateRevision("1.1", "commit1"),
         };
 
-        var builder = new CommitBuilder(m_log, revisions);
+        var builder = new CommitBuilder(_log, revisions);
         var commits = builder.GetCommits().ToList();
 
         Assert.IsTrue(commits.Single().Select(f => f.File.Name).SequenceEqual("file1.txt", "file2.txt"));
@@ -87,7 +87,7 @@ public class CommitBuilderTest
             f2.CreateRevision("1.1", "", now).WithMessage("message"),
         };
 
-        var builder = new CommitBuilder(m_log, revisions);
+        var builder = new CommitBuilder(_log, revisions);
         var commits = builder.GetCommits().ToList();
 
         var commit = commits.Single();
@@ -107,7 +107,7 @@ public class CommitBuilderTest
             f2.CreateRevision("1.1", "", now).WithMessage("message #2"),
         };
 
-        var builder = new CommitBuilder(m_log, revisions);
+        var builder = new CommitBuilder(_log, revisions);
         var commits = builder.GetCommits().ToList();
 
         Assert.AreEqual(commits.Count, 2);
@@ -127,7 +127,7 @@ public class CommitBuilderTest
             f3.CreateRevision("1.1", "", now + TimeSpan.FromMinutes(5)).WithMessage("message"),
         };
 
-        var builder = new CommitBuilder(m_log, revisions);
+        var builder = new CommitBuilder(_log, revisions);
         var commits = builder.GetCommits().ToList();
 
         Assert.AreEqual(commits.Count, 2);

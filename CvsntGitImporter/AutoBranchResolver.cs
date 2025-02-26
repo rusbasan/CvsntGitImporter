@@ -1,7 +1,7 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
- */
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
+*/
 
 using System.Collections.Generic;
 using System.Linq;
@@ -13,21 +13,21 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class AutoBranchResolver : AutoTagResolverBase
 {
-    private readonly ILogger m_log;
+    private readonly ILogger _log;
 
     public AutoBranchResolver(ILogger log, FileCollection allFiles, bool continueOnError, bool noCommitReordering) :
         base(log: log, allFiles: allFiles, branches: true, continueOnError: continueOnError,
             noCommitReordering: noCommitReordering)
     {
-        m_log = log;
+        _log = log;
     }
 
     public override bool Resolve(IEnumerable<string> tags, IEnumerable<Commit> commits)
     {
-        m_log.DoubleRuleOff();
-        m_log.WriteLine("Resolving branches");
+        _log.DoubleRuleOff();
+        _log.WriteLine("Resolving branches");
 
-        using (m_log.Indent())
+        using (_log.Indent())
         {
             return base.Resolve(tags, commits);
         }

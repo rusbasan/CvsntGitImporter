@@ -13,8 +13,8 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class CvsRepositoryCache : ICvsRepository
 {
-    private readonly string m_cacheDir;
-    private readonly ICvsRepository m_repository;
+    private readonly string _cacheDir;
+    private readonly ICvsRepository _repository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CvsRepositoryCache"/> class.
@@ -22,13 +22,13 @@ class CvsRepositoryCache : ICvsRepository
     /// <exception cref="IOException">failed to create the cache directory</exception>
     public CvsRepositoryCache(string cacheDir, ICvsRepository repository)
     {
-        m_cacheDir = cacheDir;
-        m_repository = repository;
+        _cacheDir = cacheDir;
+        _repository = repository;
 
         try
         {
-            if (!Directory.Exists(m_cacheDir))
-                Directory.CreateDirectory(m_cacheDir);
+            if (!Directory.Exists(_cacheDir))
+                Directory.CreateDirectory(_cacheDir);
         }
         catch (UnauthorizedAccessException uae)
         {
@@ -46,7 +46,7 @@ class CvsRepositoryCache : ICvsRepository
         }
         else
         {
-            var contents = m_repository.GetCvsRevision(f);
+            var contents = _repository.GetCvsRevision(f);
             UpdateCache(cachedPath, contents);
             return contents;
         }
@@ -85,6 +85,6 @@ class CvsRepositoryCache : ICvsRepository
     private string GetCachedRevisionPath(FileRevision f)
     {
         var filePath = f.File.Name.Replace('/', '\\');
-        return Path.Combine(m_cacheDir, filePath, f.Revision.ToString());
+        return Path.Combine(_cacheDir, filePath, f.Revision.ToString());
     }
 }

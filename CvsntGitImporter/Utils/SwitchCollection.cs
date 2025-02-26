@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -17,9 +17,9 @@ class SwitchCollection
 {
     #region Private data
 
-    private SwitchesDefBase m_def;
-    private Dictionary<string, SwitchInfo> m_dict = new Dictionary<string, SwitchInfo>();
-    private List<SwitchInfo> m_args = new List<SwitchInfo>();
+    private SwitchesDefBase _def;
+    private Dictionary<string, SwitchInfo> _dict = new Dictionary<string, SwitchInfo>();
+    private List<SwitchInfo> _args = new List<SwitchInfo>();
 
     #endregion
 
@@ -29,7 +29,7 @@ class SwitchCollection
     /// </summary>
     public ReadOnlyCollection<SwitchInfo> Items
     {
-        get { return m_args.AsReadOnly(); }
+        get { return _args.AsReadOnly(); }
     }
 
 
@@ -37,7 +37,7 @@ class SwitchCollection
 
     public SwitchCollection(SwitchesDefBase def)
     {
-        m_def = def;
+        _def = def;
     }
 
     #endregion
@@ -70,20 +70,20 @@ class SwitchCollection
         }
 
         if (valid)
-            m_args.Add(arg);
+            _args.Add(arg);
     }
 
     public bool Contains(string s)
     {
-        return m_dict.ContainsKey(s);
+        return _dict.ContainsKey(s);
     }
 
     public Type GetSwitchType(string s)
     {
-        if (!m_dict.ContainsKey(s))
+        if (!_dict.ContainsKey(s))
             throw new CommandLineArgsException("Unrecognised switch: " + s);
 
-        Type propType = m_dict[s].Type;
+        Type propType = _dict[s].Type;
         if (propType == typeof(string) || propType.Implements<IList<string>>())
             return typeof(string);
         else if (propType == typeof(uint?))
@@ -95,25 +95,25 @@ class SwitchCollection
     public void Set(string s, object value)
     {
         SwitchInfo arg = null;
-        if (!m_dict.TryGetValue(s, out arg))
+        if (!_dict.TryGetValue(s, out arg))
             throw new CommandLineArgsException("Unrecognised switch: " + s);
 
         try
         {
             if (arg.Property.PropertyType.Implements<IList<string>>())
             {
-                IList<string> list = (IList<string>)arg.Property.GetValue(m_def, null);
+                IList<string> list = (IList<string>)arg.Property.GetValue(_def, null);
                 if (list == null)
                 {
                     list = (IList<string>)Activator.CreateInstance(arg.Property.PropertyType);
-                    arg.Property.SetValue(m_def, list, null);
+                    arg.Property.SetValue(_def, list, null);
                 }
 
                 list.Add((string)value);
             }
             else
             {
-                arg.Property.SetValue(m_def, value, null);
+                arg.Property.SetValue(_def, value, null);
             }
         }
         catch (TargetInvocationException tie)
@@ -130,8 +130,8 @@ class SwitchCollection
 
     private void AddSwitch(string s, SwitchInfo arg)
     {
-        if (m_dict.ContainsKey(s))
+        if (_dict.ContainsKey(s))
             throw new ArgumentException("Duplicate switch: " + s);
-        m_dict.Add(s, arg);
+        _dict.Add(s, arg);
     }
 }

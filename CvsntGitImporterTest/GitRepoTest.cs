@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * © 2013-2022 Cambridge Technology Consultants Ltd.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -20,11 +20,11 @@ namespace CTC.CvsntGitImporter.TestCode;
 [TestClass]
 public class GitRepoTest
 {
-    private ILogger m_log;
+    private ILogger _log;
 
     public GitRepoTest()
     {
-        m_log = new Mock<ILogger>().Object;
+        _log = new Mock<ILogger>().Object;
     }
 
 
@@ -33,7 +33,7 @@ public class GitRepoTest
     {
         using (var temp = new TempDir())
         {
-            var git = new GitRepo(m_log, temp.Path);
+            var git = new GitRepo(_log, temp.Path);
             git.Init(Enumerable.Empty<GitConfigOption>());
 
             Assert.IsTrue(Directory.Exists(temp.GetPath("refs")));
@@ -47,7 +47,7 @@ public class GitRepoTest
         using (var temp = new TempDir())
         {
             var gitdir = temp.GetPath(@"dir1\dir2");
-            var git = new GitRepo(m_log, gitdir);
+            var git = new GitRepo(_log, gitdir);
             git.Init(Enumerable.Empty<GitConfigOption>());
 
             Assert.IsTrue(Directory.Exists(gitdir));
@@ -60,7 +60,7 @@ public class GitRepoTest
     {
         using (var temp = new TempDir())
         {
-            var git = new GitRepo(m_log, temp.Path);
+            var git = new GitRepo(_log, temp.Path);
             git.Init(new[] { new GitConfigOption("foo.bar", "blah", add: false) });
 
             var configFile = temp.GetPath("config");
@@ -78,7 +78,7 @@ public class GitRepoTest
     {
         using (var temp = new TempDir())
         {
-            var git = new GitRepo(m_log, temp.Path);
+            var git = new GitRepo(_log, temp.Path);
             git.Init(new[]
             {
                 new GitConfigOption("foo.bar", "blah1", add: true),

@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -15,22 +15,22 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class ExclusionFilter
 {
-    private readonly ILogger m_log;
-    private readonly IConfig m_config;
-    private readonly Renamer m_branchRenamer;
-    private readonly RepositoryState m_headOnlyState;
+    private readonly ILogger _log;
+    private readonly IConfig _config;
+    private readonly Renamer _branchRenamer;
+    private readonly RepositoryState _headOnlyState;
 
     public ExclusionFilter(ILogger log, IConfig config)
     {
-        m_log = log;
-        m_config = config;
-        m_branchRenamer = config.BranchRename;
-        m_headOnlyState = RepositoryState.CreateWithBranchChangesOnly();
+        _log = log;
+        _config = config;
+        _branchRenamer = config.BranchRename;
+        _headOnlyState = RepositoryState.CreateWithBranchChangesOnly();
     }
 
     public RepositoryState HeadOnlyState
     {
-        get { return m_headOnlyState; }
+        get { return _headOnlyState; }
     }
 
     /// <summary>
@@ -41,19 +41,19 @@ class ExclusionFilter
     {
         foreach (var commit in commits)
         {
-            if (commit.All(f => m_config.IncludeFile(f.File.Name)))
+            if (commit.All(f => _config.IncludeFile(f.File.Name)))
             {
                 yield return commit;
             }
             else
             {
-                var replacement = SplitCommit(commit, f => m_config.IncludeFile(f.Name));
+                var replacement = SplitCommit(commit, f => _config.IncludeFile(f.Name));
                 if (replacement != null)
                     yield return replacement;
 
-                var headOnly = SplitCommit(commit, f => m_config.IsHeadOnly(f.Name));
+                var headOnly = SplitCommit(commit, f => _config.IsHeadOnly(f.Name));
                 if (headOnly != null)
-                    m_headOnlyState.Apply(headOnly);
+                    _headOnlyState.Apply(headOnly);
             }
         }
     }
@@ -69,11 +69,11 @@ class ExclusionFilter
 
         if (branches.Any())
         {
-            m_log.DoubleRuleOff();
-            m_log.WriteLine("Creating head-only commits");
+            _log.DoubleRuleOff();
+            _log.WriteLine("Creating head-only commits");
         }
 
-        using (m_log.Indent())
+        using (_log.Indent())
         {
             foreach (var branch in branches)
             {
@@ -92,11 +92,11 @@ class ExclusionFilter
     private void CreateHeadOnlyCommit(string branch, BranchStreamCollection streams, FileCollection allFiles,
         string branchMergeFrom)
     {
-        var headOnlyState = m_headOnlyState[branch];
+        var headOnlyState = _headOnlyState[branch];
         var commitId = String.Format("headonly-{0}", branch);
         var commit = new Commit(commitId);
 
-        var message = String.Format("Adding head-only files to {0}", m_branchRenamer.Process(branch));
+        var message = String.Format("Adding head-only files to {0}", _branchRenamer.Process(branch));
 
         foreach (var file in headOnlyState.LiveFiles.OrderBy(i => i, StringComparer.OrdinalIgnoreCase))
         {
@@ -137,7 +137,7 @@ class ExclusionFilter
 
         if (commit.Any())
         {
-            m_log.WriteLine("Added commit {0}", commitId);
+            _log.WriteLine("Added commit {0}", commitId);
             streams.AppendCommit(commit);
         }
     }

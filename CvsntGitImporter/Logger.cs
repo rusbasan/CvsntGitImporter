@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -15,13 +15,13 @@ namespace CTC.CvsntGitImporter;
 /// </summary>
 class Logger : ILogger, IDisposable
 {
-    private bool m_isDisposed = false;
-    private readonly string m_logDir;
-    private readonly TextWriter m_writer;
+    private bool _isDisposed = false;
+    private readonly string _logDir;
+    private readonly TextWriter _writer;
 
     private const int IndentCount = 2;
-    private string m_currentIndent = "";
-    private readonly string m_singleIndent = new string(' ', IndentCount);
+    private string _currentIndent = "";
+    private readonly string _singleIndent = new string(' ', IndentCount);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Logger"/> class.
@@ -30,16 +30,16 @@ class Logger : ILogger, IDisposable
     /// <exception cref="IOException">there was an error opening the log file</exception>
     public Logger(string directoryName, bool debugEnabled = false)
     {
-        m_logDir = directoryName;
+        _logDir = directoryName;
         DebugEnabled = debugEnabled;
         Directory.CreateDirectory(directoryName);
 
         try
         {
             var filename = GetLogFilePath("import.log");
-            m_writer = new StreamWriter(filename, false, Encoding.UTF8);
+            _writer = new StreamWriter(filename, false, Encoding.UTF8);
 
-            Console.CancelKeyPress += (_, e) => m_writer.Close();
+            Console.CancelKeyPress += (_, e) => _writer.Close();
         }
         catch (System.Security.SecurityException se)
         {
@@ -58,58 +58,58 @@ class Logger : ILogger, IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!m_isDisposed && disposing)
+        if (!_isDisposed && disposing)
         {
-            m_writer.Close();
+            _writer.Close();
         }
 
-        m_isDisposed = true;
+        _isDisposed = true;
     }
 
     public bool DebugEnabled { get; set; }
 
     public IDisposable Indent()
     {
-        m_currentIndent += m_singleIndent;
+        _currentIndent += _singleIndent;
         return new Indenter(this);
     }
 
     private void Outdent()
     {
-        if (m_currentIndent.Length > 0)
-            m_currentIndent = m_currentIndent.Substring(0, m_currentIndent.Length - 2);
+        if (_currentIndent.Length > 0)
+            _currentIndent = _currentIndent.Substring(0, _currentIndent.Length - 2);
     }
 
     public void WriteLine()
     {
-        m_writer.WriteLine();
+        _writer.WriteLine();
     }
 
     public void WriteLine(string line)
     {
-        m_writer.Write(m_currentIndent);
-        m_writer.WriteLine(line);
+        _writer.Write(_currentIndent);
+        _writer.WriteLine(line);
     }
 
     public void WriteLine(string format, params object[] args)
     {
-        m_writer.Write(m_currentIndent);
-        m_writer.WriteLine(format, args);
+        _writer.Write(_currentIndent);
+        _writer.WriteLine(format, args);
     }
 
     public void RuleOff()
     {
-        m_writer.WriteLine("-------------------------------------------------------------------------------");
+        _writer.WriteLine("-------------------------------------------------------------------------------");
     }
 
     public void DoubleRuleOff()
     {
-        m_writer.WriteLine("===============================================================================");
+        _writer.WriteLine("===============================================================================");
     }
 
     public void Flush()
     {
-        m_writer.Flush();
+        _writer.Flush();
     }
 
 
@@ -137,18 +137,18 @@ class Logger : ILogger, IDisposable
 
     private string GetLogFilePath(string filename)
     {
-        return Path.Combine(m_logDir, filename);
+        return Path.Combine(_logDir, filename);
     }
 
 
     private class Indenter : IDisposable
     {
-        private bool m_isDisposed = false;
-        private readonly Logger m_logger;
+        private bool _isDisposed = false;
+        private readonly Logger _logger;
 
         public Indenter(Logger logger)
         {
-            m_logger = logger;
+            _logger = logger;
         }
 
         public void Dispose()
@@ -158,12 +158,12 @@ class Logger : ILogger, IDisposable
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!m_isDisposed && disposing)
+            if (!_isDisposed && disposing)
             {
-                m_logger.Outdent();
+                _logger.Outdent();
             }
 
-            m_isDisposed = true;
+            _isDisposed = true;
         }
     }
 }

@@ -23,27 +23,27 @@ class CvsLogParser
 
     private static readonly char[] FieldDelimiter = new[] { ';' };
 
-    private readonly string m_sandboxPath;
-    private readonly CvsLogReader m_reader;
-    private readonly List<FileInfo> m_files = new List<FileInfo>();
-    private readonly HashSet<string> m_excludedTags = new HashSet<string>();
-    private readonly InclusionMatcher m_branchMatcher;
-    private readonly HashSet<string> m_excludedBranches = new HashSet<string>();
-    private string m_repo;
-    private string m_fullRepoPath;
+    private readonly string _sandboxPath;
+    private readonly CvsLogReader _reader;
+    private readonly List<FileInfo> _files = new List<FileInfo>();
+    private readonly HashSet<string> _excludedTags = new HashSet<string>();
+    private readonly InclusionMatcher _branchMatcher;
+    private readonly HashSet<string> _excludedBranches = new HashSet<string>();
+    private string _repo;
+    private string _fullRepoPath;
 
     /// <summary>
     /// Determines if a commit line should be excluded (due to being advertising, etc.)
     /// </summary>
-    private readonly Func<String, Boolean> m_excludeLine;
+    private readonly Func<String, Boolean> _excludeLine;
 
     private CvsLogParser(string sandboxPath, CvsLogReader reader, InclusionMatcher branchMatcher,
         Func<String, Boolean> excludeLine)
     {
-        m_sandboxPath = sandboxPath;
-        m_reader = reader;
-        m_branchMatcher = branchMatcher;
-        m_excludeLine = excludeLine;
+        _sandboxPath = sandboxPath;
+        _reader = reader;
+        _branchMatcher = branchMatcher;
+        _excludeLine = excludeLine;
     }
 
     public CvsLogParser(string sandboxPath, string logFile, InclusionMatcher branchMatcher,
@@ -63,7 +63,7 @@ class CvsLogParser
     /// </summary>
     public IEnumerable<FileInfo> Files
     {
-        get { return m_files; }
+        get { return _files; }
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ class CvsLogParser
     /// </summary>
     public IEnumerable<string> ExcludedTags
     {
-        get { return m_excludedTags; }
+        get { return _excludedTags; }
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ class CvsLogParser
     /// </summary>
     public IEnumerable<string> ExcludedBranches
     {
-        get { return m_excludedBranches; }
+        get { return _excludedBranches; }
     }
 
     /// <summary>
@@ -92,9 +92,9 @@ class CvsLogParser
         Revision revision = Revision.Empty;
         FileRevision commit = null;
 
-        m_repo = GetCvsRepo();
+        _repo = GetCvsRepo();
 
-        foreach (var line in m_reader)
+        foreach (var line in _reader)
         {
             var  lineProcessed = false;
 
@@ -108,7 +108,7 @@ class CvsLogParser
                         if (line.StartsWith("RCS file: "))
                         {
                             currentFile = new FileInfo(ExtractFileName(line));
-                            m_files.Add(currentFile);
+                            _files.Add(currentFile);
                             state = State.InFileHeader;
                         }
 
@@ -138,10 +138,10 @@ class CvsLogParser
 
                             if (tagRevision.IsBranch)
                             {
-                                if (m_branchMatcher.Match(tagName))
+                                if (_branchMatcher.Match(tagName))
                                     currentFile.AddBranchTag(tagName, tagRevision);
                                 else
-                                    m_excludedBranches.Add(tagName);
+                                    _excludedBranches.Add(tagName);
                             }
                             else
                             {
@@ -181,7 +181,7 @@ class CvsLogParser
                         }
                         else if (!line.StartsWith("branches:  "))
                         {
-                            if (commit != null && m_excludeLine(line) == false)
+                            if (commit != null && _excludeLine(line) == false)
                                 commit.AddMessage(line);
                         }
 
@@ -195,12 +195,12 @@ class CvsLogParser
     {
         try
         {
-            var repositoryFile = Path.Combine(m_sandboxPath, @"CVS\Repository");
+            var repositoryFile = Path.Combine(_sandboxPath, @"CVS\Repository");
             return File.ReadAllText(repositoryFile).Trim() + "/";
         }
         catch (FileNotFoundException)
         {
-            throw new ImportFailedException(String.Format("Unable to find CVS sandbox: {0}", m_sandboxPath));
+            throw new ImportFailedException(String.Format("Unable to find CVS sandbox: {0}", _sandboxPath));
         }
         catch (UnauthorizedAccessException uae)
         {
@@ -220,18 +220,18 @@ class CvsLogParser
 
         var filepath = match.Groups[1].Value;
 
-        if (m_fullRepoPath == null)
+        if (_fullRepoPath == null)
         {
-            var i = filepath.IndexOf(m_repo);
+            var i = filepath.IndexOf(_repo);
             if (i < 0)
                 throw MakeParseException("CVS rlog file does not seem to match the repository");
-            m_fullRepoPath = filepath.Remove(i + m_repo.Length);
+            _fullRepoPath = filepath.Remove(i + _repo.Length);
         }
 
-        if (!filepath.StartsWith(m_fullRepoPath))
+        if (!filepath.StartsWith(_fullRepoPath))
             throw MakeParseException("File path does not seem to match the repository: {0}", filepath);
 
-        return filepath.Substring(m_fullRepoPath.Length);
+        return filepath.Substring(_fullRepoPath.Length);
     }
 
     /// <summary>
@@ -281,7 +281,7 @@ class CvsLogParser
 
     private ParseException MakeParseException(string format, params object[] args)
     {
-        return new ParseException(String.Format("Line {0}: {1}", m_reader.LineNumber, String.Format(format, args)));
+        return new ParseException(String.Format("Line {0}: {1}", _reader.LineNumber, String.Format(format, args)));
     }
 
     private enum State
