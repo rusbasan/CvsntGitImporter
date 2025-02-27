@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -33,7 +32,7 @@ class FileRevision
     /// <summary>
     /// Gets the branch this commit was made on.
     /// </summary>
-    public string Branch
+    public string? Branch
     {
         get { return this.File.GetBranch(this.Revision); }
     }

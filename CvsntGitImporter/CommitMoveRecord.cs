@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace CTC.CvsntGitImporter;
 
@@ -22,7 +21,7 @@ class CommitMoveRecord
     private readonly OneToManyDictionary<Commit, FileInfo> _files =
         new OneToManyDictionary<Commit, FileInfo>(CommitComparer.ById);
 
-    private Commit _finalCommit;
+    private Commit? _finalCommit;
 
     public CommitMoveRecord(string tag, ILogger log)
     {
@@ -30,7 +29,7 @@ class CommitMoveRecord
         _log = log;
     }
 
-    public Commit FinalCommit
+    public Commit? FinalCommit
     {
         get { return _finalCommit; }
         set
@@ -38,7 +37,7 @@ class CommitMoveRecord
             _finalCommit = value;
 
             // if the final commit is in the list of ones to be moved and does not need splitting, then remove it
-            if (value.Count() == _files[value].Count())
+            if (value != null && value.Count() == _files[value].Count())
                 _files.Remove(value);
         }
     }
@@ -50,7 +49,7 @@ class CommitMoveRecord
 
     public override string ToString()
     {
-        return String.Format("{0}: {1}, {2} commits", _tag, _finalCommit.CommitId, _files.Count);
+        return String.Format("{0}: {1}, {2} commits", _tag, _finalCommit?.CommitId, _files.Count);
     }
 
     public void AddCommit(Commit commit, IEnumerable<FileInfo> filesToMove)
@@ -65,7 +64,8 @@ class CommitMoveRecord
 
     public void Apply(IList<Commit> commitStream)
     {
-        int destLocation = commitStream.IndexOf(_finalCommit);
+        var finalCommit = _finalCommit;
+        int destLocation = finalCommit != null ? commitStream.IndexOf(finalCommit) : -1;
         int searchStart = destLocation;
         var commits = _files.Keys.OrderBy(c => c.Index).ToList();
 
@@ -83,7 +83,7 @@ class CommitMoveRecord
                 {
                     // assume already moved
                     _log.WriteLine("Skip moving {0} after {1}", commitToMove.ConciseFormat,
-                        _finalCommit.ConciseFormat);
+                        _finalCommit?.ConciseFormat ?? String.Empty);
                     continue;
                 }
 
@@ -117,7 +117,7 @@ class CommitMoveRecord
                 }
 
                 _log.WriteLine("Move {0}({1}) after {2}({3})", commitToMove.ConciseFormat, location,
-                    _finalCommit.ConciseFormat, destLocation);
+                    _finalCommit?.ConciseFormat ?? String.Empty, destLocation);
                 commitStream.Move(location, destLocation);
                 destLocation--;
             }

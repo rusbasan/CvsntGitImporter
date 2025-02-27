@@ -59,8 +59,7 @@ class Revision : IEquatable<Revision>
     /// <exception cref="ArgumentException">if the revision string is invalid</exception>
     public static Revision Create(string value)
     {
-        Revision r;
-        if (_cache.TryGetValue(value, out r))
+        if (_cache.TryGetValue(value, out var r))
             return r;
 
         r = new Revision(value);
@@ -181,22 +180,22 @@ class Revision : IEquatable<Revision>
             return String.Join(".", _parts);
     }
 
-    public static bool operator ==(Revision a, string b)
+    public static bool operator ==(Revision? a, string? b)
     {
-        return a.ToString() == b;
+        return a?.ToString() == b;
     }
 
-    public static bool operator !=(Revision a, string b)
+    public static bool operator !=(Revision? a, string? b)
     {
-        return a.ToString() != b;
+        return a?.ToString() != b;
     }
 
-    public bool Equals(Revision other)
+    public bool Equals(Revision? other)
     {
         return Object.ReferenceEquals(this, other);
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is string)
             return this.ToString() == (string)obj;

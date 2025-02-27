@@ -94,22 +94,21 @@ class SwitchCollection
 
     public void Set(string s, object value)
     {
-        SwitchInfo arg = null;
-        if (!_dict.TryGetValue(s, out arg))
+        if (!_dict.TryGetValue(s, out var arg))
             throw new CommandLineArgsException("Unrecognised switch: " + s);
 
         try
         {
             if (arg.Property.PropertyType.Implements<IList<string>>())
             {
-                IList<string> list = (IList<string>)arg.Property.GetValue(_def, null);
+                IList<string>? list = (IList<string>?)arg.Property.GetValue(_def, null);
                 if (list == null)
                 {
-                    list = (IList<string>)Activator.CreateInstance(arg.Property.PropertyType);
+                    list = (IList<string>?)Activator.CreateInstance(arg.Property.PropertyType);
                     arg.Property.SetValue(_def, list, null);
                 }
 
-                list.Add((string)value);
+                list?.Add((string)value);
             }
             else
             {

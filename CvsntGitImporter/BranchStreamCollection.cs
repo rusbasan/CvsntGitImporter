@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace CTC.CvsntGitImporter;
 
@@ -18,15 +17,16 @@ class BranchStreamCollection
     private readonly Dictionary<string, Commit> _roots = new Dictionary<string, Commit>();
     private readonly Dictionary<string, Commit> _heads = new Dictionary<string, Commit>();
 
-    private string _lastBranch;
-    private Commit _lastBranchHead;
+    private string? _lastBranch;
+    private Commit? _lastBranchHead;
     private int _nextIndex = 1;
 
     public BranchStreamCollection(IEnumerable<Commit> commits, IDictionary<string, Commit> branchpoints)
     {
         foreach (var commit in commits)
         {
-            if (commit.Branch == "MAIN" || branchpoints.ContainsKey(commit.Branch))
+            var commitBranch = commit.Branch;
+            if (commitBranch != null && (commitBranch == "MAIN" || branchpoints.ContainsKey(commitBranch)))
                 AddCommit(commit);
         }
 
@@ -46,12 +46,11 @@ class BranchStreamCollection
     /// Get the head commit for a branch.
     /// </summary>
     /// <returns>the first commit on the branch, or null if the branch does not exist</returns>
-    public Commit this[string branch]
+    public Commit? this[string branch]
     {
         get
         {
-            Commit root;
-            return _roots.TryGetValue(branch, out root) ? root : null;
+            return _roots.TryGetValue(branch, out var root) ? root : null;
         }
     }
 
@@ -80,10 +79,9 @@ class BranchStreamCollection
     /// Get the head (the last commit) for a branch.
     /// </summary>
     /// <returns>the last Commit for the branch or null if the branch does not exist</returns>
-    public Commit Head(string branch)
+    public Commit? Head(string branch)
     {
-        Commit head;
-        return _heads.TryGetValue(branch, out head) ? head : null;
+        return _heads.TryGetValue(branch, out var head) ? head : null;
     }
 
     /// <summary>
@@ -112,7 +110,7 @@ class BranchStreamCollection
         if (commitToMove.Successor != null)
             commitToMove.Successor.Predecessor = commitToMove.Predecessor;
 
-        for (Commit commit = commitToMove.Successor; commit != null; commit = commit.Successor)
+        for (Commit? commit = commitToMove.Successor; commit != null; commit = commit.Successor)
         {
             // swap Index values so they remain in order
             var tmp = commitToMove.Index;
@@ -122,22 +120,27 @@ class BranchStreamCollection
             if (commit == commitToReplace)
             {
                 var branch = commitToMove.Branch;
-                if (_roots[branch] == commitToMove)
+                if (branch != null && _roots[branch] == commitToMove)
                 {
-                    _roots[branch] = commitToMove.Successor;
+                    var replacement = commitToMove.Successor;
 
-                    if (branch != "MAIN")
+                    if (replacement != null)
                     {
-                        // need to adjust the branchpoint Commit on the parent branch too
-                        var branchpoint = commitToMove.Predecessor;
-                        if (!branchpoint.Branches.Contains(commitToMove))
-                        {
-                            throw new ImportFailedException(String.Format(
-                                "Expected to find commit {0} as a branch from branchpoint {1}",
-                                commitToMove.CommitId, branchpoint.CommitId));
-                        }
+                        _roots[branch] = replacement;
 
-                        branchpoint.ReplaceBranch(commitToMove, commitToMove.Successor);
+                        if (branch != "MAIN")
+                        {
+                            // need to adjust the branchpoint Commit on the parent branch too
+                            var branchpoint = commitToMove.Predecessor;
+                            if (branchpoint?.Branches.Contains(commitToMove) != true)
+                            {
+                                throw new ImportFailedException(String.Format(
+                                    "Expected to find commit {0} as a branch from branchpoint {1}",
+                                    commitToMove.CommitId, branchpoint?.CommitId));
+                            }
+
+                            branchpoint.ReplaceBranch(commitToMove, replacement);
+                        }
                     }
                 }
 
@@ -147,7 +150,7 @@ class BranchStreamCollection
                 commitToMove.Predecessor = commit;
                 commit.Successor = commitToMove;
 
-                if (_heads[branch] == commitToReplace)
+                if (branch != null && _heads[branch] == commitToReplace)
                     _heads[branch] = commitToMove;
 
                 return;
@@ -169,6 +172,9 @@ class BranchStreamCollection
         foreach (var branch in Branches)
         {
             var root = this[branch];
+
+            if (root == null) continue;
+
             if (branch == "MAIN" && root.Predecessor != null)
                 return false;
             else if (branch != "MAIN" && (root.Predecessor == null || !root.Predecessor.Branches.Contains(root)))
@@ -189,19 +195,23 @@ class BranchStreamCollection
 
     private void AddCommit(Commit commit)
     {
-        Commit head;
         var branch = commit.Branch;
+
+        if (branch == null) return;
 
         if (branch == _lastBranch)
         {
             // optimisation - assume last commit was on the same branch
-            head = _lastBranchHead;
-            head.Successor = commit;
-            commit.Predecessor = head;
+            var head = _lastBranchHead;
+            if (head != null)
+            {
+                head.Successor = commit;
+                commit.Predecessor = head;
+            }
         }
         else
         {
-            if (_heads.TryGetValue(branch, out head))
+            if (_heads.TryGetValue(branch, out var head))
             {
                 head.Successor = commit;
                 commit.Predecessor = head;
@@ -225,7 +235,7 @@ class BranchStreamCollection
         {
             foreach (var branchroot in c.Branches)
             {
-                yield return branchroot.Branch;
+                if (branchroot.Branch != null) yield return branchroot.Branch;
                 foreach (var branch in EnumerateBranches(branchroot))
                     yield return branch;
             }

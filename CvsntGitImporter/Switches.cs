@@ -32,7 +32,7 @@ class Switches : SwitchesDefBase
     public bool Help { get; set; }
 
     [SwitchDef(LongSwitch = "--cvs-log", Description = "The CVS log file to use for metadata")]
-    public string CvsLog { get; set; }
+    public string? CvsLog { get; set; }
 
     [SwitchDef(LongSwitch = "--sandbox",
         Description = "The location of the checked out source code from CVS. Required")]
@@ -59,7 +59,7 @@ class Switches : SwitchesDefBase
 
     [SwitchDef(LongSwitch = "--cvs-cache",
         Description = "A directory to cache versions of files in. Useful if the import needs to be run more than once")]
-    public string CvsCache { get; set; }
+    public string? CvsCache { get; set; }
 
     [SwitchDef(LongSwitch = "--cvs-processes",
         Description =
@@ -89,21 +89,21 @@ class Switches : SwitchesDefBase
     public uint? PartialTagThreshold { get; set; }
 
     [SwitchDef(LongSwitch = "--import-marker-tag", Description = "The tag to mark the import with")]
-    public string MarkerTag { get; set; }
+    public string? MarkerTag { get; set; }
 
     [SwitchDef(LongSwitch = "--default-domain", Description = "The default domain name to use for unknown users")]
-    public string DefaultDomain { get; set; }
+    public string? DefaultDomain { get; set; }
 
     [SwitchDef(LongSwitch = "--user-file", Description = "A file specifying user names and e-mail addresses")]
-    public string UserFile { get; set; }
+    public string? UserFile { get; set; }
 
     [SwitchDef(LongSwitch = "--nobody-name",
         Description = "The name to use for the user when creating tags or manufacturer commits")]
-    public string NobodyName { get; set; }
+    public string? NobodyName { get; set; }
 
     [SwitchDef(LongSwitch = "--nobody-email",
         Description = "The e-mail address to use for the user when creating tags or manufacturer commits")]
-    public string NobodyEmail { get; set; }
+    public string? NobodyEmail { get; set; }
 
 
     [SwitchDef(LongSwitch = "--include", ValueDescription = "regex",
@@ -122,12 +122,12 @@ class Switches : SwitchesDefBase
     [SwitchDef(LongSwitch = "--head-only-branch", ValueDescription = "name",
         Description =
             "A branch that should have the head version imported for all files that match the --head-only patterns")]
-    public List<string> HeadOnlyBranches { get; set; }
+    public List<string>? HeadOnlyBranches { get; set; }
 
 
     [SwitchDef(LongSwitch = "--branchpoint-rule", ValueDescription = "rule",
         Description = "A rule to obtain a branchpoint tag for a branch")]
-    public string BranchpointRule { get; set; }
+    public string? BranchpointRule { get; set; }
 
     [SwitchDef(LongSwitch = "--include-tag", ValueDescription = "regex",
         Description = "A pattern to match tags that should be imported")]
@@ -154,7 +154,7 @@ class Switches : SwitchesDefBase
     public ObservableCollection<string> RenameBranch { get; set; }
 
     [SwitchDef(LongSwitch = "--main-branch-name", Description = "The name of the main branch (default: main)")]
-    public String MainBranchName { get; set; }
+    public String? MainBranchName { get; set; }
 
 
     public Switches()
@@ -176,6 +176,10 @@ class Switches : SwitchesDefBase
         IncludeBranch = new ObservableCollection<string>();
         ExcludeBranch = new ObservableCollection<string>();
         RenameBranch = new ObservableCollection<string>();
+
+        // Suppress warnings and let exceptions handle these if they're not set later
+        Sandbox = null!;
+        GitDir = null!;
     }
 
     public override void Verify()
@@ -247,7 +251,7 @@ class Switches : SwitchesDefBase
             {
                 // switch with an argument
                 yield return String.Format("--{0}", match.Groups[1].Value);
-                yield return Unquote(match.Groups[2].Value.Trim());
+                yield return Unquote(match.Groups[2].Value.Trim()) ?? String.Empty;
             }
             else if (!Regex.IsMatch(line, @"\s"))
             {
@@ -261,14 +265,14 @@ class Switches : SwitchesDefBase
         }
     }
 
-    void Config_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    void Config_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         // Parse config files as they're encountered
-        if (e.Action == NotifyCollectionChangedAction.Add)
-            ParseConfigFile(e.NewItems[0] as string);
+        if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems?[0] is string filename)
+            ParseConfigFile(filename);
     }
 
-    static string Unquote(string value)
+    static string? Unquote(string? value)
     {
         if (value == null)
             return null;

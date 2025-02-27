@@ -196,7 +196,7 @@ abstract class SwitchesDefBase
     public string GetAppVersion()
     {
         var a = Assembly.GetEntryAssembly();
-        var attrVersion = a.GetAttribute<AssemblyFileVersionAttribute>();
+        var attrVersion = a?.GetAttribute<AssemblyFileVersionAttribute>();
         return (attrVersion == null) ? String.Empty : attrVersion.Version;
     }
 
@@ -206,7 +206,7 @@ abstract class SwitchesDefBase
     public string GetAppName()
     {
         var a = Assembly.GetEntryAssembly();
-        var attrDesc = a.GetAttribute<AssemblyTitleAttribute>();
+        var attrDesc = a?.GetAttribute<AssemblyTitleAttribute>();
         return (attrDesc == null) ? String.Empty : attrDesc.Title;
     }
 
@@ -216,7 +216,7 @@ abstract class SwitchesDefBase
     public string GetAppDescription()
     {
         var a = Assembly.GetEntryAssembly();
-        var attrDesc = a.GetAttribute<AssemblyDescriptionAttribute>();
+        var attrDesc = a?.GetAttribute<AssemblyDescriptionAttribute>();
         return (attrDesc == null) ? String.Empty : attrDesc.Description;
     }
 
@@ -259,7 +259,7 @@ abstract class SwitchesDefBase
         StringBuilder buf = new StringBuilder();
 
         // work out the value placeholder
-        string valueDesc = null;
+        string? valueDesc = null;
         if (arg.Type == typeof(uint?))
         {
             if (arg.ValueDescription == null)

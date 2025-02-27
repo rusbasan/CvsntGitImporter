@@ -16,7 +16,7 @@ namespace CTC.CvsntGitImporter;
 abstract class AutoTagResolverBase : ITagResolver
 {
     private readonly ILogger _log;
-    private IList<Commit> _allCommits;
+    private IList<Commit> _allCommits = [];
     private readonly FileCollection _allFiles;
     private readonly bool _branches;
     private readonly List<string> _unresolvedTags = new List<string>();
@@ -43,7 +43,7 @@ abstract class AutoTagResolverBase : ITagResolver
     /// <summary>
     /// Gets a lookup that returns the resolved commits for each tag.
     /// </summary>
-    public IDictionary<string, Commit> ResolvedTags { get; private set; }
+    public IDictionary<string, Commit> ResolvedTags { get; private set; } = new Dictionary<String, Commit>();
 
     /// <summary>
     /// Gets a list of any unresolved tags.
@@ -91,7 +91,7 @@ abstract class AutoTagResolverBase : ITagResolver
 
             using (_log.Indent())
             {
-                Commit commit = null;
+                Commit? commit = null;
                 try
                 {
                     commit = ResolveTag(tag);
@@ -118,11 +118,11 @@ abstract class AutoTagResolverBase : ITagResolver
         return _unresolvedTags.Count == 0;
     }
 
-    private Commit ResolveTag(string tag)
+    private Commit? ResolveTag(string tag)
     {
         var state = RepositoryState.CreateWithFullBranchState(_allFiles);
         var moveRecord = new CommitMoveRecord(tag, _log);
-        Commit curCandidate = null;
+        Commit? curCandidate = null;
 
         Queue<string> branchPath;
         var lastCandidate = FindLastCandidate(tag, out branchPath);
@@ -143,13 +143,12 @@ abstract class AutoTagResolverBase : ITagResolver
 
             if (curCandidate != null)
             {
-                List<FileInfo> filesToMove;
-                var cmp = CompareCommitToTag(state, commit, tag, out filesToMove);
+                var cmp = CompareCommitToTag(state, commit, tag, out var filesToMove);
 
                 if (cmp == CommitTagMatch.Ahead)
                 {
                     // the commit has one or more files that are later
-                    moveRecord.AddCommit(commit, filesToMove);
+                    moveRecord.AddCommit(commit, filesToMove ?? []);
                 }
                 else if (cmp == CommitTagMatch.ExactMatch)
                 {
@@ -162,7 +161,7 @@ abstract class AutoTagResolverBase : ITagResolver
         }
 
         // now check added/removed files
-        _log.WriteLine("Candidate: {0}", curCandidate.ConciseFormat);
+        _log.WriteLine("Candidate: {0}", curCandidate?.ConciseFormat ?? String.Empty);
         var candidateBranchState = GetBranchStateForCommit(curCandidate, relevantCommits);
         CheckAddedRemovedFiles(tag, candidateBranchState, relevantCommits, moveRecord, ref curCandidate);
 
@@ -186,30 +185,31 @@ abstract class AutoTagResolverBase : ITagResolver
         return curCandidate;
     }
 
-    private Commit FindLastCandidate(string tag, out Queue<string> branchPath)
+    private Commit? FindLastCandidate(string tag, out Queue<string> branchPath)
     {
         var candidateCommits = from c in _allCommits
             where IsCandidate(tag, c)
             select c;
 
-        Commit lastCandidate = null;
-        string lastBranch = null;
+        Commit? lastCandidate = null;
+        string? lastBranch = null;
         branchPath = new Queue<string>();
 
         foreach (var c in candidateCommits)
         {
             lastCandidate = c;
-            if (c.Branch != lastBranch)
+            var cBranch = c.Branch;
+            if (cBranch != null && cBranch != lastBranch)
             {
-                if (branchPath.Contains(c.Branch))
+                if (branchPath.Contains(cBranch))
                 {
                     throw new TagResolutionException(String.Format(
                         "Tag {0} does not have a clean branch path: {1}->{2} (last commit: {3})",
-                        tag, String.Join("->", branchPath), c.Branch, c.ConciseFormat));
+                        tag, String.Join("->", branchPath), cBranch, c.ConciseFormat));
                 }
 
-                branchPath.Enqueue(c.Branch);
-                lastBranch = c.Branch;
+                branchPath.Enqueue(cBranch);
+                lastBranch = cBranch;
             }
         }
 
@@ -264,9 +264,9 @@ abstract class AutoTagResolverBase : ITagResolver
     }
 
     private CommitTagMatch CompareCommitToTag(RepositoryState state, Commit commit, string tag,
-        out List<FileInfo> filesAhead)
+        out List<FileInfo>? filesAhead)
     {
-        var branchState = state[commit.Branch];
+        var branchState = commit.Branch != null ? state[commit.Branch] : null;
         var result = CommitTagMatch.ExactMatch;
         filesAhead = null;
 
@@ -279,16 +279,16 @@ abstract class AutoTagResolverBase : ITagResolver
             if (tagRevision == Revision.Empty)
                 continue;
 
-            var curStateRevision = branchState[file.Name];
+            var curStateRevision = branchState?[file.Name];
 
             if (curStateRevision == tagRevision)
             {
                 // Precedes() below also returns true if the revisions match, so we block that here so an identical
                 // revision isn't incorrectly marked as behind
             }
-            else if (curStateRevision.Precedes(tagRevision))
+            else if (curStateRevision?.Precedes(tagRevision) == true)
                 result = CommitTagMatch.Behind;
-            else if (tagRevision.Precedes(curStateRevision))
+            else if (curStateRevision != null && tagRevision.Precedes(curStateRevision))
                 AddAndCreateList(ref filesAhead, file);
         }
 
@@ -299,7 +299,7 @@ abstract class AutoTagResolverBase : ITagResolver
             // if no files are ahead in the commit, now check whether the whole tree is at the correct version
             foreach (var file in _allFiles)
             {
-                if (GetRevisionForTag(file, tag) != branchState[file.Name])
+                if (GetRevisionForTag(file, tag) != branchState?[file.Name])
                 {
                     result = CommitTagMatch.Behind;
                     break;
@@ -310,14 +310,14 @@ abstract class AutoTagResolverBase : ITagResolver
         return result;
     }
 
-    private RepositoryBranchState GetBranchStateForCommit(Commit targetCommit, List<Commit> commits)
+    private RepositoryBranchState GetBranchStateForCommit(Commit? targetCommit, List<Commit> commits)
     {
         var state = RepositoryState.CreateWithFullBranchState(_allFiles);
 
         foreach (var commit in commits)
         {
             state.Apply(commit);
-            if (commit == targetCommit)
+            if (commit == targetCommit && targetCommit.Branch != null)
                 return state[targetCommit.Branch];
         }
 
@@ -325,10 +325,10 @@ abstract class AutoTagResolverBase : ITagResolver
     }
 
     private void CheckAddedRemovedFiles(string tag, RepositoryBranchState candidateBranchState, List<Commit> commits,
-        CommitMoveRecord moveRecord, ref Commit candidate)
+        CommitMoveRecord moveRecord, ref Commit? candidate)
     {
-        List<FileInfo> missingFiles = null;
-        List<FileInfo> extraFiles = null;
+        List<FileInfo>? missingFiles = null;
+        List<FileInfo>? extraFiles = null;
         var liveFiles = new HashSet<string>(candidateBranchState.LiveFiles);
 
         foreach (var file in _allFiles)
@@ -340,7 +340,7 @@ abstract class AutoTagResolverBase : ITagResolver
                     AddAndCreateList(ref extraFiles, file);
                     _log.WriteLine("Extra:   {0}", file.Name);
 
-                    if (extraFiles.Count > PartialTagThreshold)
+                    if (extraFiles?.Count > PartialTagThreshold)
                     {
                         if (_continueOnError == false)
                         {
@@ -363,10 +363,10 @@ abstract class AutoTagResolverBase : ITagResolver
             }
         }
 
-        if (missingFiles != null)
+        if (missingFiles != null && candidate != null)
             HandleMissingFiles(tag, commits, missingFiles, moveRecord, ref candidate);
 
-        if (extraFiles != null)
+        if (extraFiles != null && candidate != null)
             HandleExtraFiles(tag, commits, extraFiles, moveRecord, ref candidate);
     }
 
@@ -374,7 +374,7 @@ abstract class AutoTagResolverBase : ITagResolver
         CommitMoveRecord moveRecord, ref Commit candidate)
     {
         int candidateIndex = commits.IndexOfFromEnd(candidate);
-        string tagBranch = candidate.Branch;
+        string? tagBranch = candidate.Branch;
 
         foreach (var file in files)
         {
@@ -388,7 +388,7 @@ abstract class AutoTagResolverBase : ITagResolver
                     c => c.Any(r =>
                         r.File == file &&
                         r.Revision == tagRevision &&
-                        r.File.IsRevisionOnBranch(r.Revision, tagBranch)));
+                        (tagBranch != null && r.File.IsRevisionOnBranch(r.Revision, tagBranch))));
             }
 
             if (addCommitIndex >= 0)
@@ -408,7 +408,7 @@ abstract class AutoTagResolverBase : ITagResolver
                         c => c.Any(r =>
                             r.File == file &&
                             r.IsDead &&
-                            r.File.IsRevisionOnBranch(r.Revision, tagBranch)));
+                            (tagBranch != null && r.File.IsRevisionOnBranch(r.Revision, tagBranch))));
                 }
 
                 if (deleteCommitIndex < 0)
@@ -436,7 +436,7 @@ abstract class AutoTagResolverBase : ITagResolver
         CommitMoveRecord moveRecord, ref Commit candidate)
     {
         int candidateIndex = commits.IndexOfFromEnd(candidate);
-        string tagBranch = candidate.Branch;
+        string? tagBranch = candidate.Branch;
 
         foreach (var file in files)
         {
@@ -450,7 +450,7 @@ abstract class AutoTagResolverBase : ITagResolver
                     c => c.Any(r =>
                         r.File == file &&
                         !r.IsDead &&
-                        r.File.IsRevisionOnBranch(r.Revision, tagBranch)));
+                        tagBranch != null && r.File.IsRevisionOnBranch(r.Revision, tagBranch)));
             }
 
             // search forwards for the file being deleted
@@ -461,7 +461,7 @@ abstract class AutoTagResolverBase : ITagResolver
                     c => c.Any(r =>
                         r.File == file &&
                         r.IsDead &&
-                        r.File.IsRevisionOnBranch(r.Revision, tagBranch)));
+                        tagBranch != null && r.File.IsRevisionOnBranch(r.Revision, tagBranch)));
             }
 
             if (deleteCommitIndex < 0 && addCommitIndex < 0)
@@ -531,7 +531,7 @@ abstract class AutoTagResolverBase : ITagResolver
             commits[i].Index = i;
     }
 
-    private static void AddAndCreateList<T>(ref List<T> list, T item)
+    private static void AddAndCreateList<T>(ref List<T>? list, T item)
     {
         if (list == null)
             list = new List<T>() { item };

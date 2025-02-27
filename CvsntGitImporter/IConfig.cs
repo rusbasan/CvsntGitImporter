@@ -58,7 +58,7 @@ interface IConfig
     /// <summary>
     /// The path to the CVS cache, if specified, otherwise null.
     /// </summary>
-    string CvsCache { get; }
+    string? CvsCache { get; }
 
     /// <summary>
     /// Gets the number of CVS processes to run.
@@ -114,12 +114,12 @@ interface IConfig
     /// <summary>
     /// The tag to mark imports with.
     /// </summary>
-    string MarkerTag { get; }
+    string? MarkerTag { get; }
 
     /// <summary>
     /// A rule to translate branch names into branchpoint tag names if specified, otherwise null.
     /// </summary>
-    RenameRule BranchpointRule { get; }
+    RenameRule? BranchpointRule { get; }
 
     /// <summary>
     /// The matcher for branches.

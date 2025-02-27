@@ -1,12 +1,11 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace CTC.CvsntGitImporter;
 
@@ -78,6 +77,7 @@ static class CommitListExtensions
     /// Find the index of an item working backwards starting from an index.
     /// </summary>
     public static int IndexOfFromEnd<T>(this IList<T> list, T item)
+        where T : notnull
     {
         return IndexOfFromEnd(list, item, list.Count - 1);
     }
@@ -86,6 +86,7 @@ static class CommitListExtensions
     /// Find the index of an item working backwards starting from an index.
     /// </summary>
     public static int IndexOfFromEnd<T>(this IList<T> list, T item, int start)
+        where T : notnull
     {
         for (int i = start; i >= 0; i--)
         {

@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -32,7 +32,7 @@ static class TypeExtensions
     /// <param name="targetType">the type whose closed generic base type is to be found</param>
     /// <param name="baseType">the open generic base type to find</param>
     /// <returns>a closed generic type if found, or null if none was found</returns>
-    public static Type GetClosedGenericBaseClass(this Type targetType, Type baseType)
+    public static Type? GetClosedGenericBaseClass(this Type targetType, Type baseType)
     {
         if (!baseType.IsGenericTypeDefinition)
             throw new ArgumentException("baseType");
@@ -53,7 +53,7 @@ static class TypeExtensions
     /// <summary>
     /// Gets the default value for this type.
     /// </summary>
-    public static object DefaultValue(this Type type)
+    public static object? DefaultValue(this Type type)
     {
         return type.IsValueType ? Activator.CreateInstance(type) : null;
     }

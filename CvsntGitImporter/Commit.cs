@@ -17,11 +17,11 @@ class Commit : IEnumerable<FileRevision>
 {
     private readonly List<FileRevision> _files = new List<FileRevision>();
     private DateTime? _time;
-    private string _message;
-    private string _author;
-    private string _branch;
-    private List<string> _errors;
-    private List<Commit> _branches;
+    private string? _message;
+    private string? _author;
+    private string? _branch;
+    private List<string>? _errors;
+    private List<Commit>? _branches;
 
     /// <summary>
     /// The CVS commit ID.
@@ -44,12 +44,12 @@ class Commit : IEnumerable<FileRevision>
     /// <summary>
     /// The commit's direct predecessor.
     /// </summary>
-    public Commit Predecessor;
+    public Commit? Predecessor;
 
     /// <summary>
     /// The commit's direct predecessor.
     /// </summary>
-    public Commit Successor;
+    public Commit? Successor;
 
     /// <summary>
     /// Gets a list of branches that this commit is a branchpoint for.
@@ -114,7 +114,7 @@ class Commit : IEnumerable<FileRevision>
     /// <summary>
     /// Gets the name of the branch this commit is on.
     /// </summary>
-    public string Branch
+    public string? Branch
     {
         get
         {
@@ -136,7 +136,7 @@ class Commit : IEnumerable<FileRevision>
     /// <summary>
     /// A commit that this commit is a merge from.
     /// </summary>
-    public Commit MergeFrom;
+    public Commit? MergeFrom;
 
     /// <summary>
     /// Gets any errors in this commit after verification.
@@ -173,14 +173,16 @@ class Commit : IEnumerable<FileRevision>
             throw new ArgumentNullException();
 
         int index = -1;
-        if (_branches != null)
-            index = _branches.IndexOf(existing);
+        var branches = _branches;
+
+        if (branches != null)
+            index = branches.IndexOf(existing);
 
         if (index < 0)
             throw new ArgumentException(String.Format("Commit {0} does not exist as a branch from this commit",
                 existing.CommitId));
 
-        _branches[index] = replacement;
+        if (branches != null) branches[index] = replacement;
     }
 
     public bool Verify(bool fussy = false)
@@ -203,7 +205,7 @@ class Commit : IEnumerable<FileRevision>
         }
 
         // check for a commit that merges from multiple branches
-        List<string> mergedBranches = null;
+        List<string>? mergedBranches = null;
         bool first = true;
         foreach (var fr in MergedFiles)
         {
@@ -218,7 +220,7 @@ class Commit : IEnumerable<FileRevision>
             }
             else
             {
-                var overlap = mergedBranches.Intersect(thisFileBranches).ToList();
+                var overlap = (mergedBranches ?? []).Intersect(thisFileBranches).ToList();
                 if (overlap.Any())
                 {
                     mergedBranches = overlap;
@@ -226,7 +228,7 @@ class Commit : IEnumerable<FileRevision>
                 else
                 {
                     var buf = new StringBuilder();
-                    var branches = mergedBranches.Concat(thisFileBranches).Distinct();
+                    var branches = mergedBranches?.Concat(thisFileBranches).Distinct() ?? [];
                     buf.AppendFormat("Multiple branches merged from found: {0}\r\n", FormatBranchList(branches));
                     _files.Aggregate(buf,
                         (sb, f) => sb.AppendFormat("    {0}: {1}\r\n", f, FormatBranchList(PossibleMergedBranches(f))));

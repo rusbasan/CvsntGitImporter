@@ -3,7 +3,7 @@
  * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -16,7 +16,7 @@ namespace CTC.CvsntGitImporter;
 class CvsLogReader : IEnumerable<string>
 {
     private readonly string _filename;
-    private readonly TextReader _reader;
+    private readonly TextReader? _reader;
     private int _lineNumber;
 
     /// <summary>
@@ -42,7 +42,7 @@ class CvsLogReader : IEnumerable<string>
     {
         _lineNumber = 0;
 
-        TextReader reader = _reader;
+        TextReader? reader = _reader;
         bool mustDispose = false;
         if (reader == null)
         {
@@ -52,7 +52,7 @@ class CvsLogReader : IEnumerable<string>
 
         try
         {
-            string line;
+            string? line;
             while ((line = reader.ReadLine()) != null)
             {
                 _lineNumber++;
@@ -71,7 +71,7 @@ class CvsLogReader : IEnumerable<string>
         return ReadLines().GetEnumerator();
     }
 
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+    IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
     }

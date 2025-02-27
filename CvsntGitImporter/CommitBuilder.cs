@@ -45,7 +45,7 @@ class CommitBuilder
                 }
                 else
                 {
-                    Commit commit;
+                    Commit? commit;
                     if (lookup.TryGetValue(revision.CommitId, out commit))
                     {
                         commit.Add(revision);

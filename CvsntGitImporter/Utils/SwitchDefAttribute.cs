@@ -1,6 +1,6 @@
 /*
  * John.Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -20,22 +20,22 @@ class SwitchDefAttribute : Attribute
     /// <summary>
     /// The short switch for this argument, e.g. '-d'. May be null.
     /// </summary>
-    public string ShortSwitch { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
+    public string? ShortSwitch { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
     /// <summary>
     /// The long switch for this argument, e.g. '--debug'. May be null.
     /// </summary>
-    public string LongSwitch { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
+    public string? LongSwitch { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
     /// <summary>
     /// The help description for this switch.
     /// </summary>
-    public string Description { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
+    public string? Description { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
     /// <summary>
     /// A string that is inserted for the value in the help description.
     /// </summary>
-    public string ValueDescription { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
+    public string? ValueDescription { [DebuggerStepThrough] get; [DebuggerStepThrough] set; }
 
     #endregion
 

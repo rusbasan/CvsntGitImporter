@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -29,8 +30,8 @@ class Importer : IDisposable
     private readonly IDictionary<string, Commit> _tags;
     private readonly Cvs _cvs;
     private readonly CommitPlayer _player;
-    private GitRepo _git;
-    private Stream _stream;
+    private GitRepo? _git;
+    private Stream? _stream;
     private bool _brokenPipe;
 
     private bool _isDisposed = false;
@@ -98,7 +99,7 @@ class Importer : IDisposable
             using (_log.Indent())
             {
                 int count = 0;
-                Commit lastMainCommit = null;
+                Commit? lastMainCommit = null;
                 foreach (var commit in _player.Play())
                 {
                     ImportCommit(commit);
@@ -160,13 +161,13 @@ class Importer : IDisposable
     {
         if (_config.GitDir == null)
         {
-            _stream.Close();
+            _stream?.Close();
         }
         else
         {
             try
             {
-                _git.EndImport();
+                _git?.EndImport();
             }
             catch (IOException ioe)
             {
@@ -188,6 +189,8 @@ class Importer : IDisposable
 
     private void ImportCommit(Commit commit)
     {
+        if (commit.Branch == null) return;
+
         var renamedBranch = _config.BranchRename.Process(commit.Branch);
         var author = _userMap.GetUser(commit.Author);
 
@@ -260,7 +263,7 @@ class Importer : IDisposable
         {
             // ignore tags that are on branches that we're not importing
             var commit = kvp.Value;
-            if (_branches[commit.Branch] == null)
+            if (commit.Branch == null ||_branches[commit.Branch] == null)
                 continue;
 
             var tagName = renamer.Process(kvp.Key);
@@ -292,8 +295,8 @@ class Importer : IDisposable
 
     private void WriteLine(byte[] bytes)
     {
-        _stream.Write(bytes, 0, bytes.Length);
-        _stream.Write(_newLine, 0, _newLine.Length);
+        _stream?.Write(bytes, 0, bytes.Length);
+        _stream?.Write(_newLine, 0, _newLine.Length);
     }
 
     private void WriteData(FileContentData data)
@@ -303,8 +306,8 @@ class Importer : IDisposable
 
         WriteLine("data {0}", data.Length);
 
-        _stream.Write(data.Data, 0, (int)data.Length);
-        _stream.Write(_newLine, 0, _newLine.Length);
+        _stream?.Write(data.Data, 0, (int)data.Length);
+        _stream?.Write(_newLine, 0, _newLine.Length);
     }
 
     private byte[] GetBytes(string text)
@@ -385,6 +388,9 @@ class Importer : IDisposable
     /// Creates byte patterns for replacing text, such as normalizing line endings or removing advertising text.
     /// </summary>
     /// <returns>A list of pattern and replacement byte patterns, sorted by order they should be applied.</returns>
+    [MemberNotNull(nameof(_lineEndingReplacements))]
+    [MemberNotNull(nameof(_advertisingReplacements))]
+    [MemberNotNull(nameof(_lineEndingAndAdvertisingReplacements))]
     private void CreateTextReplacements()
     {
         var advertisingLines = _config.AdvertisingLines;

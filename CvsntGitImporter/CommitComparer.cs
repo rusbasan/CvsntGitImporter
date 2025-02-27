@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ abstract class CommitComparer : IEqualityComparer<Commit>
     public static readonly CommitComparer ById = new IdCommitComparer();
 
 
-    public abstract bool Equals(Commit x, Commit y);
+    public abstract bool Equals(Commit? x, Commit? y);
 
     public abstract int GetHashCode(Commit obj);
 
@@ -27,9 +27,9 @@ abstract class CommitComparer : IEqualityComparer<Commit>
     /// </summary>
     private class IdCommitComparer : CommitComparer
     {
-        public override bool Equals(Commit x, Commit y)
+        public override bool Equals(Commit? x, Commit? y)
         {
-            return x.CommitId == y.CommitId;
+            return x?.CommitId == y?.CommitId;
         }
 
         public override int GetHashCode(Commit obj)

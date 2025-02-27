@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -18,11 +18,7 @@ class GitConfigOption
 
     public readonly bool Add;
 
-    public GitConfigOption()
-    {
-    }
-
-    public GitConfigOption(string name, string value, bool add = false) : this()
+    public GitConfigOption(string name, string value, bool add = false)
     {
         Name = name;
         Value = value;

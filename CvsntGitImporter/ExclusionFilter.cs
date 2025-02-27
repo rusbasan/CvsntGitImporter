@@ -78,10 +78,15 @@ class ExclusionFilter
             foreach (var branch in branches)
             {
                 // record where this branch will be merged to
-                if (streams[branch].Predecessor != null)
-                    branchMerges[streams[branch].Predecessor.Branch] = branch;
 
-                string branchMergeFrom;
+                var predecessorBranch = streams[branch]?.Predecessor?.Branch;
+
+                if (predecessorBranch != null)
+                {
+                    branchMerges[predecessorBranch] = branch;
+                }
+
+                string? branchMergeFrom;
                 branchMerges.TryGetValue(branch, out branchMergeFrom);
 
                 CreateHeadOnlyCommit(branch, streams, allFiles, branchMergeFrom);
@@ -90,7 +95,7 @@ class ExclusionFilter
     }
 
     private void CreateHeadOnlyCommit(string branch, BranchStreamCollection streams, FileCollection allFiles,
-        string branchMergeFrom)
+        string? branchMergeFrom)
     {
         var headOnlyState = _headOnlyState[branch];
         var commitId = String.Format("headonly-{0}", branch);
@@ -109,8 +114,8 @@ class ExclusionFilter
         // check for a merge
         if (branchMergeFrom != null)
         {
-            Commit mergeSource = streams.Head(branchMergeFrom);
-            if (mergeSource.CommitId.StartsWith("headonly-"))
+            Commit? mergeSource = streams.Head(branchMergeFrom);
+            if (mergeSource?.CommitId.StartsWith("headonly-") == true)
             {
                 commit.MergeFrom = mergeSource;
 
@@ -142,9 +147,9 @@ class ExclusionFilter
         }
     }
 
-    private Commit SplitCommit(Commit commit, Predicate<FileInfo> filter)
+    private Commit? SplitCommit(Commit commit, Predicate<FileInfo> filter)
     {
-        Commit newCommit = null;
+        Commit? newCommit = null;
 
         foreach (var f in commit)
         {

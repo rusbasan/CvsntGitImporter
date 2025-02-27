@@ -1,6 +1,6 @@
 /*
  * John.Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -65,7 +65,7 @@ static class IEnumerableExtensions
     private static IEnumerable<T> RemoveRepeatsEnumerator<T>(IEnumerable<T> source, IEqualityComparer<T> comparer)
     {
         bool first = true;
-        T lastItem = default(T);
+        T? lastItem = default(T);
 
         foreach (var item in source)
         {

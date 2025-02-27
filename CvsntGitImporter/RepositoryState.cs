@@ -16,10 +16,10 @@ class RepositoryState
     private readonly Dictionary<string, RepositoryBranchState> _branches =
         new Dictionary<string, RepositoryBranchState>();
 
-    private readonly FileCollection _allFiles;
+    private readonly FileCollection? _allFiles;
     private readonly bool _setupInitialBranchState;
 
-    private RepositoryState(FileCollection allFiles, bool setupInitialBranchState)
+    private RepositoryState(FileCollection? allFiles, bool setupInitialBranchState)
     {
         _allFiles = allFiles;
         _setupInitialBranchState = setupInitialBranchState;
@@ -49,8 +49,7 @@ class RepositoryState
     {
         get
         {
-            RepositoryBranchState state;
-            if (_branches.TryGetValue(branch, out state))
+            if (_branches.TryGetValue(branch, out var state))
                 return state;
 
             state = CreateBranchState(branch);
@@ -64,6 +63,8 @@ class RepositoryState
     /// </summary>
     public void Apply(Commit commit)
     {
+        if (commit.Branch == null) return;
+
         var state = this[commit.Branch];
         state.Apply(commit);
 
@@ -88,7 +89,7 @@ class RepositoryState
 
         if (_setupInitialBranchState)
         {
-            foreach (var file in _allFiles)
+            foreach (var file in _allFiles ?? Enumerable.Empty<FileInfo>())
             {
                 var branchpointRevision = file.GetBranchpointForBranch(branch);
                 if (branchpointRevision == Revision.Empty)

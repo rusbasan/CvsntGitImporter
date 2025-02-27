@@ -14,8 +14,8 @@ class ManualBranchResolver : ITagResolver
     private readonly ITagResolver _fallback;
     private readonly ITagResolver _tagResolver;
     private readonly RenameRule _branchpointRule;
-    private Dictionary<string, Commit> _resolvedCommits;
-    private IList<Commit> _commits;
+    private Dictionary<string, Commit>? _resolvedCommits;
+    private IList<Commit>? _commits;
 
     public ManualBranchResolver(ILogger log, ITagResolver fallbackResolver, ITagResolver tagResolver,
         RenameRule branchpointRule)
@@ -28,7 +28,7 @@ class ManualBranchResolver : ITagResolver
 
     public IDictionary<string, Commit> ResolvedTags
     {
-        get { return _resolvedCommits; }
+        get { return _resolvedCommits ?? []; }
     }
 
     public IEnumerable<string> UnresolvedTags
@@ -38,7 +38,7 @@ class ManualBranchResolver : ITagResolver
 
     public IEnumerable<Commit> Commits
     {
-        get { return _commits; }
+        get { return _commits ?? []; }
     }
 
     public bool Resolve(IEnumerable<string> branches, IEnumerable<Commit> commits)
@@ -85,15 +85,14 @@ class ManualBranchResolver : ITagResolver
         }
     }
 
-    private Commit ResolveBranchpoint(string branch, string tag)
+    private Commit? ResolveBranchpoint(string branch, string tag)
     {
-        Commit branchCommit;
-        if (!_tagResolver.ResolvedTags.TryGetValue(tag, out branchCommit))
+        if (!_tagResolver.ResolvedTags.TryGetValue(tag, out var branchCommit))
             return null;
 
         // check for commits to the branch that occur before the tag
-        CommitMoveRecord moveRecord = null;
-        foreach (var c in _commits)
+        CommitMoveRecord? moveRecord = null;
+        foreach (var c in _commits ?? [])
         {
             if (c == branchCommit)
                 break;
@@ -111,7 +110,7 @@ class ManualBranchResolver : ITagResolver
             _log.WriteLine("Some commits on {0} need moving after branchpoint {1}", branch, tag);
             using (_log.Indent())
             {
-                moveRecord.Apply(_commits);
+                moveRecord.Apply(_commits ?? []);
             }
         }
 

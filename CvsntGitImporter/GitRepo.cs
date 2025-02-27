@@ -20,7 +20,7 @@ class GitRepo
     private readonly ILogger _log;
     private readonly string _dir;
     private readonly StringBuilder _stderr = new StringBuilder();
-    private Process _importProcess;
+    private Process? _importProcess;
 
     public GitRepo(ILogger log, string directory)
     {

@@ -1,7 +1,7 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
- */
+  * © 2013-2025 Cambridge Technology Consultants Ltd.
+*/
 
 using System;
 using System.Text;
@@ -38,12 +38,12 @@ class FileContentData
         return Encoding.Default.GetString(Data, 0, (int)Length);
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return Equals(obj as FileContentData);
     }
 
-    public bool Equals(FileContentData other)
+    public bool Equals(FileContentData? other)
     {
         if (other == null)
             return false;

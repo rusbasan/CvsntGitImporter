@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -29,12 +29,12 @@ class SwitchInfo
     /// <summary>
     /// The long form of the switch.
     /// </summary>
-    public string LongSwitch { get; set; }
+    public string? LongSwitch { get; set; }
 
     /// <summary>
     /// The short form of the switch.
     /// </summary>
-    public string ShortSwitch { get; set; }
+    public string? ShortSwitch { get; set; }
 
     /// <summary>
     /// The type of the argument.
@@ -47,12 +47,12 @@ class SwitchInfo
     /// <summary>
     /// Help description.
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     /// Description for the value placeholder in help.
     /// </summary>
-    public string ValueDescription { get; set; }
+    public string? ValueDescription { get; set; }
 
     /// <summary>
     /// Is this switch hidden?

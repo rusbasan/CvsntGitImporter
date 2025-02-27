@@ -29,8 +29,7 @@ class CvsLogParser
     private readonly HashSet<string> _excludedTags = new HashSet<string>();
     private readonly InclusionMatcher _branchMatcher;
     private readonly HashSet<string> _excludedBranches = new HashSet<string>();
-    private string _repo;
-    private string _fullRepoPath;
+    private string? _fullRepoPath;
 
     /// <summary>
     /// Determines if a commit line should be excluded (due to being advertising, etc.)
@@ -88,11 +87,11 @@ class CvsLogParser
     public IEnumerable<FileRevision> Parse()
     {
         var state = State.Start;
-        FileInfo currentFile = null;
+        FileInfo? currentFile = null;
         Revision revision = Revision.Empty;
-        FileRevision commit = null;
+        FileRevision? commit = null;
 
-        _repo = GetCvsRepo();
+        var repo = GetCvsRepo();
 
         foreach (var line in _reader)
         {
@@ -107,7 +106,7 @@ class CvsLogParser
                     case State.Start:
                         if (line.StartsWith("RCS file: "))
                         {
-                            currentFile = new FileInfo(ExtractFileName(line));
+                            currentFile = new FileInfo(ExtractFileName(repo, line));
                             _files.Add(currentFile);
                             state = State.InFileHeader;
                         }
@@ -119,7 +118,11 @@ class CvsLogParser
                         else if (line == "symbolic names:")
                             state = State.InTags;
                         else if (line.StartsWith("keyword substitution:"))
-                            currentFile.KeywordSubstitution = line.Substring(line.IndexOf(':') + 1).Trim();
+                        {
+                            if (currentFile != null)
+                                currentFile.KeywordSubstitution = line.Substring(line.IndexOf(':') + 1).Trim();
+                        }
+
                         break;
                     case State.InTags:
                         if (!line.StartsWith("\t"))
@@ -139,13 +142,13 @@ class CvsLogParser
                             if (tagRevision.IsBranch)
                             {
                                 if (_branchMatcher.Match(tagName))
-                                    currentFile.AddBranchTag(tagName, tagRevision);
+                                    currentFile?.AddBranchTag(tagName, tagRevision);
                                 else
                                     _excludedBranches.Add(tagName);
                             }
                             else
                             {
-                                currentFile.AddTag(tagName, tagRevision);
+                                currentFile?.AddTag(tagName, tagRevision);
                             }
                         }
 
@@ -163,7 +166,7 @@ class CvsLogParser
 
                         break;
                     case State.ExpectCommitInfo:
-                        commit = ParseFields(currentFile, revision, line);
+                        commit = currentFile != null ? ParseFields(currentFile, revision, line) : null;
                         state = State.ExpectCommitMessage;
                         break;
                     case State.ExpectCommitMessage:
@@ -212,7 +215,7 @@ class CvsLogParser
         }
     }
 
-    private string ExtractFileName(string line)
+    private string ExtractFileName(String repo, string line)
     {
         var match = Regex.Match(line, @"^RCS file: (.*),v");
         if (!match.Success)
@@ -222,10 +225,10 @@ class CvsLogParser
 
         if (_fullRepoPath == null)
         {
-            var i = filepath.IndexOf(_repo);
+            var i = filepath.IndexOf(repo);
             if (i < 0)
                 throw MakeParseException("CVS rlog file does not seem to match the repository");
-            _fullRepoPath = filepath.Remove(i + _repo.Length);
+            _fullRepoPath = filepath.Remove(i + repo.Length);
         }
 
         if (!filepath.StartsWith(_fullRepoPath))
@@ -241,11 +244,11 @@ class CvsLogParser
     private FileRevision ParseFields(FileInfo currentFile, Revision revision, string line)
     {
         var fields = line.Split(FieldDelimiter, StringSplitOptions.RemoveEmptyEntries);
-        string author = null;
-        string commitId = null;
-        string dateStr = null;
-        string mergepointStr = null;
-        string state = null;
+        string? author = null;
+        string? commitId = null;
+        string? dateStr = null;
+        string? mergepointStr = null;
+        string? state = null;
 
         foreach (var field in fields)
         {
@@ -265,7 +268,7 @@ class CvsLogParser
             }
         }
 
-        var time = DateTime.ParseExact(dateStr, "yyyy/MM/dd HH:mm:ss", CultureInfo.InvariantCulture,
+        var time = DateTime.ParseExact(dateStr ?? String.Empty, "yyyy/MM/dd HH:mm:ss", CultureInfo.InvariantCulture,
             DateTimeStyles.AssumeLocal);
         var mergepoint = mergepointStr == null ? Revision.Empty : Revision.Create(mergepointStr);
 
@@ -274,7 +277,7 @@ class CvsLogParser
             revision: revision,
             mergepoint: mergepoint,
             time: time,
-            author: author,
+            author: author ?? String.Empty,
             commitId: commitId ?? "",
             isDead: state == "dead");
     }

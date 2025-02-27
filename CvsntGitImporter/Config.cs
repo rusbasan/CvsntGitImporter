@@ -16,9 +16,9 @@ class Config : IConfig
 {
     private readonly Switches _switches;
     private readonly string _debugLogDir;
-    private User _nobody;
-    private UserMap _userMap;
-    private List<GitConfigOption> _gitConfigOptions;
+    private User? _nobody;
+    private UserMap? _userMap;
+    private List<GitConfigOption>? _gitConfigOptions;
     private readonly InclusionMatcher _fileMatcher = new InclusionMatcher(ignoreCase: true);
     private readonly InclusionMatcher _headOnlyMatcher = new InclusionMatcher(ignoreCase: true) { Default = false };
 
@@ -145,7 +145,7 @@ class Config : IConfig
     /// <summary>
     /// The path to the CVS cache, if specified, otherwise null.
     /// </summary>
-    public string CvsCache
+    public string? CvsCache
     {
         get { return _switches.CvsCache; }
     }
@@ -213,18 +213,20 @@ class Config : IConfig
     private User GetNobodyUser()
     {
         var taggerEmail = _switches.NobodyEmail;
+
+        var name = _switches.NobodyName ?? Environment.GetEnvironmentVariable("USERNAME") ?? "nobody";
+        name = name.Trim();
+
         if (taggerEmail == null)
         {
-            var name = _switches.NobodyName ?? Environment.GetEnvironmentVariable("USERNAME") ?? "nobody";
-            name = name.Trim();
-
-            var spaceIndex = name.IndexOf(' ');
+            var emailNamePart = name;
+            var spaceIndex = emailNamePart.IndexOf(' ');
             if (spaceIndex > 0)
-                name = name.Remove(spaceIndex);
-            taggerEmail = String.Format("{0}@{1}", name, DefaultDomain);
+                emailNamePart = emailNamePart.Remove(spaceIndex);
+            taggerEmail = String.Format("{0}@{1}", emailNamePart, DefaultDomain);
         }
 
-        return new User(_switches.NobodyName, taggerEmail);
+        return new User(name, taggerEmail);
     }
 
     private UserMap GetUserMap()
@@ -299,7 +301,7 @@ class Config : IConfig
     /// <summary>
     /// The tag to mark imports with.
     /// </summary>
-    public string MarkerTag
+    public string? MarkerTag
     {
         get
         {
@@ -320,7 +322,7 @@ class Config : IConfig
     /// <summary>
     /// A rule to translate branch names into branchpoint tag names if specified, otherwise null.
     /// </summary>
-    public RenameRule BranchpointRule { get; private set; }
+    public RenameRule? BranchpointRule { get; private set; }
 
     /// <summary>
     /// The matcher for branches.
@@ -349,11 +351,11 @@ class Config : IConfig
 
     #endregion
 
-    private void AddGitConfigOption(string x, bool add)
+    private void AddGitConfigOption(string? x, bool add)
     {
         try
         {
-            var option = GitConfigOption.Parse(x, add);
+            var option = GitConfigOption.Parse(x ?? String.Empty, add);
 
             if (_gitConfigOptions == null)
                 _gitConfigOptions = new List<GitConfigOption>() { option };
@@ -366,8 +368,10 @@ class Config : IConfig
         }
     }
 
-    private void AddIncludeRule(InclusionMatcher matcher, string pattern, bool include)
+    private void AddIncludeRule(InclusionMatcher matcher, string? pattern, bool include)
     {
+        if (pattern == null) return;
+
         try
         {
             if (include)
@@ -381,8 +385,10 @@ class Config : IConfig
         }
     }
 
-    private void AddRenameRule(Renamer renamer, string rule)
+    private void AddRenameRule(Renamer renamer, string? rule)
     {
+        if (rule == null) return;
+
         try
         {
             renamer.AddRule(RenameRule.Parse(rule));
@@ -393,8 +399,8 @@ class Config : IConfig
         }
     }
 
-    private void ObserveCollection(ObservableCollection<string> collection, Action<string> handler)
+    private void ObserveCollection(ObservableCollection<string> collection, Action<string?> handler)
     {
-        collection.CollectionChanged += (_, e) => handler(e.NewItems[0] as string);
+        collection.CollectionChanged += (_, e) => handler(e.NewItems?[0] as string);
     }
 }

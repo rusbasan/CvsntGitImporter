@@ -52,7 +52,7 @@ class ImportProgress
     {
         int windowSize = _windowTimes.Count;
 
-        double msTaken = _windowTimes.Last.Value.TotalMilliseconds - _windowTimes.First.Value.TotalMilliseconds;
+        double msTaken = _windowTimes.Last?.Value.TotalMilliseconds - _windowTimes.First?.Value.TotalMilliseconds ?? 0;
         double msRemaining = (msTaken / windowSize) * (_totalCount - count);
 
         return TimeSpan.FromMilliseconds(msRemaining);

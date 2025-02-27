@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -17,6 +17,7 @@ static class FuncExtensions
     /// Memoize a function.
     /// </summary>
     public static Func<T, R> Memoize<T, R>(this Func<T, R> function)
+        where T : notnull
     {
         return Memoize<T, R>(function, EqualityComparer<T>.Default);
     }
@@ -25,12 +26,12 @@ static class FuncExtensions
     /// Memoize a function with a custom key comparer.
     /// </summary>
     public static Func<T, R> Memoize<T, R>(this Func<T, R> function, IEqualityComparer<T> comparer)
+        where T : notnull
     {
         var lookup = new Dictionary<T, R>(comparer);
         return x =>
         {
-            R result;
-            if (lookup.TryGetValue(x, out result))
+            if (lookup.TryGetValue(x, out var result))
             {
                 return result;
             }

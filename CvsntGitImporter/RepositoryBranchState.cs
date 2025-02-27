@@ -27,8 +27,7 @@ class RepositoryBranchState
     {
         get
         {
-            Revision value;
-            if (_files.TryGetValue(filename, out value))
+            if (_files.TryGetValue(filename, out var value))
                 return value;
             else
                 return Revision.Empty;

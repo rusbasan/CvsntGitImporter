@@ -57,7 +57,7 @@ class CvsRepositoryCache : ICvsRepository
         if (contents.Data.Length > int.MaxValue)
             throw new NotSupportedException("Cannot currently cope with files larger than 2 GB");
 
-        Directory.CreateDirectory(Path.GetDirectoryName(cachedPath));
+        Directory.CreateDirectory(Path.GetDirectoryName(cachedPath) ?? throw new InvalidOperationException());
         var tempFile = cachedPath + ".tmp";
 
         try

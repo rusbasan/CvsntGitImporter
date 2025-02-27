@@ -3,7 +3,6 @@
  * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -39,31 +38,43 @@ class CommitPlayer
     public IEnumerable<Commit> Play()
     {
         foreach (var branch in _streams.Branches)
-            _branchHeads[branch] = _streams[branch];
+        {
+            var branchHead = _streams[branch];
+            if (branchHead != null) _branchHeads[branch] = branchHead;
+        }
 
         // ensure first commit is the first commit from MAIN
         var mainHead = _streams["MAIN"];
-        yield return mainHead;
-        UpdateHead("MAIN", mainHead.Successor);
 
-        Commit nextCommit;
-        while ((nextCommit = GetNextCommit()) != null)
+        if (mainHead != null)
         {
-            // ensure that any branch we merge from is far enough along
-            if (nextCommit.MergeFrom != null)
-            {
-                foreach (var branchCommit in FastForwardBranch(nextCommit.MergeFrom))
-                    yield return branchCommit;
-            }
+            yield return mainHead;
+            UpdateHead("MAIN", mainHead.Successor);
 
-            yield return nextCommit;
-            UpdateHead(nextCommit.Branch, nextCommit.Successor);
+            Commit? nextCommit;
+            while ((nextCommit = GetNextCommit()) != null)
+            {
+                // ensure that any branch we merge from is far enough along
+                if (nextCommit.MergeFrom != null)
+                {
+                    foreach (var branchCommit in FastForwardBranch(nextCommit.MergeFrom))
+                        yield return branchCommit;
+                }
+
+                yield return nextCommit;
+
+                var nextCommitBranch = nextCommit.Branch;
+                if (nextCommitBranch != null) UpdateHead(nextCommitBranch, nextCommit.Successor);
+            }
         }
     }
 
     private IEnumerable<Commit> FastForwardBranch(Commit commit)
     {
         var branch = commit.Branch;
+
+        if (branch == null) yield break;
+
         Commit nextCommit;
         while ((nextCommit = _branchHeads[branch]).Index <= commit.Index)
         {
@@ -79,9 +90,9 @@ class CommitPlayer
         }
     }
 
-    private Commit GetNextCommit()
+    private Commit? GetNextCommit()
     {
-        Commit earliest = null;
+        Commit? earliest = null;
 
         foreach (var c in _branchHeads.Values.Where(c => c != EndMarker))
         {
@@ -92,15 +103,15 @@ class CommitPlayer
         return earliest;
     }
 
-    private void UpdateHead(string branch, Commit commit)
+    private void UpdateHead(string branch, Commit? commit)
     {
         _branchHeads[branch] = commit ?? EndMarker;
     }
 
-    private int CountCommits(Commit root)
+    private int CountCommits(Commit? root)
     {
         int count = 0;
-        for (Commit c = root; c != null; c = c.Successor)
+        for (Commit? c = root; c != null; c = c.Successor)
             count++;
         return count;
     }

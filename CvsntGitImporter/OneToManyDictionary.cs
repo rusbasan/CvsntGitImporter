@@ -14,6 +14,7 @@ namespace CTC.CvsntGitImporter;
 /// <remarks>This implementation differs from the standard dictionary in that it is much more forgiving of keys
 /// that do not exist. For example, the indexer returns an empty list if a value does not exist.</remarks>
 class OneToManyDictionary<TKey, TValue>
+    where TKey : notnull
 {
     private readonly Dictionary<TKey, HashSet<TValue>> _dict;
 
@@ -34,8 +35,7 @@ class OneToManyDictionary<TKey, TValue>
     {
         get
         {
-            HashSet<TValue> values;
-            if (_dict.TryGetValue(key, out values))
+            if (_dict.TryGetValue(key, out var values))
                 return values;
             else
                 return Enumerable.Empty<TValue>();
@@ -64,8 +64,7 @@ class OneToManyDictionary<TKey, TValue>
     /// </summary>
     public void Add(TKey key, TValue value)
     {
-        HashSet<TValue> values;
-        if (_dict.TryGetValue(key, out values))
+        if (_dict.TryGetValue(key, out var values))
             values.Add(value);
         else
             _dict[key] = new HashSet<TValue>() { value };
@@ -76,8 +75,7 @@ class OneToManyDictionary<TKey, TValue>
     /// </summary>
     public void AddRange(TKey key, IEnumerable<TValue> values)
     {
-        HashSet<TValue> existingValues;
-        if (_dict.TryGetValue(key, out existingValues))
+        if (_dict.TryGetValue(key, out var existingValues))
             existingValues.AddRange(values);
         else
             _dict[key] = new HashSet<TValue>(values);

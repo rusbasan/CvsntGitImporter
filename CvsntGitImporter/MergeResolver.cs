@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace CTC.CvsntGitImporter;
 
@@ -56,17 +55,16 @@ class MergeResolver
     /// Process merges to a single branch.
     /// </summary>
     /// <returns>Number of failures</returns>
-    private int ProcessBranch(Commit branchDestRoot)
+    private int ProcessBranch(Commit? branchDestRoot)
     {
         int failures = 0;
         var lastMerges = new Dictionary<string, Commit>();
-        Func<string, Commit> getLastMerge = branchFrom =>
+        Func<string, Commit?> getLastMerge = branchFrom =>
         {
-            Commit result;
-            return lastMerges.TryGetValue(branchFrom, out result) ? result : null;
+            return lastMerges.TryGetValue(branchFrom, out var result) ? result : null;
         };
 
-        for (Commit commitDest = branchDestRoot; commitDest != null; commitDest = commitDest.Successor)
+        for (Commit? commitDest = branchDestRoot; commitDest != null; commitDest = commitDest.Successor)
         {
             if (!commitDest.MergedFiles.Any())
                 continue;
@@ -75,27 +73,27 @@ class MergeResolver
             var commitSource = commitDest.MergedFiles
                 .Select(f => f.File.GetCommit(f.Mergepoint))
                 .Where(c => c != null)
-                .OrderByDescending(c => c.Index)
+                .OrderByDescending(c => c?.Index)
                 .FirstOrDefault();
 
             // ignore excluded branches
             if (commitSource == null)
                 continue;
 
-            var commitBranchRoot = _streams[commitSource.Branch];
+            var commitBranchRoot = commitSource.Branch != null ? _streams[commitSource.Branch] : null ;
             if (commitBranchRoot?.Predecessor == null || commitBranchRoot.Predecessor.Branch != commitDest.Branch)
             {
                 _log.WriteLine(
                     "Warning: ignoring merge to commit {0} - merged commit {1} is on {2} which is not branched off from {3}",
-                    commitDest.CommitId, commitSource.CommitId, commitSource.Branch, commitDest.Branch);
+                    commitDest.CommitId, commitSource.CommitId, commitSource.Branch ?? String.Empty, commitDest.Branch ?? String.Empty);
                 continue;
             }
 
-            var lastMergeSource = getLastMerge(commitSource.Branch);
+            var lastMergeSource = commitSource.Branch != null ? getLastMerge(commitSource.Branch) : null;
             if (lastMergeSource != null && commitSource.Index < lastMergeSource.Index)
             {
                 _log.WriteLine("Merges from {0} to {1} are crossed ({2}->{3})",
-                    commitSource.Branch, commitDest.Branch, commitSource.CommitId, commitDest.CommitId);
+                    commitSource.Branch ?? String.Empty, commitDest.Branch ?? String.Empty, commitSource.CommitId, commitDest.CommitId);
 
                 if (commitSource.Branches.Any())
                 {
@@ -121,7 +119,8 @@ class MergeResolver
             }
             else
             {
-                lastMerges[commitSource.Branch] = commitSource;
+                if (commitSource.Branch != null)
+                    lastMerges[commitSource.Branch] = commitSource;
             }
 
             // fill in the resolved merge

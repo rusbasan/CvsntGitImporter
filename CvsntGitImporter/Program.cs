@@ -14,10 +14,10 @@ namespace CTC.CvsntGitImporter;
 
 class Program
 {
-    private static Config _config;
-    private static Logger _log;
-    private static BranchStreamCollection _streams;
-    private static IDictionary<string, Commit> _resolvedTags;
+    private static Config? _config;
+    private static Logger? _log;
+    private static BranchStreamCollection? _streams;
+    private static IDictionary<string, Commit>? _resolvedTags;
 
     static int Main(string[] args)
     {
@@ -69,8 +69,8 @@ class Program
 
     private static void RunOperation(string name, Action operation)
     {
-        _log.DoubleRuleOff();
-        _log.WriteLine("{0} started at {1}", name, DateTime.Now);
+        _log?.DoubleRuleOff();
+        _log?.WriteLine("{0} started at {1}", name, DateTime.Now);
 
         var stopwatch = new Stopwatch();
         stopwatch.Start();
@@ -82,30 +82,35 @@ class Program
         finally
         {
             stopwatch.Stop();
-            _log.WriteLine("{0} took {1}", name, stopwatch.Elapsed);
-            _log.Flush();
+            _log?.WriteLine("{0} took {1}", name, stopwatch.Elapsed);
+            _log?.Flush();
         }
     }
 
     private static void Analyse()
     {
-        var parser = new CvsLogParser(_config.Sandbox, _config.CvsLogFileName, _config.BranchMatcher,
-            line => _config.RemoveAdvertising && _config.AdvertisingLines.Any(l => l == line));
+        var log = _log;
+        var config = _config;
 
-        var builder = new CommitBuilder(_log, parser.Parse());
-        var exclusionFilter = new ExclusionFilter(_log, _config);
+        if (log == null || config == null) return;
+
+        var parser = new CvsLogParser(config.Sandbox, config.CvsLogFileName, config.BranchMatcher,
+            line => config.RemoveAdvertising && config.AdvertisingLines.Any(l => l == line));
+
+        var builder = new CommitBuilder(log, parser.Parse());
+        var exclusionFilter = new ExclusionFilter(log, config);
 
         IEnumerable<Commit> commits = builder.GetCommits()
             .SplitMultiBranchCommits()
             .FilterCommitsOnExcludedBranches()
             .FilterExcludedFiles(exclusionFilter)
             .AddCommitsToFiles()
-            .Verify(_log)
+            .Verify(log)
             .ToListIfNeeded();
 
         // build lookup of all files
         var allFiles = new FileCollection(parser.Files);
-        var includedFiles = new FileCollection(parser.Files.Where(f => _config.IncludeFile(f.Name)));
+        var includedFiles = new FileCollection(parser.Files.Where(f => config.IncludeFile(f.Name)));
 
         WriteAllCommitsLog(commits);
         WriteExcludedFileLog(parser);
@@ -116,20 +121,20 @@ class Program
         var tagResolver = ResolveTags(commits, includedFiles);
         commits = tagResolver.Commits;
 
-        WriteTagLog("allbranches.log", branchResolver, parser.ExcludedBranches, _config.BranchRename);
-        WriteTagLog("alltags.log", tagResolver, parser.ExcludedTags, _config.TagRename);
+        WriteTagLog("allbranches.log", branchResolver, parser.ExcludedBranches, config.BranchRename);
+        WriteTagLog("alltags.log", tagResolver, parser.ExcludedTags, config.TagRename);
         WriteUserLog("allusers.log", commits);
 
         var streams = commits.SplitBranchStreams(branchResolver.ResolvedTags);
 
         // resolve merges
-        var mergeResolver = new MergeResolver(_log, streams);
+        var mergeResolver = new MergeResolver(log, streams);
         mergeResolver.Resolve();
 
         WriteBranchLogs(streams);
 
         // add any "head-only" files
-        exclusionFilter.CreateHeadOnlyCommits(_config.HeadOnlyBranches, streams, allFiles);
+        exclusionFilter.CreateHeadOnlyCommits(config.HeadOnlyBranches, streams, allFiles);
 
         // store data needed for import
         _streams = streams;
@@ -137,56 +142,61 @@ class Program
 
     private static ITagResolver ResolveBranches(IEnumerable<Commit> commits, FileCollection includedFiles)
     {
+        var log = _log;
+        var config = _config;
+
+        if (log == null || config == null) throw new InvalidOperationException("No logger or config");
+
         ITagResolver branchResolver;
         var autoBranchResolver =
-            new AutoBranchResolver(_log, includedFiles, _config.ContinueOnError, _config.NoCommitReordering)
+            new AutoBranchResolver(log, includedFiles, config.ContinueOnError, config.NoCommitReordering)
             {
-                PartialTagThreshold = _config.PartialTagThreshold
+                PartialTagThreshold = config.PartialTagThreshold
             };
         branchResolver = autoBranchResolver;
 
         // if we're matching branchpoints, resolve those tags first
-        if (_config.BranchpointRule != null)
+        if (config.BranchpointRule != null)
         {
             var tagResolver =
-                new TagResolver(_log, includedFiles, _config.ContinueOnError, _config.NoCommitReordering)
+                new TagResolver(log, includedFiles, config.ContinueOnError, config.NoCommitReordering)
                 {
-                    PartialTagThreshold = _config.PartialTagThreshold
+                    PartialTagThreshold = config.PartialTagThreshold
                 };
 
             var allBranches = includedFiles.SelectMany(f => f.AllBranches).Distinct();
-            var rule = _config.BranchpointRule;
+            var rule = config.BranchpointRule;
             var branchpointTags = allBranches.Where(b => rule.IsMatch(b)).Select(b => rule.Apply(b));
 
             if (!tagResolver.Resolve(branchpointTags, commits))
             {
                 var unresolvedTags = tagResolver.UnresolvedTags.OrderBy(i => i);
-                _log.WriteLine("Unresolved branchpoint tags:");
+                log.WriteLine("Unresolved branchpoint tags:");
 
-                using (_log.Indent())
+                using (log.Indent())
                 {
                     foreach (var tag in unresolvedTags)
-                        _log.WriteLine("{0}", tag);
+                        log.WriteLine("{0}", tag);
                 }
             }
 
             commits = tagResolver.Commits;
-            branchResolver = new ManualBranchResolver(_log, autoBranchResolver, tagResolver, _config.BranchpointRule);
+            branchResolver = new ManualBranchResolver(log, autoBranchResolver, tagResolver, config.BranchpointRule);
         }
 
         // resolve remaining branchpoints
         if (!branchResolver.Resolve(includedFiles.SelectMany(f => f.AllBranches).Distinct(), commits))
         {
             var unresolvedTags = branchResolver.UnresolvedTags.OrderBy(i => i);
-            _log.WriteLine("Unresolved branches:");
+            log.WriteLine("Unresolved branches:");
 
-            using (_log.Indent())
+            using (log.Indent())
             {
                 foreach (var tag in unresolvedTags)
-                    _log.WriteLine("{0}", tag);
+                    log.WriteLine("{0}", tag);
             }
 
-            if (_config.ContinueOnError == false)
+            if (config.ContinueOnError == false)
             {
                 throw new ImportFailedException(String.Format("Unable to resolve all branches to a single commit: {0}",
                     branchResolver.UnresolvedTags.StringJoin(", ")));
@@ -203,26 +213,31 @@ class Program
 
     private static ITagResolver ResolveTags(IEnumerable<Commit> commits, FileCollection includedFiles)
     {
-        var tagResolver = new TagResolver(_log, includedFiles, _config.ContinueOnError, _config.NoCommitReordering)
+        var log = _log;
+        var config = _config;
+
+        if (log == null || config == null) throw new InvalidOperationException("No logger or config");
+
+        var tagResolver = new TagResolver(log, includedFiles, config.ContinueOnError, config.NoCommitReordering)
         {
-            PartialTagThreshold = _config.PartialTagThreshold
+            PartialTagThreshold = config.PartialTagThreshold
         };
 
         // resolve tags
-        var allTags = includedFiles.SelectMany(f => f.AllTags).Where(t => _config.TagMatcher.Match(t));
+        var allTags = includedFiles.SelectMany(f => f.AllTags).Where(t => config.TagMatcher.Match(t));
         if (!tagResolver.Resolve(allTags.Distinct(), commits))
         {
             // ignore branchpoint tags that are unresolved
             var unresolvedTags = tagResolver.UnresolvedTags.OrderBy(i => i);
-            _log.WriteLine("Unresolved tags:");
+            log.WriteLine("Unresolved tags:");
 
-            using (_log.Indent())
+            using (log.Indent())
             {
                 foreach (var tag in unresolvedTags)
-                    _log.WriteLine("{0}", tag);
+                    log.WriteLine("{0}", tag);
             }
 
-            if (_config.ContinueOnError == false)
+            if (config.ContinueOnError == false)
             {
                 throw new ImportFailedException(String.Format("Unable to resolve all tags to a single commit: {0}",
                     unresolvedTags.StringJoin(", ")));
@@ -240,45 +255,62 @@ class Program
 
     private static void Import()
     {
-        // do the import
-        ICvsRepository repository = new CvsRepository(_log, _config.Sandbox);
-        if (_config.CvsCache != null)
-            repository = new CvsRepositoryCache(_config.CvsCache, repository);
+        var log = _log;
+        var config = _config;
+        var streams = _streams;
+        var resolvedTags = _resolvedTags;
 
-        var cvs = new Cvs(repository, _config.CvsProcesses);
-        var importer = new Importer(_log, _config, _config.Users, _streams, _resolvedTags, cvs);
+        if (log == null || config == null || streams == null || resolvedTags == null) return;
+
+        // do the import
+        ICvsRepository repository = new CvsRepository(log, config.Sandbox);
+        if (config.CvsCache != null)
+            repository = new CvsRepositoryCache(config.CvsCache, repository);
+
+        var cvs = new Cvs(repository, config.CvsProcesses);
+        var importer = new Importer(log, config, config.Users, streams, resolvedTags, cvs);
         importer.Import();
     }
 
     private static void Repack()
     {
-        var git = new GitRepo(_log, _config.GitDir);
+        var log = _log;
+        var config = _config;
+
+        if (log == null || config == null) return;
+
+        var git = new GitRepo(log, config.GitDir);
         git.Repack();
     }
 
     private static void WriteExcludedFileLog(CvsLogParser parser)
     {
-        if (_log.DebugEnabled)
+        var log = _log;
+        var config = _config;
+
+        if (log == null || config == null) return;
+
+        if (log.DebugEnabled)
         {
             var files = parser.Files
                 .Select(f => f.Name)
-                .Where(f => !_config.IncludeFile(f))
+                .Where(f => !config.IncludeFile(f))
                 .OrderBy(i => i, StringComparer.OrdinalIgnoreCase);
 
-            _log.WriteDebugFile("excluded_files.log", files);
+            log.WriteDebugFile("excluded_files.log", files);
 
             var headOnly = parser.Files
                 .Select(f => f.Name)
-                .Where(f => _config.IsHeadOnly(f))
+                .Where(f => config.IsHeadOnly(f))
                 .OrderBy(i => i, StringComparer.OrdinalIgnoreCase);
 
-            _log.WriteDebugFile("headonly_files.log", headOnly);
+            log.WriteDebugFile("headonly_files.log", headOnly);
         }
     }
 
     private static void WriteAllCommitsLog(IEnumerable<Commit> commits)
     {
-        if (!_log.DebugEnabled)
+        if (_log?.DebugEnabled != true)
             return;
 
         using (var log = _log.OpenDebugFile("allcommits.log"))
@@ -299,7 +331,7 @@ class Program
     private static void WriteTagLog(string filename, ITagResolver resolver, IEnumerable<string> excluded,
         Renamer renamer)
     {
-        if (_log.DebugEnabled)
+        if (_log?.DebugEnabled == true)
         {
             using (var log = _log.OpenDebugFile(filename))
             {
@@ -331,10 +363,14 @@ class Program
 
     private static void WriteBranchLogs(BranchStreamCollection streams)
     {
+        var log = _log;
+
+        if (log == null) return;
+
         foreach (var branch in streams.Branches)
         {
             var filename = String.Format("commits-{0}.log", branch);
-            using (var writer = _log.OpenDebugFile(filename))
+            using (var writer = log.OpenDebugFile(filename))
             {
                 writer.WriteLine("Branch: {0}", branch);
                 writer.WriteLine();
@@ -347,7 +383,12 @@ class Program
 
     private static void WriteUserLog(string filename, IEnumerable<Commit> commits)
     {
-        if (!_log.DebugEnabled)
+        var log = _log;
+        var config = _config;
+
+        if (log == null || config == null) return;
+
+        if (!log.DebugEnabled)
             return;
 
         var allUsers = commits.Select(c => c.Author)
@@ -355,14 +396,14 @@ class Program
             .OrderBy(i => i, StringComparer.OrdinalIgnoreCase)
             .Select(name =>
             {
-                var user = _config.Users.GetUser(name);
+                var user = config.Users.GetUser(name);
                 if (user.Generated)
                     return name;
                 else
                     return String.Format("{0} ({1})", name, user);
             });
 
-        _log.WriteDebugFile(filename, allUsers);
+        log.WriteDebugFile(filename, allUsers);
     }
 
     private static string PrintPossibleRename(string tag, Renamer renamer)

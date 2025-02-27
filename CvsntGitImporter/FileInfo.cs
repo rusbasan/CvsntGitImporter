@@ -98,7 +98,7 @@ class FileInfo
     /// <summary>
     /// Gets the branch that a revision is on.
     /// </summary>
-    public string GetBranch(Revision revision)
+    public string? GetBranch(Revision revision)
     {
         if (revision.Parts.Count() == 2)
         {
@@ -107,8 +107,7 @@ class FileInfo
         else
         {
             var branchStem = revision.BranchStem;
-            string branchTag;
-            return _branchForRevision.TryGetValue(branchStem, out branchTag) ? branchTag : null;
+            return _branchForRevision.TryGetValue(branchStem, out var branchTag) ? branchTag : null;
         }
     }
 
@@ -129,8 +128,7 @@ class FileInfo
     /// </summary>
     public Revision GetBranchpointForBranch(string branch)
     {
-        Revision branchRevision;
-        if (_revisionForBranch.TryGetValue(branch, out branchRevision))
+        if (_revisionForBranch.TryGetValue(branch, out var branchRevision))
             return branchRevision.GetBranchpoint();
         else
             return Revision.Empty;
@@ -150,8 +148,7 @@ class FileInfo
     /// <returns>the revision that a tag is applied to, or Revision.Empty if the tag does not exist</returns>
     public Revision GetRevisionForTag(string tag)
     {
-        Revision revision;
-        if (_revisionForTag.TryGetValue(tag, out revision))
+        if (_revisionForTag.TryGetValue(tag, out var revision))
             return revision;
         else
             return Revision.Empty;
@@ -165,8 +162,7 @@ class FileInfo
         if (branch == "MAIN")
             return revision.Parts.Count() == 2;
 
-        Revision branchRevision;
-        if (_revisionForBranch.TryGetValue(branch, out branchRevision))
+        if (_revisionForBranch.TryGetValue(branch, out var branchRevision))
             return (revision.Parts.Count() > 2 && branchRevision.BranchStem == revision.BranchStem) ||
                    revision.Precedes(branchRevision);
         else
@@ -193,10 +189,9 @@ class FileInfo
     /// Get a commit for a specific revision.
     /// </summary>
     /// <returns>the commit that created that revision or null if not found</returns>
-    public Commit GetCommit(Revision r)
+    public Commit? GetCommit(Revision r)
     {
-        Commit commit;
-        return _commits.TryGetValue(r, out commit) ? commit : null;
+        return _commits.TryGetValue(r, out var commit) ? commit : null;
     }
 
     public override string ToString()

@@ -1,6 +1,6 @@
 /*
  * John Hall <john.hall@camtechconsultants.com>
- * Copyright (c) Cambridge Technology Consultants Ltd. All rights reserved.
+ * © 2013-2025 Cambridge Technology Consultants Ltd.
  */
 
 using System;
@@ -22,7 +22,7 @@ static class AttributeExtensions
     /// <param name="info">the member to examine</param>
     /// <returns>the attribute instance or null if it was not found</returns>
     /// <exception cref="ArgumentNullException">info is null</exception>
-    public static T GetAttribute<T>(this MemberInfo info) where T : Attribute
+    public static T? GetAttribute<T>(this MemberInfo info) where T : Attribute
     {
         return GetAttribute<T>(info, true);
     }
@@ -35,7 +35,7 @@ static class AttributeExtensions
     /// <param name="inherit">specifies whether to search this member's inheritance chain to find the attribute</param>
     /// <returns>the attribute instance or null if it was not found</returns>
     /// <exception cref="ArgumentNullException">info is null</exception>
-    public static T GetAttribute<T>(this MemberInfo info, bool inherit) where T : Attribute
+    public static T? GetAttribute<T>(this MemberInfo info, bool inherit) where T : Attribute
     {
         return GetAttributes<T>(info, inherit).FirstOrDefault();
     }
@@ -87,7 +87,7 @@ static class AttributeExtensions
     /// <param name="assembly">the assembly to examine</param>
     /// <returns>the attribute instance or null if it was not found</returns>
     /// <exception cref="ArgumentNullException">assembly is null</exception>
-    public static T GetAttribute<T>(this Assembly assembly) where T : Attribute
+    public static T? GetAttribute<T>(this Assembly assembly) where T : Attribute
     {
         if (assembly == null)
             throw new ArgumentNullException("info");

@@ -26,8 +26,7 @@ class UserMap
 
     public User GetUser(string cvsName)
     {
-        User result;
-        if (_map.TryGetValue(cvsName, out result))
+        if (_map.TryGetValue(cvsName, out var result))
             return result;
 
         result = CreateDefaultUser(cvsName);
@@ -77,7 +76,7 @@ class UserMap
         try
         {
             int lineNumber = 0;
-            string line;
+            string? line;
 
             while ((line = reader.ReadLine()) != null)
             {
